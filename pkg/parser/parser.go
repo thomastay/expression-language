@@ -77,19 +77,21 @@ func exprBP(lexer *Lexer, minBP int) (Expr, error) {
 	case TokIdent:
 		lhs = &EValue{val: TIdent(nextVal)}
 	default:
-		return nil, errors.Errorf("Bad token %s", nextVal)
+		return nil, errors.Errorf("Unrecognized token %s %T", nextVal, nextVal)
 	}
 
 Loop:
 	for {
 		var op TokOp
 		switch nextOp := lexer.Peek().(type) {
-		case TokEOF:
-			break Loop
 		case TokOp:
 			op = nextOp
+		case TokEOF:
+			break Loop
+		case TokEndExpr:
+			break Loop
 		default:
-			return nil, errors.Errorf("Bad op token %s", nextOp)
+			return nil, errors.Errorf("Unrecognized token after expr %s, %T", nextOp, nextOp)
 		}
 		// optional postfix op
 		if lp, ok := postFixBP[op]; ok {
@@ -197,17 +199,17 @@ func parseCallWithBase(base Expr, lexer *Lexer) (*Call, error) {
 					}
 					exprList = append(exprList, param)
 					switch op := lexer.Next().(type) {
-					case TokOp:
+					case TokEndExpr:
 						switch op {
 						case ',':
 							continue
 						case ')':
 							break ExprLoop
 						default:
-							return nil, errors.Errorf("Unrecognized op in param list, %s", op)
+							return nil, errors.Errorf("Unrecognized end of expression in param list: %s", op)
 						}
 					default:
-						return nil, errors.Errorf("Unrecognized token in parsing param list, %s", op)
+						return nil, errors.Errorf("Unrecognized token in parsing param list: %s", op)
 					}
 				}
 			}
@@ -248,24 +250,4 @@ var postFixBP = map[TokOp]int{
 	'.': 11,
 	// This is the indexing operator
 	'[': 9,
-}
-
-func isOp(r rune) bool {
-	tr := TokOp(r)
-	_, ok := infixBP[tr]
-	if ok {
-		return true
-	}
-	_, ok = prefixBP[tr]
-	if ok {
-		return true
-	}
-	_, ok = postFixBP[tr]
-	if ok {
-		return true
-	}
-	if r == '(' || r == ')' || r == ']' || r == ':' {
-		return true
-	}
-	return false
 }
