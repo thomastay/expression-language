@@ -22,6 +22,9 @@ func TestValidStrings(t *testing.T) {
 		// Ternary expressions
 		"baz ? 1 : 2",
 		"baz  ?(potato/2) : x*x",
+		// Indexing operator
+		"a[i]",
+		"a[5 * 2 * (4/3)]",
 		// Method calls
 		"foo.bar",
 		"foo.bar(3*3, 2/2*(4+xoo))",

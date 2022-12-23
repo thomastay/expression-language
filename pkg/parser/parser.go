@@ -107,7 +107,7 @@ Loop:
 					return nil, err
 				}
 				switch end := lexer.Next().(type) {
-				case TokOp:
+				case TokEndExpr:
 					if end != ']' {
 						return lhs, errors.New("Unmatched [")
 					}
