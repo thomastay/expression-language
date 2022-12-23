@@ -25,9 +25,13 @@ func TestValidStrings(t *testing.T) {
 		// Indexing operator
 		"a[i]",
 		"a[5 * 2 * (4/3)]",
-		// Method calls
+		// Method calls on base
 		"foo.bar",
 		"foo.bar(3*3, 2/2*(4+xoo))",
+		// Method calls on identifier (not implemented)
+		// "bar(20)",
+		// method calls on integers (disabled for now since the lexer is broken)
+		// "20.to_int",
 	}
 
 	for _, tt := range tests {
