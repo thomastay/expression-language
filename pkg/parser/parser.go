@@ -54,7 +54,7 @@ func exprBP(lexer *Lexer, minBP int) (Expr, error) {
 				return nil, err
 			}
 			switch end := lexer.Next().(type) {
-			case TokOp:
+			case TokEndExpr:
 				if end != ')' {
 					return lhs, errors.New("Unmatched (")
 				}
