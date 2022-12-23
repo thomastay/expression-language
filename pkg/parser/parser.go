@@ -118,16 +118,9 @@ Loop:
 				}
 			case '.':
 				// Call operator with a base
-				switch ident := lexer.Next().(type) {
-				case TokIdent:
-					// TODO parse expression lists. Assume no params
-					lhs = &Call{
-						base:   lhs,
-						method: TIdent(ident),
-						// exprs: nil, // TODO implement!
-					}
-				default:
-					return nil, errors.Errorf("Only identifiers can be used for a method call, found %s", ident)
+				lhs, err = parseCallWithBase(lhs, lexer)
+				if err != nil {
+					return nil, err
 				}
 			default:
 				return nil, errors.Errorf("No other postfix operators %s", op)
@@ -182,6 +175,55 @@ Loop:
 		break
 	}
 	return lhs, nil
+}
+
+func parseCallWithBase(base Expr, lexer *Lexer) (*Call, error) {
+	var expr *Call
+
+	switch ident := lexer.Next().(type) {
+	case TokIdent:
+		// A method call is a base.ident, then followed by possible expression list.
+		var exprList ExprList
+		switch next := lexer.Peek().(type) {
+		case TokOp:
+			if next == '(' {
+				// It is an expression list. Start to parse.
+				lexer.Next()
+			ExprLoop:
+				for {
+					param, err := exprBP(lexer, 0)
+					if err != nil {
+						return nil, err
+					}
+					exprList = append(exprList, param)
+					switch op := lexer.Next().(type) {
+					case TokOp:
+						switch op {
+						case ',':
+							continue
+						case ')':
+							break ExprLoop
+						default:
+							return nil, errors.Errorf("Unrecognized op in param list, %s", op)
+						}
+					default:
+						return nil, errors.Errorf("Unrecognized token in parsing param list, %s", op)
+					}
+				}
+			}
+			// else, fallthrough
+		default:
+			// fallthrough, do nothing here.
+		}
+		expr = &Call{
+			base:   base,
+			method: TIdent(ident),
+			exprs:  exprList,
+		}
+	default:
+		return nil, errors.Errorf("Only identifiers can be used for a method call, found %s", ident)
+	}
+	return expr, nil
 }
 
 type InfixBP struct {

@@ -90,9 +90,9 @@ func (x *ECond) String() string {
 }
 
 type Call struct {
-	base   Expr      // ( @@ "." )?`
-	method TIdent    // @Ident`
-	exprs  *ExprList // ( @@ )?`
+	base   Expr     // ( @@ "." )?`
+	method TIdent   // @Ident`
+	exprs  ExprList // ( @@ )?`
 }
 
 func (x *Call) String() string {
@@ -102,16 +102,14 @@ func (x *Call) String() string {
 	return fmt.Sprintf("%s(%s)", x.method, x.exprs)
 }
 
-type ExprList struct {
-	vals []Expr //`"(" ( @@ ( "," @@ )* )? ")"`
-}
+type ExprList []Expr
 
-func (x *ExprList) String() string {
-	if x == nil {
+func (es ExprList) String() string {
+	if es == nil {
 		return ""
 	}
-	exprs := make([]string, len(x.vals))
-	for i, val := range x.vals {
+	exprs := make([]string, len(es))
+	for i, val := range es {
 		exprs[i] = val.String()
 	}
 	return strings.Join(exprs, ", ")
