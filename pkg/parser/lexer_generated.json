@@ -47,7 +47,19 @@
     },
     {
       "name": "Int",
-      "pattern": "[1-9]\\d*|0x[0-9a-fA-F]+"
+      "pattern": "[1-9][\\d_]*"
+    },
+    {
+      "name": "HexInt",
+      "pattern": "0x[0-9a-fA-F_]+"
+    },
+    {
+      "name": "OctInt",
+      "pattern": "0o[0-7_]+"
+    },
+    {
+      "name": "BinInt",
+      "pattern": "0b[01_]+"
     }
   ],
   "Root": [
@@ -89,7 +101,19 @@
     },
     {
       "name": "Int",
-      "pattern": "[1-9]\\d*|0x[0-9a-fA-F]+"
+      "pattern": "[1-9][\\d_]*"
+    },
+    {
+      "name": "HexInt",
+      "pattern": "0x[0-9a-fA-F_]+"
+    },
+    {
+      "name": "OctInt",
+      "pattern": "0o[0-7_]+"
+    },
+    {
+      "name": "BinInt",
+      "pattern": "0b[01_]+"
     }
   ]
 }

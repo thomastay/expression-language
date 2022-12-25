@@ -24,17 +24,20 @@ type lexerDefinitionImpl struct {}
 
 func (lexerDefinitionImpl) Symbols() map[string]lexer.TokenType {
 	return map[string]lexer.TokenType{
-      "Bool": -15,
-      "DoubleString": -12,
+      "BinInt": -26,
+      "Bool": -18,
+      "DoubleString": -15,
       "DoubleStringEnd": -2,
       "EOF": -1,
-      "EndExpr": -17,
-      "Float": -19,
-      "Ident": -18,
-      "Int": -20,
-      "Op": -16,
-      "SingleString": -13,
-      "whitespace": -14,
+      "EndExpr": -20,
+      "Float": -22,
+      "HexInt": -24,
+      "Ident": -21,
+      "Int": -23,
+      "OctInt": -25,
+      "Op": -19,
+      "SingleString": -16,
+      "whitespace": -17,
 	}
 }
 
@@ -91,61 +94,79 @@ func (l *lexerImpl) Next() (lexer.Token, error) {
 			l.states = l.states[:len(l.states)-1]
 		}
 	case "Expr":if match := matchDoubleString(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -12
+			sym = -15
 			groups = match[:]
 			l.states = append(l.states, lexerState{name: "DoubleString"})
 		} else if match := matchSingleString(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -13
-			groups = match[:]
-		} else if match := matchwhitespace(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -14
-			groups = match[:]
-		} else if match := matchBool(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -15
-			groups = match[:]
-		} else if match := matchOp(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -16
 			groups = match[:]
-		} else if match := matchEndExpr(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchwhitespace(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -17
 			groups = match[:]
-		} else if match := matchIdent(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchBool(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -18
 			groups = match[:]
-		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchOp(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -19
 			groups = match[:]
-		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchEndExpr(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -20
+			groups = match[:]
+		} else if match := matchIdent(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -21
+			groups = match[:]
+		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -22
+			groups = match[:]
+		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -23
+			groups = match[:]
+		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -24
+			groups = match[:]
+		} else if match := matchOctInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -25
+			groups = match[:]
+		} else if match := matchBinInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -26
 			groups = match[:]
 		}
 	case "Root":if match := matchDoubleString(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -12
+			sym = -15
 			groups = match[:]
 			l.states = append(l.states, lexerState{name: "DoubleString"})
 		} else if match := matchSingleString(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -13
-			groups = match[:]
-		} else if match := matchwhitespace(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -14
-			groups = match[:]
-		} else if match := matchBool(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -15
-			groups = match[:]
-		} else if match := matchOp(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -16
 			groups = match[:]
-		} else if match := matchEndExpr(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchwhitespace(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -17
 			groups = match[:]
-		} else if match := matchIdent(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchBool(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -18
 			groups = match[:]
-		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchOp(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -19
 			groups = match[:]
-		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchEndExpr(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -20
+			groups = match[:]
+		} else if match := matchIdent(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -21
+			groups = match[:]
+		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -22
+			groups = match[:]
+		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -23
+			groups = match[:]
+		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -24
+			groups = match[:]
+		} else if match := matchOctInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -25
+			groups = match[:]
+		} else if match := matchBinInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -26
 			groups = match[:]
 		}
 	}
@@ -504,7 +525,7 @@ groups[1] = np
 return
 }
 
-// [1-9][0-9]*|0x[0-9A-Fa-f]+
+// [1-9][0-9_]*
 func matchInt(s string, p int, backrefs []string) (groups [2]int) {
 // [1-9] (CharClass)
 l0 := func(s string, p int) int {
@@ -515,65 +536,152 @@ case rn >= '1' && rn <= '9': return p+1
 }
 return -1
 }
-// [0-9] (CharClass)
+// [0-9_] (CharClass)
 l1 := func(s string, p int) int {
 if len(s) <= p { return -1 }
 rn := s[p]
 switch {
 case rn >= '0' && rn <= '9': return p+1
+case rn == '_': return p+1
 }
 return -1
 }
-// [0-9]* (Star)
+// [0-9_]* (Star)
 l2 := func(s string, p int) int {
 for len(s) > p {
 if np := l1(s, p); np == -1 { return p } else { p = np }
 }
 return p
 }
-// [1-9][0-9]* (Concat)
+// [1-9][0-9_]* (Concat)
 l3 := func(s string, p int) int {
 if p = l0(s, p); p == -1 { return -1 }
 if p = l2(s, p); p == -1 { return -1 }
 return p
 }
+np := l3(s, p)
+if np == -1 {
+  return
+}
+groups[0] = p
+groups[1] = np
+return
+}
+
+// 0x[0-9A-F_a-f]+
+func matchHexInt(s string, p int, backrefs []string) (groups [2]int) {
 // 0x (Literal)
-l4 := func(s string, p int) int {
+l0 := func(s string, p int) int {
 if p+2 <= len(s) && s[p:p+2] == "0x" { return p+2 }
 return -1
 }
-// [0-9A-Fa-f] (CharClass)
-l5 := func(s string, p int) int {
+// [0-9A-F_a-f] (CharClass)
+l1 := func(s string, p int) int {
 if len(s) <= p { return -1 }
 rn := s[p]
 switch {
 case rn >= '0' && rn <= '9': return p+1
 case rn >= 'A' && rn <= 'F': return p+1
+case rn == '_': return p+1
 case rn >= 'a' && rn <= 'f': return p+1
 }
 return -1
 }
-// [0-9A-Fa-f]+ (Plus)
-l6 := func(s string, p int) int {
-if p = l5(s, p); p == -1 { return -1 }
+// [0-9A-F_a-f]+ (Plus)
+l2 := func(s string, p int) int {
+if p = l1(s, p); p == -1 { return -1 }
 for len(s) > p {
-if np := l5(s, p); np == -1 { return p } else { p = np }
+if np := l1(s, p); np == -1 { return p } else { p = np }
 }
 return p
 }
-// 0x[0-9A-Fa-f]+ (Concat)
-l7 := func(s string, p int) int {
-if p = l4(s, p); p == -1 { return -1 }
-if p = l6(s, p); p == -1 { return -1 }
+// 0x[0-9A-F_a-f]+ (Concat)
+l3 := func(s string, p int) int {
+if p = l0(s, p); p == -1 { return -1 }
+if p = l2(s, p); p == -1 { return -1 }
 return p
 }
-// [1-9][0-9]*|0x[0-9A-Fa-f]+ (Alternate)
-l8 := func(s string, p int) int {
-if np := l3(s, p); np != -1 { return np }
-if np := l7(s, p); np != -1 { return np }
+np := l3(s, p)
+if np == -1 {
+  return
+}
+groups[0] = p
+groups[1] = np
+return
+}
+
+// 0o[0-7_]+
+func matchOctInt(s string, p int, backrefs []string) (groups [2]int) {
+// 0o (Literal)
+l0 := func(s string, p int) int {
+if p+2 <= len(s) && s[p:p+2] == "0o" { return p+2 }
 return -1
 }
-np := l8(s, p)
+// [0-7_] (CharClass)
+l1 := func(s string, p int) int {
+if len(s) <= p { return -1 }
+rn := s[p]
+switch {
+case rn >= '0' && rn <= '7': return p+1
+case rn == '_': return p+1
+}
+return -1
+}
+// [0-7_]+ (Plus)
+l2 := func(s string, p int) int {
+if p = l1(s, p); p == -1 { return -1 }
+for len(s) > p {
+if np := l1(s, p); np == -1 { return p } else { p = np }
+}
+return p
+}
+// 0o[0-7_]+ (Concat)
+l3 := func(s string, p int) int {
+if p = l0(s, p); p == -1 { return -1 }
+if p = l2(s, p); p == -1 { return -1 }
+return p
+}
+np := l3(s, p)
+if np == -1 {
+  return
+}
+groups[0] = p
+groups[1] = np
+return
+}
+
+// 0b[0-1_]+
+func matchBinInt(s string, p int, backrefs []string) (groups [2]int) {
+// 0b (Literal)
+l0 := func(s string, p int) int {
+if p+2 <= len(s) && s[p:p+2] == "0b" { return p+2 }
+return -1
+}
+// [0-1_] (CharClass)
+l1 := func(s string, p int) int {
+if len(s) <= p { return -1 }
+rn := s[p]
+switch {
+case rn >= '0' && rn <= '1': return p+1
+case rn == '_': return p+1
+}
+return -1
+}
+// [0-1_]+ (Plus)
+l2 := func(s string, p int) int {
+if p = l1(s, p); p == -1 { return -1 }
+for len(s) > p {
+if np := l1(s, p); np == -1 { return p } else { p = np }
+}
+return p
+}
+// 0b[0-1_]+ (Concat)
+l3 := func(s string, p int) int {
+if p = l0(s, p); p == -1 { return -1 }
+if p = l2(s, p); p == -1 { return -1 }
+return p
+}
+np := l3(s, p)
 if np == -1 {
   return
 }

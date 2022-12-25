@@ -13,10 +13,12 @@ func TestValidStrings(t *testing.T) {
 		"1.1",
 		"1.1e10",
 		// Ints
-		"1",      // base 10
-		"0x10",   // hex
-		"0xABCD", // hex
-		// "0o30", // octal (not implemented)
+		"1",           // base 10
+		"100_000_000", // base 10
+		"0x10",        // hex
+		"0xABCd",      // hex
+		"0o30",        // octal
+		"0b0011_0100", // binary
 		// Bools
 		"true",
 		"false",
