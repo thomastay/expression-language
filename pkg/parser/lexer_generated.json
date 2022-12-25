@@ -26,6 +26,10 @@
       "pattern": "\\s+"
     },
     {
+      "name": "Bool",
+      "pattern": "true|false"
+    },
+    {
       "name": "Op",
       "pattern": "(and|not|or|\\+=|\\-=|\\*=|\\/=|:|\\-|\\+|\\*|\\/|\\(|\\?|\\.|\\[)"
     },
@@ -62,6 +66,10 @@
     {
       "name": "whitespace",
       "pattern": "\\s+"
+    },
+    {
+      "name": "Bool",
+      "pattern": "true|false"
     },
     {
       "name": "Op",

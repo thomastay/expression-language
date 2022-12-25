@@ -48,6 +48,7 @@ var GenLexerDefinition = lexer.MustStateful(lexer.Rules{
 		{"DoubleString", `"`, lexer.Push("DoubleString")},
 		{"SingleString", `'[^\']*'`, nil},
 		{`whitespace`, `\s+`, nil},
+		{`Bool`, "true|false", nil},
 		{`Op`, operatorString, nil},
 		{`EndExpr`, endExprString, nil},
 		{"Ident", `[a-zA-Z]\w*`, nil},

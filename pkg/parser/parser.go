@@ -69,6 +69,8 @@ func parseExpr(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 		fallthrough
 	case TokFloat:
 		fallthrough
+	case TokBool:
+		fallthrough
 	case TokSingleString:
 		lex.Next()
 		lhs = &EValue{val: firstVal}
@@ -340,6 +342,7 @@ var postFixBP = map[string]int{
 
 var TokOp = Lexer.Symbols()["Op"]
 var TokInt = Lexer.Symbols()["Int"]
+var TokBool = Lexer.Symbols()["Bool"]
 var TokFloat = Lexer.Symbols()["Float"]
 var TokSingleString = Lexer.Symbols()["SingleString"]
 var TokIdent = Lexer.Symbols()["Ident"]
