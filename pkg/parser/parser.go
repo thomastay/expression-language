@@ -136,41 +136,9 @@ Loop:
 			}
 			// Skip the operator token
 			lex.Next()
-			if op.Value == "?" {
-				// special case ternaries
-				inner, err := exprBP(lex, 0)
-				if err != nil {
-					return nil, err
-				}
-				end := lex.Peek()
-				switch end.Type {
-				case TokOp:
-					if end.Value != ":" {
-						return lhs, errors.New("Unmatched ?")
-					}
-				default:
-					return lhs, errors.New("Unmatched ?")
-				}
-				lex.Next()
-				rhs, err := exprBP(lex, rp)
-				if err != nil {
-					return nil, err
-				}
-				lhs = &ECond{
-					cond:   lhs,
-					first:  inner,
-					second: rhs,
-				}
-			} else {
-				rhs, err := exprBP(lex, rp)
-				if err != nil {
-					return nil, err
-				}
-				lhs = &EBinOp{
-					op:    op,
-					left:  lhs,
-					right: rhs,
-				}
+			lhs, err = parseInfix(lhs, lex, op, rp)
+			if err != nil {
+				return lhs, err
 			}
 			continue
 		}
@@ -210,6 +178,46 @@ func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token) (Expr, err
 		}
 	default:
 		return nil, errors.Errorf("No other postfix operators %s", op)
+	}
+	return lhs, nil
+}
+
+func parseInfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, rp int) (Expr, error) {
+	if op.Value == "?" {
+		// special case ternaries
+		inner, err := exprBP(lex, 0)
+		if err != nil {
+			return nil, err
+		}
+		end := lex.Peek()
+		switch end.Type {
+		case TokOp:
+			if end.Value != ":" {
+				return lhs, errors.New("Unmatched ?")
+			}
+		default:
+			return lhs, errors.New("Unmatched ?")
+		}
+		lex.Next()
+		rhs, err := exprBP(lex, rp)
+		if err != nil {
+			return nil, err
+		}
+		lhs = &ECond{
+			cond:   lhs,
+			first:  inner,
+			second: rhs,
+		}
+	} else {
+		rhs, err := exprBP(lex, rp)
+		if err != nil {
+			return nil, err
+		}
+		lhs = &EBinOp{
+			op:    op,
+			left:  lhs,
+			right: rhs,
+		}
 	}
 	return lhs, nil
 }
