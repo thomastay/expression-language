@@ -17,7 +17,7 @@ EList : E ',' EList
  
 V : Ident | Int | Float | KStr | true | false
 
-KArr 	: [ VList ]
+KArr  : [ VList ]
 VList : V ',' VList
       | V
 
