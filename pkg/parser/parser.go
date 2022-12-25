@@ -69,6 +69,9 @@ func parseExpr(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 	case TokInt:
 		lex.Next()
 		lhs = &EValue{val: firstVal}
+	case TokFloat:
+		lex.Next()
+		lhs = &EValue{val: firstVal}
 	default:
 		return nil, errors.Errorf("Unrecognized token %s %d", firstVal, firstVal.Type)
 	}
@@ -337,5 +340,6 @@ var postFixBP = map[string]int{
 
 var TokOp = Lexer.Symbols()["Op"]
 var TokInt = Lexer.Symbols()["Int"]
+var TokFloat = Lexer.Symbols()["Float"]
 var TokIdent = Lexer.Symbols()["Ident"]
 var TokEndExpr = Lexer.Symbols()["EndExpr"]

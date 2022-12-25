@@ -34,6 +34,10 @@
       "pattern": "[a-zA-Z]\\w*"
     },
     {
+      "name": "Float",
+      "pattern": "\\d*\\.\\d+"
+    },
+    {
       "name": "Int",
       "pattern": "[1-9]\\d*"
     }
@@ -62,6 +66,10 @@
     {
       "name": "Ident",
       "pattern": "[a-zA-Z]\\w*"
+    },
+    {
+      "name": "Float",
+      "pattern": "\\d*\\.\\d+"
     },
     {
       "name": "Int",

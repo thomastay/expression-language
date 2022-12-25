@@ -10,8 +10,8 @@ import (
 func TestValidStrings(t *testing.T) {
 	var tests = []string{
 		// Floats
-		// "1.1", (not implemented)
-		// "1.1e10", (not implemented)
+		"1.1",
+		// "1.1e10",
 		// Ints
 		"1", // base 10
 		// "0x10", // hex (not implemented)
