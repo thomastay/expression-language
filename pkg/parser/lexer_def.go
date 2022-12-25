@@ -39,9 +39,12 @@ var operatorString = fmt.Sprintf("(%s)", strings.Join(operators[:], "|"))
 var endExprString = fmt.Sprintf("(%s)", strings.Join(endExpr[:], "|"))
 
 var GenLexerDefinition = lexer.MustStateful(lexer.Rules{
+	"Root": {
+		lexer.Include("Expr"),
+	},
 	"Expr": {
 		{"DoubleString", `"`, lexer.Push("DoubleString")},
-		{`Whitespace`, `\s+`, nil},
+		{`whitespace`, `\s+`, nil},
 		{`Op`, operatorString, nil},
 		{`EndExpr`, endExprString, nil},
 		{"Ident", `\w+`, nil},
