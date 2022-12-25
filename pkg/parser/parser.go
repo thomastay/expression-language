@@ -59,37 +59,9 @@ func exprBP(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 	case TokEndExpr:
 		return nil, nil
 	case TokOp:
-		if nextVal.Value == "(" {
-			// Handle parenthesis
-			lex.Next()
-			lhs, err = exprBP(lex, 0)
-			if err != nil {
-				return nil, err
-			}
-			end := lex.Next()
-			switch end.Type {
-			case TokEndExpr:
-				if end.Value != ")" {
-					return lhs, errors.New("Unmatched (")
-				}
-			default:
-				return lhs, errors.New("Unmatched (")
-			}
-		} else {
-			// general operator
-			if rp, ok := prefixBP[nextVal.Value]; ok {
-				lex.Next()
-				rhs, err := exprBP(lex, rp)
-				if err != nil {
-					return nil, err
-				}
-				lhs = &EUnOp{
-					op:  nextVal,
-					val: rhs,
-				}
-			} else {
-				return lhs, errors.Errorf("Unrecognized prefix operator %s", nextVal.Value)
-			}
+		lhs, err = parsePrefix(lex, nextVal)
+		if err != nil {
+			return lhs, err
 		}
 	case TokIdent:
 		lex.Next()
@@ -145,6 +117,44 @@ Loop:
 		break
 	}
 	return lhs, nil
+}
+
+func parsePrefix(lex *lexer.PeekingLexer, op *lexer.Token) (Expr, error) {
+	var lhs Expr
+	var err error
+	if op.Value == "(" {
+		// Handle parenthesis
+		lex.Next()
+		lhs, err = exprBP(lex, 0)
+		if err != nil {
+			return nil, err
+		}
+		end := lex.Next()
+		switch end.Type {
+		case TokEndExpr:
+			if end.Value != ")" {
+				return lhs, errors.New("Unmatched (")
+			}
+		default:
+			return lhs, errors.New("Unmatched (")
+		}
+	} else {
+		// general operator
+		if rp, ok := prefixBP[op.Value]; ok {
+			lex.Next()
+			rhs, err := exprBP(lex, rp)
+			if err != nil {
+				return nil, err
+			}
+			lhs = &EUnOp{
+				op:  op,
+				val: rhs,
+			}
+		} else {
+			return lhs, errors.Errorf("Unrecognized prefix operator %s", op.Value)
+		}
+	}
+	return lhs, err
 }
 
 func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token) (Expr, error) {
