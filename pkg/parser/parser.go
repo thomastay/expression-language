@@ -23,7 +23,7 @@ func ParseString(s string) (Expr, error) {
 	if err != nil {
 		return nil, err
 	}
-	sexpr, err := exprBP(peekLexer, 0)
+	sexpr, err := parseExpr(peekLexer, 0)
 	if err != nil {
 		errWithTrace, ok := errors.Cause(err).(stackTracer)
 		if !ok {
@@ -51,7 +51,7 @@ func ParseString(s string) (Expr, error) {
 }
 
 // Parsing
-func exprBP(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
+func parseExpr(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 	var lhs Expr
 	var err error
 	firstVal := lex.Peek()
@@ -125,7 +125,7 @@ func parsePrefix(lex *lexer.PeekingLexer, op *lexer.Token) (Expr, error) {
 	if op.Value == "(" {
 		// Handle parenthesis
 		lex.Next()
-		lhs, err = exprBP(lex, 0)
+		lhs, err = parseExpr(lex, 0)
 		if err != nil {
 			return nil, err
 		}
@@ -142,7 +142,7 @@ func parsePrefix(lex *lexer.PeekingLexer, op *lexer.Token) (Expr, error) {
 		// general operator
 		if rp, ok := prefixBP[op.Value]; ok {
 			lex.Next()
-			rhs, err := exprBP(lex, rp)
+			rhs, err := parseExpr(lex, rp)
 			if err != nil {
 				return nil, err
 			}
@@ -161,7 +161,7 @@ func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, lhsIdent *
 	switch op.Value {
 	case "[":
 		// Array indexing
-		inner, err := exprBP(lex, 0)
+		inner, err := parseExpr(lex, 0)
 		if err != nil {
 			return nil, err
 		}
@@ -206,7 +206,7 @@ func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, lhsIdent *
 func parseInfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, rp int) (Expr, error) {
 	if op.Value == "?" {
 		// special case ternaries
-		inner, err := exprBP(lex, 0)
+		inner, err := parseExpr(lex, 0)
 		if err != nil {
 			return nil, err
 		}
@@ -220,7 +220,7 @@ func parseInfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, rp int) (Exp
 			return lhs, errors.New("Unmatched ?")
 		}
 		lex.Next()
-		rhs, err := exprBP(lex, rp)
+		rhs, err := parseExpr(lex, rp)
 		if err != nil {
 			return nil, err
 		}
@@ -230,7 +230,7 @@ func parseInfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, rp int) (Exp
 			second: rhs,
 		}
 	} else {
-		rhs, err := exprBP(lex, rp)
+		rhs, err := parseExpr(lex, rp)
 		if err != nil {
 			return nil, err
 		}
@@ -282,7 +282,7 @@ func parseCallWithBase(base Expr, lex *lexer.PeekingLexer) (*Call, error) {
 func parseExprList(lex *lexer.PeekingLexer) (ExprList, error) {
 	var exprList ExprList
 	for {
-		param, err := exprBP(lex, 0)
+		param, err := parseExpr(lex, 0)
 		if err != nil {
 			return nil, err
 		}
