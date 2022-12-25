@@ -2,8 +2,9 @@ package parser
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
+
+	"github.com/alecthomas/participle/v2/lexer"
 )
 
 // # Grammmar
@@ -44,7 +45,7 @@ func (x *Call) isExpr()       {}
 func (x *ValueList) isExpr()  {}
 
 type EValue struct {
-	val Value
+	val *lexer.Token
 }
 
 func (x *EValue) String() string {
@@ -53,21 +54,21 @@ func (x *EValue) String() string {
 
 type EBinOp struct {
 	left  Expr
-	op    TokOp
+	op    *lexer.Token
 	right Expr
 }
 
 func (x *EBinOp) String() string {
-	return fmt.Sprintf("(%s %s %s)", x.left, string(x.op), x.right)
+	return fmt.Sprintf("(%s %s %s)", x.left, string(x.op.Value), x.right)
 }
 
 type EUnOp struct {
-	op  TokOp
+	op  *lexer.Token
 	val Expr
 }
 
 func (x *EUnOp) String() string {
-	return fmt.Sprintf("(%s %s)", string(x.op), x.val)
+	return fmt.Sprintf("(%s %s)", string(x.op.Value), x.val)
 }
 
 type EIdxAccess struct {
@@ -90,9 +91,9 @@ func (x *ECond) String() string {
 }
 
 type Call struct {
-	base   Expr     // ( @@ "." )?`
-	method TIdent   // @Ident`
-	exprs  ExprList // ( @@ )?`
+	base   Expr         // ( @@ "." )?`
+	method *lexer.Token // @Ident`
+	exprs  ExprList     // ( @@ )?`
 }
 
 func (x *Call) String() string {
@@ -116,7 +117,7 @@ func (es ExprList) String() string {
 }
 
 type ValueList struct {
-	vals []Value // "[" ( @@ ( "," @@ )* )? "]"`
+	vals []*lexer.Token // "[" ( @@ ( "," @@ )* )? "]"`
 }
 
 func (x *ValueList) String() string {
@@ -128,31 +129,4 @@ func (x *ValueList) String() string {
 		exprs[i] = val.String()
 	}
 	return strings.Join(exprs, ", ")
-}
-
-// Value Union Type
-// TODO unify with lexer
-type Value interface {
-	String() string
-}
-type TIdent string
-type TInt int64
-type TFloat float64
-type TBool bool
-type TKStr string
-
-func (x TIdent) String() string {
-	return string(x)
-}
-func (x TInt) String() string {
-	return strconv.FormatInt(int64(x), 10)
-}
-func (x TFloat) String() string {
-	return strconv.FormatFloat(float64(x), 'e', -1, 64)
-}
-func (x TBool) String() string {
-	return string(strconv.FormatBool(bool(x)))
-}
-func (x TKStr) String() string {
-	return string(x)
 }

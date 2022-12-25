@@ -1,0 +1,175 @@
+{
+  "CaseInsensitiveTest": [
+    {
+      "name": "ABCWord",
+      "pattern": "[aA][bB][cC]"
+    },
+    {
+      "name": "CIKeyword",
+      "pattern": "(?i)(SELECT|from|WHERE|LIKE)"
+    },
+    {
+      "name": "Ident",
+      "pattern": "\\w+"
+    },
+    {
+      "name": "Whitespace",
+      "pattern": "\\s+"
+    }
+  ],
+  "Expr": [
+    {
+      "name": "ExprString",
+      "pattern": "\"",
+      "action": {
+        "kind": "push",
+        "state": "ExprString"
+      }
+    },
+    {
+      "name": "Whitespace",
+      "pattern": "\\s+"
+    },
+    {
+      "name": "ExprOper",
+      "pattern": "[-+/*%]"
+    },
+    {
+      "name": "Ident",
+      "pattern": "\\w+",
+      "action": {
+        "kind": "push",
+        "state": "ExprReference"
+      }
+    },
+    {
+      "name": "ExprEnd",
+      "pattern": "}",
+      "action": {
+        "kind": "pop"
+      }
+    }
+  ],
+  "ExprReference": [
+    {
+      "name": "ExprDot",
+      "pattern": "\\."
+    },
+    {
+      "name": "Ident",
+      "pattern": "\\w+"
+    },
+    {
+      "name": "returnToParent"
+    }
+  ],
+  "ExprString": [
+    {
+      "name": "ExprEscaped",
+      "pattern": "\\\\."
+    },
+    {
+      "name": "ExprStringEnd",
+      "pattern": "\"",
+      "action": {
+        "kind": "pop"
+      }
+    },
+    {
+      "name": "Expr",
+      "pattern": "\\${",
+      "action": {
+        "kind": "push",
+        "state": "Expr"
+      }
+    },
+    {
+      "name": "ExprChar",
+      "pattern": "[^$\"\\\\]+"
+    }
+  ],
+  "ExprTest": [
+    {
+      "name": "ExprString",
+      "pattern": "\"",
+      "action": {
+        "kind": "push",
+        "state": "ExprString"
+      }
+    }
+  ],
+  "LiteralTest": [
+    {
+      "name": "LITOne",
+      "pattern": "ONE"
+    },
+    {
+      "name": "LITKeyword",
+      "pattern": "SELECT|FROM|WHERE|LIKE"
+    },
+    {
+      "name": "Ident",
+      "pattern": "\\w+"
+    },
+    {
+      "name": "Whitespace",
+      "pattern": "\\s+"
+    }
+  ],
+  "Root": [
+    {
+      "name": "ExprTest",
+      "pattern": "EXPRTEST:",
+      "action": {
+        "kind": "push",
+        "state": "ExprTest"
+      }
+    },
+    {
+      "name": "LiteralTest",
+      "pattern": "LITTEST:",
+      "action": {
+        "kind": "push",
+        "state": "LiteralTest"
+      }
+    },
+    {
+      "name": "CaseInsensitiveTest",
+      "pattern": "CITEST:",
+      "action": {
+        "kind": "push",
+        "state": "CaseInsensitiveTest"
+      }
+    },
+    {
+      "name": "WordBoundaryTest",
+      "pattern": "\\bWBTEST:",
+      "action": {
+        "kind": "push",
+        "state": "WordBoundaryTest"
+      }
+    }
+  ],
+  "WordBoundaryTest": [
+    {
+      "name": "WBKeyword",
+      "pattern": "\\b(?:abc|xyz)\\b"
+    },
+    {
+      "name": "WBGroupKeyword",
+      "pattern": "(?:90|0)\\b"
+    },
+    {
+      "name": "Slash",
+      "pattern": "/"
+    },
+    {
+      "name": "Ident",
+      "pattern": "\\w+"
+    },
+    {
+      "name": "Whitespace",
+      "pattern": "\\s+"
+    }
+  ]
+}

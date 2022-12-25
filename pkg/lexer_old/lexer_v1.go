@@ -1,24 +1,24 @@
-package parser
+package lexer_old
 
 import (
 	"strings"
 	"text/scanner"
 )
 
-type Lexer struct {
+type OldLexerV1 struct {
 	sc scanner.Scanner
 	// We need to use this since Scanners have no way to peek, so we just store the token here
 	// to cache it for use later on
 	peekedTok Token
 }
 
-func FromString(s string) Lexer {
-	l := Lexer{}
+func FromString(s string) OldLexerV1 {
+	l := OldLexerV1{}
 	l.sc.Init(strings.NewReader(s))
 	return l
 }
 
-func (l *Lexer) Next() Token {
+func (l *OldLexerV1) Next() Token {
 	if l.peekedTok != nil {
 		t := l.peekedTok
 		l.peekedTok = nil
@@ -45,7 +45,7 @@ func (l *Lexer) Next() Token {
 	return TokIdent(txt)
 }
 
-func (l *Lexer) Peek() Token {
+func (l *OldLexerV1) Peek() Token {
 	if l.peekedTok != nil {
 		return l.peekedTok
 	}
@@ -73,7 +73,7 @@ func (l *Lexer) Peek() Token {
 	return ident
 }
 
-func (l *Lexer) Pos() int {
+func (l *OldLexerV1) Pos() int {
 	if l.peekedTok != nil {
 		return l.sc.Pos().Offset - l.peekedTok.Len()
 	}

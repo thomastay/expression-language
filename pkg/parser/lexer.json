@@ -1,0 +1,71 @@
+{
+  "DoubleString": [
+    {
+      "name": "DoubleStringEnd",
+      "pattern": "\"",
+      "action": {
+        "kind": "pop"
+      }
+    }
+  ],
+  "Expr": [
+    {
+      "name": "DoubleString",
+      "pattern": "\"",
+      "action": {
+        "kind": "push",
+        "state": "DoubleString"
+      }
+    },
+    {
+      "name": "whitespace",
+      "pattern": "\\s+"
+    },
+    {
+      "name": "Op",
+      "pattern": "and|not|or|\\+=|\\-=|\\*=|\\/=|:|\\-|\\+|\\*|\\/|\\(|\\?|\\.|\\["
+    },
+    {
+      "name": "EndExpr",
+      "pattern": ",|\\)|\\]"
+    },
+    {
+      "name": "Ident",
+      "pattern": "\\w+"
+    },
+    {
+      "name": "Int",
+      "pattern": "[0-9][1-9]*"
+    }
+  ],
+  "Root": [
+    {
+      "name": "DoubleString",
+      "pattern": "\"",
+      "action": {
+        "kind": "push",
+        "state": "DoubleString"
+      }
+    },
+    {
+      "name": "whitespace",
+      "pattern": "\\s+"
+    },
+    {
+      "name": "Op",
+      "pattern": "and|not|or|\\+=|\\-=|\\*=|\\/=|:|\\-|\\+|\\*|\\/|\\(|\\?|\\.|\\["
+    },
+    {
+      "name": "EndExpr",
+      "pattern": ",|\\)|\\]"
+    },
+    {
+      "name": "Ident",
+      "pattern": "\\w+"
+    },
+    {
+      "name": "Int",
+      "pattern": "[0-9][1-9]*"
+    }
+  ]
+}

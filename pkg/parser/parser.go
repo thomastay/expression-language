@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alecthomas/participle/v2/lexer"
 	"github.com/pkg/errors"
 )
 
@@ -14,8 +15,15 @@ type stackTracer interface {
 }
 
 func ParseString(s string) (Expr, error) {
-	lexer := FromString(s)
-	sexpr, err := exprBP(&lexer, 0)
+	genLexer, err := Lexer.Lex(":memory:", strings.NewReader(s))
+	if err != nil {
+		return nil, err
+	}
+	peekLexer, err := lexer.Upgrade(genLexer, Lexer.Symbols()["whitespace"])
+	if err != nil {
+		return nil, err
+	}
+	sexpr, err := exprBP(peekLexer, 0)
 	if err != nil {
 		errWithTrace, ok := errors.Cause(err).(stackTracer)
 		if !ok {
@@ -26,36 +34,39 @@ func ParseString(s string) (Expr, error) {
  | %s^--- Parser stopped here
 
 %+v
-`, err, s, strings.Repeat(" ", lexer.Pos()), errWithTrace.StackTrace())
+`, err, s, strings.Repeat(" ", peekLexer.Peek().Pos.Column-1), errWithTrace.StackTrace())
 	}
 
 	// Possible that exprBP doesn't parse all the string, so check that we've fully consumed everything
-	switch t := lexer.Peek().(type) {
-	case TokEOF:
+	t := peekLexer.Peek()
+	switch t.Type {
+	case lexer.EOF:
 		return sexpr, nil
 	default:
 		return sexpr, errors.New(fmt.Sprintf(`Unparsed character %s at end of Parse.
  | %s
  | %s^--- Parser stopped here
-`, t, s, strings.Repeat(" ", lexer.Pos())))
+`, t, s, strings.Repeat(" ", t.Pos.Column-1)))
 	}
 }
 
 // Parsing
-func exprBP(lexer *Lexer, minBP int) (Expr, error) {
+func exprBP(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 	var lhs Expr
 	var err error
-	switch nextVal := lexer.Next().(type) {
+	nextVal := lex.Next()
+	switch nextVal.Type {
 	case TokOp:
-		if nextVal == '(' {
+		if nextVal.Value == "(" {
 			// Handle parenthesis
-			lhs, err = exprBP(lexer, 0)
+			lhs, err = exprBP(lex, 0)
 			if err != nil {
 				return nil, err
 			}
-			switch end := lexer.Next().(type) {
+			end := lex.Next()
+			switch end.Type {
 			case TokEndExpr:
-				if end != ')' {
+				if end.Value != ")" {
 					return lhs, errors.New("Unmatched (")
 				}
 			default:
@@ -64,8 +75,8 @@ func exprBP(lexer *Lexer, minBP int) (Expr, error) {
 		} else {
 			// general operator
 
-			rp := prefixBP[nextVal]
-			rhs, err := exprBP(lexer, rp)
+			rp := prefixBP[nextVal.Value]
+			rhs, err := exprBP(lex, rp)
 			if err != nil {
 				return nil, err
 			}
@@ -75,40 +86,41 @@ func exprBP(lexer *Lexer, minBP int) (Expr, error) {
 			}
 		}
 	case TokIdent:
-		lhs = &EValue{val: TIdent(nextVal)}
+		lhs = &EValue{val: nextVal}
 	default:
 		return nil, errors.Errorf("Unrecognized token %s %T", nextVal, nextVal)
 	}
 
 Loop:
 	for {
-		var op TokOp
-		switch nextOp := lexer.Peek().(type) {
+		op := lex.Peek()
+		switch op.Type {
 		case TokOp:
-			op = nextOp
-		case TokEOF:
+			// do nothing, continue
+		case lexer.EOF:
 			break Loop
 		case TokEndExpr:
 			break Loop
 		default:
-			return nil, errors.Errorf("Unrecognized token after expr %s, %T", nextOp, nextOp)
+			return nil, errors.Errorf("Unrecognized token after expr %s, %T", op, op)
 		}
 		// optional postfix op
-		if lp, ok := postFixBP[op]; ok {
+		if lp, ok := postFixBP[op.Value]; ok {
 			if lp < minBP {
 				break
 			}
-			lexer.Next() // skip op
-			switch op {
-			case '[':
+			lex.Next() // skip op
+			switch op.Value {
+			case "[":
 				// Array indexing
-				inner, err := exprBP(lexer, 0)
+				inner, err := exprBP(lex, 0)
 				if err != nil {
 					return nil, err
 				}
-				switch end := lexer.Next().(type) {
+				end := lex.Next()
+				switch end.Type {
 				case TokEndExpr:
-					if end != ']' {
+					if end.Value != "]" {
 						return lhs, errors.New("Unmatched [")
 					}
 				default:
@@ -118,9 +130,9 @@ Loop:
 					base:  lhs,
 					index: inner,
 				}
-			case '.':
+			case ".":
 				// Call operator with a base
-				lhs, err = parseCallWithBase(lhs, lexer)
+				lhs, err = parseCallWithBase(lhs, lex)
 				if err != nil {
 					return nil, err
 				}
@@ -131,28 +143,29 @@ Loop:
 		}
 
 		// infix ops
-		if infixPowers, ok := infixBP[op]; ok {
+		if infixPowers, ok := infixBP[op.Value]; ok {
 			lp, rp := infixPowers.l, infixPowers.r
 			if lp < minBP {
 				break
 			}
 			// Skip the operator token
-			lexer.Next()
-			if op == '?' {
+			lex.Next()
+			if op.Value == "?" {
 				// special case ternaries
-				inner, err := exprBP(lexer, 0)
+				inner, err := exprBP(lex, 0)
 				if err != nil {
 					return nil, err
 				}
-				switch end := lexer.Next().(type) {
+				end := lex.Next()
+				switch end.Type {
 				case TokOp:
-					if end != ':' {
+					if end.Value != ":" {
 						return lhs, errors.New("Unmatched ?")
 					}
 				default:
 					return lhs, errors.New("Unmatched ?")
 				}
-				rhs, err := exprBP(lexer, rp)
+				rhs, err := exprBP(lex, rp)
 				if err != nil {
 					return nil, err
 				}
@@ -162,7 +175,7 @@ Loop:
 					second: rhs,
 				}
 			} else {
-				rhs, err := exprBP(lexer, rp)
+				rhs, err := exprBP(lex, rp)
 				if err != nil {
 					return nil, err
 				}
@@ -179,31 +192,34 @@ Loop:
 	return lhs, nil
 }
 
-func parseCallWithBase(base Expr, lexer *Lexer) (*Call, error) {
+func parseCallWithBase(base Expr, lex *lexer.PeekingLexer) (*Call, error) {
 	var expr *Call
 
-	switch ident := lexer.Next().(type) {
+	ident := lex.Next()
+	switch ident.Type {
 	case TokIdent:
 		// A method call is a base.ident, then followed by possible expression list.
 		var exprList ExprList
-		switch next := lexer.Peek().(type) {
+		next := lex.Peek()
+		switch next.Type {
 		case TokOp:
-			if next == '(' {
+			if next.Value == "(" {
 				// It is an expression list. Start to parse.
-				lexer.Next()
+				lex.Next()
 			ExprLoop:
 				for {
-					param, err := exprBP(lexer, 0)
+					param, err := exprBP(lex, 0)
 					if err != nil {
 						return nil, err
 					}
 					exprList = append(exprList, param)
-					switch op := lexer.Next().(type) {
+					op := lex.Next()
+					switch op.Type {
 					case TokEndExpr:
-						switch op {
-						case ',':
+						switch op.Value {
+						case ",":
 							continue
-						case ')':
+						case ")":
 							break ExprLoop
 						default:
 							return nil, errors.Errorf("Unrecognized end of expression in param list: %s", op)
@@ -219,7 +235,7 @@ func parseCallWithBase(base Expr, lexer *Lexer) (*Call, error) {
 		}
 		expr = &Call{
 			base:   base,
-			method: TIdent(ident),
+			method: ident,
 			exprs:  exprList,
 		}
 	default:
@@ -232,22 +248,26 @@ type InfixBP struct {
 	l, r int
 }
 
-var infixBP = map[TokOp]InfixBP{
-	'?': {2, 1},
-	'+': {3, 4},
-	'-': {3, 4},
-	'*': {5, 6},
-	'/': {5, 6},
+var infixBP = map[string]InfixBP{
+	"?": {2, 1},
+	"+": {3, 4},
+	"-": {3, 4},
+	"*": {5, 6},
+	"/": {5, 6},
 }
 
-var prefixBP = map[TokOp]int{
-	'+': 7,
-	'-': 7,
+var prefixBP = map[string]int{
+	"+": 7,
+	"-": 7,
 }
 
-var postFixBP = map[TokOp]int{
+var postFixBP = map[string]int{
 	// This is a Call operator on a base class
-	'.': 11,
+	".": 11,
 	// This is the indexing operator
-	'[': 9,
+	"[": 9,
 }
+
+var TokOp = Lexer.Symbols()["Op"]
+var TokIdent = Lexer.Symbols()["Ident"]
+var TokEndExpr = Lexer.Symbols()["EndExpr"]
