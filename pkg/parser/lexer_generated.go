@@ -355,19 +355,10 @@ groups[1] = np
 return
 }
 
-// [0-9][1-9]*
+// [1-9][0-9]*
 func matchInt(s string, p int, backrefs []string) (groups [2]int) {
-// [0-9] (CharClass)
-l0 := func(s string, p int) int {
-if len(s) <= p { return -1 }
-rn := s[p]
-switch {
-case rn >= '0' && rn <= '9': return p+1
-}
-return -1
-}
 // [1-9] (CharClass)
-l1 := func(s string, p int) int {
+l0 := func(s string, p int) int {
 if len(s) <= p { return -1 }
 rn := s[p]
 switch {
@@ -375,14 +366,23 @@ case rn >= '1' && rn <= '9': return p+1
 }
 return -1
 }
-// [1-9]* (Star)
+// [0-9] (CharClass)
+l1 := func(s string, p int) int {
+if len(s) <= p { return -1 }
+rn := s[p]
+switch {
+case rn >= '0' && rn <= '9': return p+1
+}
+return -1
+}
+// [0-9]* (Star)
 l2 := func(s string, p int) int {
 for len(s) > p {
 if np := l1(s, p); np == -1 { return p } else { p = np }
 }
 return p
 }
-// [0-9][1-9]* (Concat)
+// [1-9][0-9]* (Concat)
 l3 := func(s string, p int) int {
 if p = l0(s, p); p == -1 { return -1 }
 if p = l2(s, p); p == -1 { return -1 }
