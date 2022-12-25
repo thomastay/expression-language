@@ -35,7 +35,7 @@
     },
     {
       "name": "Float",
-      "pattern": "\\d*\\.\\d+"
+      "pattern": "\\d*\\.\\d+(e\\d+)?"
     },
     {
       "name": "Int",
@@ -69,7 +69,7 @@
     },
     {
       "name": "Float",
-      "pattern": "\\d*\\.\\d+"
+      "pattern": "\\d*\\.\\d+(e\\d+)?"
     },
     {
       "name": "Int",

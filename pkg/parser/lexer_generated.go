@@ -362,8 +362,8 @@ groups[1] = np
 return
 }
 
-// [0-9]*\.[0-9]+
-func matchFloat(s string, p int, backrefs []string) (groups [2]int) {
+// [0-9]*\.[0-9]+(e[0-9]+)?
+func matchFloat(s string, p int, backrefs []string) (groups [4]int) {
 // [0-9] (CharClass)
 l0 := func(s string, p int) int {
 if len(s) <= p { return -1 }
@@ -393,14 +393,39 @@ if np := l0(s, p); np == -1 { return p } else { p = np }
 }
 return p
 }
-// [0-9]*\.[0-9]+ (Concat)
+// e (Literal)
 l4 := func(s string, p int) int {
-if p = l1(s, p); p == -1 { return -1 }
-if p = l2(s, p); p == -1 { return -1 }
+if p < len(s) && s[p] == 'e' { return p+1 }
+return -1
+}
+// e[0-9]+ (Concat)
+l5 := func(s string, p int) int {
+if p = l4(s, p); p == -1 { return -1 }
 if p = l3(s, p); p == -1 { return -1 }
 return p
 }
-np := l4(s, p)
+// (e[0-9]+) (Capture)
+l6 := func(s string, p int) int {
+np := l5(s, p)
+if np != -1 {
+  groups[2] = p
+  groups[3] = np
+}
+return np}
+// (e[0-9]+)? (Quest)
+l7 := func(s string, p int) int {
+if np := l6(s, p); np != -1 { return np }
+return p
+}
+// [0-9]*\.[0-9]+(e[0-9]+)? (Concat)
+l8 := func(s string, p int) int {
+if p = l1(s, p); p == -1 { return -1 }
+if p = l2(s, p); p == -1 { return -1 }
+if p = l3(s, p); p == -1 { return -1 }
+if p = l7(s, p); p == -1 { return -1 }
+return p
+}
+np := l8(s, p)
 if np == -1 {
   return
 }
