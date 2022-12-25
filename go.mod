@@ -1,4 +1,4 @@
-module github.com/thomastay/kaitai-expr-lang
+module github.com/thomastay/expression_language
 
 go 1.19
 

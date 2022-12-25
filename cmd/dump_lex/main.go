@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/thomastay/kaitai-expr-lang/pkg/parser"
+	"github.com/thomastay/expression_language/pkg/parser"
 )
 
 func main() {
