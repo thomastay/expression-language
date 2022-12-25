@@ -75,7 +75,7 @@ func parseExpr(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 		lex.Next()
 		lhs = &EValue{val: firstVal}
 	default:
-		return nil, errors.Errorf("Unrecognized token %s %d", firstVal, firstVal.Type)
+		return nil, errors.Errorf("Unrecognized token %s", firstVal)
 	}
 
 Loop:
@@ -89,7 +89,7 @@ Loop:
 		case TokEndExpr:
 			break Loop
 		default:
-			return nil, errors.Errorf("Unrecognized token after expr %s, %d", op, op.Type)
+			return nil, errors.Errorf("Unrecognized token %s", op)
 		}
 		// optional postfix op
 		if lp, ok := postFixBP[op.Value]; ok {
