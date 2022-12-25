@@ -6,20 +6,20 @@ E : V
   | E ? E : E 
   | E [ E ]
   | Call
-	| KArr
+  | KArr
 
 Call: Ident ( EList )
-		| E . Ident ( EList )
-		| E . Ident
+    | E . Ident ( EList )
+    | E . Ident
 
 EList : E ',' EList
-			| E
+      | E
  
 V : Ident | Int | Float | KStr | true | false
 
 KArr 	: [ VList ]
 VList : V ',' VList
-		 	| V
+      | V
 
 ## Notes
 Expression parsing is with the Pratt parser
