@@ -7,7 +7,7 @@ import (
 	"github.com/alecthomas/participle/v2/lexer"
 )
 
-//go:generate go build -o bin/ .\cmd\dump_lex\ && .\bin\dump_lex.exe .\pkg\parser\lexer_generated.json && participle gen lexer parser .\pkg\parser\lexer_generated.json > .\pkg\parser\lexer_generated.go
+//go:generate go run ../../cmd/dump_lex/main.go
 
 // This file is not used in the parser build but is used by cmd/dump_lex/main.go to generate the lexer.json file
 
