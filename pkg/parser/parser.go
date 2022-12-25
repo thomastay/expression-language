@@ -54,9 +54,12 @@ func ParseString(s string) (Expr, error) {
 func exprBP(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 	var lhs Expr
 	var err error
-	nextVal := lex.Next()
+	nextVal := lex.Peek()
 	switch nextVal.Type {
+	case TokEndExpr:
+		return nil, nil
 	case TokOp:
+		lex.Next()
 		if nextVal.Value == "(" {
 			// Handle parenthesis
 			lhs, err = exprBP(lex, 0)
@@ -86,10 +89,13 @@ func exprBP(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 			}
 		}
 	case TokIdent:
+		lex.Next()
 		lhs = &EValue{val: nextVal}
 	case TokInt:
+		lex.Next()
 		lhs = &EValue{val: nextVal}
 	default:
+		lex.Next()
 		return nil, errors.Errorf("Unrecognized token %s %d", nextVal, nextVal.Type)
 	}
 
@@ -251,18 +257,18 @@ type InfixBP struct {
 }
 
 var infixBP = map[string]InfixBP{
-	"?": {6, 5},
-	"+": {7, 8},
-	"-": {7, 8},
-	"*": {9, 10},
-	"/": {9, 10},
+	"?":   {6, 5},
+	"+":   {7, 8},
+	"-":   {7, 8},
+	"*":   {9, 10},
+	"/":   {9, 10},
 	"and": {3, 4},
-	"or": {2, 1},
+	"or":  {2, 1},
 }
 
 var prefixBP = map[string]int{
-	"+": 7,
-	"-": 7,
+	"+":   7,
+	"-":   7,
 	"not": 5,
 }
 

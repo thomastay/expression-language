@@ -27,6 +27,7 @@ func TestValidStrings(t *testing.T) {
 		"a[5 * 2 * (4/3)]",
 		// Method calls on base
 		"foo.bar",
+		"foo.bar()",
 		"foo.bar(3*3, 2/2*(4+xoo))",
 		// Method calls on identifier (not implemented)
 		// "bar(20)",
