@@ -16,25 +16,25 @@ var operators = [...]string{
 	"and",
 	"not",
 	"or",
-	"\\+=",
-	"\\-=",
-	"\\*=",
-	"\\/=",
+	`\+=`,
+	`\-=`,
+	`\*=`,
+	`\/=`,
 	":",
-	"\\-",
-	"\\+",
-	"\\*",
-	"\\/",
-	"\\(",
-	"\\?",
-	"\\.",
-	"\\[",
+	`\-`,
+	`\+`,
+	`\*`,
+	`\/`,
+	`\(`,
+	`\?`,
+	`\.`,
+	`\[`,
 }
 
 var endExpr = [...]string{
 	",",
-	"\\)",
-	"\\]",
+	`\)`,
+	`\]`,
 }
 
 var operatorString = fmt.Sprintf("(%s)", strings.Join(operators[:], "|"))
@@ -59,7 +59,7 @@ var GenLexerDefinition = lexer.MustStateful(lexer.Rules{
 		// {"ExprEscaped", `\\.`, nil},
 		{"DoubleStringEnd", `"`, lexer.Pop()},
 		// {"Expr", `\${`, lexer.Push("Expr")},
-		// {"ExprChar", `[^$"\\]+`, nil},
+		// {"ExprChar", `[^$`\]+`, nil},
 	},
 	// "ExprReference": {
 	// 	{"ExprDot", `\.`, nil},
