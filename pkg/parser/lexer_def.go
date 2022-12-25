@@ -49,7 +49,7 @@ var GenLexerDefinition = lexer.MustStateful(lexer.Rules{
 		{`whitespace`, `\s+`, nil},
 		{`Op`, operatorString, nil},
 		{`EndExpr`, endExprString, nil},
-		{"Ident", `\w+`, nil},
+		{"Ident", `[a-zA-Z]\w*`, nil},
 		{"Int", `[0-9][1-9]*`, nil},
 		// {"ExprEnd", `}`, lexer.Pop()},
 	},

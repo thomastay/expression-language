@@ -15,7 +15,7 @@ type stackTracer interface {
 }
 
 func ParseString(s string) (Expr, error) {
-	genLexer, err := Lexer.Lex(":memory:", strings.NewReader(s))
+	genLexer, err := Lexer.Lex("memory", strings.NewReader(s))
 	if err != nil {
 		return nil, err
 	}
@@ -87,8 +87,10 @@ func exprBP(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 		}
 	case TokIdent:
 		lhs = &EValue{val: nextVal}
+	case TokInt:
+		lhs = &EValue{val: nextVal}
 	default:
-		return nil, errors.Errorf("Unrecognized token %s %T", nextVal, nextVal)
+		return nil, errors.Errorf("Unrecognized token %s %d", nextVal, nextVal.Type)
 	}
 
 Loop:
@@ -102,7 +104,7 @@ Loop:
 		case TokEndExpr:
 			break Loop
 		default:
-			return nil, errors.Errorf("Unrecognized token after expr %s, %T", op, op)
+			return nil, errors.Errorf("Unrecognized token after expr %s, %d", op, op.Type)
 		}
 		// optional postfix op
 		if lp, ok := postFixBP[op.Value]; ok {
@@ -269,5 +271,6 @@ var postFixBP = map[string]int{
 }
 
 var TokOp = Lexer.Symbols()["Op"]
+var TokInt = Lexer.Symbols()["Int"]
 var TokIdent = Lexer.Symbols()["Ident"]
 var TokEndExpr = Lexer.Symbols()["EndExpr"]

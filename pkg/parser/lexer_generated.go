@@ -309,10 +309,20 @@ groups[1] = np
 return
 }
 
-// [0-9A-Z_a-z]+
+// [A-Za-z][0-9A-Z_a-z]*
 func matchIdent(s string, p int, backrefs []string) (groups [2]int) {
-// [0-9A-Z_a-z] (CharClass)
+// [A-Za-z] (CharClass)
 l0 := func(s string, p int) int {
+if len(s) <= p { return -1 }
+rn := s[p]
+switch {
+case rn >= 'A' && rn <= 'Z': return p+1
+case rn >= 'a' && rn <= 'z': return p+1
+}
+return -1
+}
+// [0-9A-Z_a-z] (CharClass)
+l1 := func(s string, p int) int {
 if len(s) <= p { return -1 }
 rn := s[p]
 switch {
@@ -323,15 +333,20 @@ case rn >= 'a' && rn <= 'z': return p+1
 }
 return -1
 }
-// [0-9A-Z_a-z]+ (Plus)
-l1 := func(s string, p int) int {
-if p = l0(s, p); p == -1 { return -1 }
+// [0-9A-Z_a-z]* (Star)
+l2 := func(s string, p int) int {
 for len(s) > p {
-if np := l0(s, p); np == -1 { return p } else { p = np }
+if np := l1(s, p); np == -1 { return p } else { p = np }
 }
 return p
 }
-np := l1(s, p)
+// [A-Za-z][0-9A-Z_a-z]* (Concat)
+l3 := func(s string, p int) int {
+if p = l0(s, p); p == -1 { return -1 }
+if p = l2(s, p); p == -1 { return -1 }
+return p
+}
+np := l3(s, p)
 if np == -1 {
   return
 }

@@ -31,7 +31,7 @@
     },
     {
       "name": "Ident",
-      "pattern": "\\w+"
+      "pattern": "[a-zA-Z]\\w*"
     },
     {
       "name": "Int",
@@ -61,7 +61,7 @@
     },
     {
       "name": "Ident",
-      "pattern": "\\w+"
+      "pattern": "[a-zA-Z]\\w*"
     },
     {
       "name": "Int",

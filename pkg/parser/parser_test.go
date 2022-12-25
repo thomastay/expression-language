@@ -13,7 +13,7 @@ func TestValidStrings(t *testing.T) {
 		"1",
 		"1 + 1",
 		"1 - 1",
-		"1 - foo",
+		"500 - foo",
 		"baz * foo",
 		"baz * foo + 3",
 		"baz / xa + 3 -xxx",
