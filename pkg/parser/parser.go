@@ -64,11 +64,9 @@ func parseExpr(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 			return lhs, err
 		}
 	case TokIdent:
-		lex.Next()
-		lhs = &EValue{val: firstVal}
+		fallthrough
 	case TokInt:
-		lex.Next()
-		lhs = &EValue{val: firstVal}
+		fallthrough
 	case TokFloat:
 		lex.Next()
 		lhs = &EValue{val: firstVal}
