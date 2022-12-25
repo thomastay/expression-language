@@ -9,8 +9,14 @@ import (
 
 func TestValidStrings(t *testing.T) {
 	var tests = []string{
+		// Floats
+		// "1.1", (not implemented)
+		// "1.1e10", (not implemented)
+		// Ints
+		"1", // base 10
+		// "0x10", // hex (not implemented)
+		// "0o30", // octal (not implemented)
 		// Regular binary expressions
-		"1",
 		"1 + 1",
 		"1 - 1",
 		"500 - foo",
