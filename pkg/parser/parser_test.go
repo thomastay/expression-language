@@ -47,3 +47,32 @@ func TestValidStrings(t *testing.T) {
 		})
 	}
 }
+
+func TestInvalidStrings(t *testing.T) {
+	var tests = []string{
+		// Exponentiation is not allowed
+		"1 ** 2",
+		// Method call with number as ident
+		"foo.3",
+		// unmatched
+		"[a.i",
+		// unmatched
+		"(a.i",
+		// unmatched
+		"a.[i",
+		// Use of keywords as identifiers
+		// Note: can probably improve error message for this. It currently points to the * as the error,
+		// but the error is `not`
+		"not * 3",
+	}
+
+	for _, tt := range tests {
+		testname := fmt.Sprintf("%s", tt)
+		t.Run(testname, func(t *testing.T) {
+			_, err := parser.ParseString(tt)
+			if err == nil {
+				t.Errorf("Should have got an error, but received nothing")
+			}
+		})
+	}
+}

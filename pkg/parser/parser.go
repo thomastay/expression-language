@@ -59,9 +59,9 @@ func exprBP(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 	case TokEndExpr:
 		return nil, nil
 	case TokOp:
-		lex.Next()
 		if nextVal.Value == "(" {
 			// Handle parenthesis
+			lex.Next()
 			lhs, err = exprBP(lex, 0)
 			if err != nil {
 				return nil, err
@@ -77,15 +77,18 @@ func exprBP(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 			}
 		} else {
 			// general operator
-
-			rp := prefixBP[nextVal.Value]
-			rhs, err := exprBP(lex, rp)
-			if err != nil {
-				return nil, err
-			}
-			lhs = &EUnOp{
-				op:  nextVal,
-				val: rhs,
+			if rp, ok := prefixBP[nextVal.Value]; ok {
+				lex.Next()
+				rhs, err := exprBP(lex, rp)
+				if err != nil {
+					return nil, err
+				}
+				lhs = &EUnOp{
+					op:  nextVal,
+					val: rhs,
+				}
+			} else {
+				return lhs, errors.Errorf("Unrecognized prefix operator %s", nextVal.Value)
 			}
 		}
 	case TokIdent:
