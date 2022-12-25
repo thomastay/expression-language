@@ -41,6 +41,8 @@ func TestValidStrings(t *testing.T) {
 		"bar(20, 30, 40)",
 		// method calls on integers
 		"20.to_int",
+		// Single quoted strings
+		"'i am a string' * 20",
 		// Arrays (not impl)
 		// "[1, 2, 3]",
 		// // We accept mixed arrays in the parser, can reject in sema

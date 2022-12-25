@@ -46,6 +46,7 @@ var GenLexerDefinition = lexer.MustStateful(lexer.Rules{
 	},
 	"Expr": {
 		{"DoubleString", `"`, lexer.Push("DoubleString")},
+		{"SingleString", `'[^\']*'`, nil},
 		{`whitespace`, `\s+`, nil},
 		{`Op`, operatorString, nil},
 		{`EndExpr`, endExprString, nil},
