@@ -251,26 +251,26 @@ type InfixBP struct {
 }
 
 var infixBP = map[string]InfixBP{
-	"?": {2, 1},
-	"+": {3, 4},
-	"-": {3, 4},
-	"*": {5, 6},
-	"/": {5, 6},
-	"and": {7, 8},
-	"or": {7, 8},
+	"?": {6, 5},
+	"+": {7, 8},
+	"-": {7, 8},
+	"*": {9, 10},
+	"/": {9, 10},
+	"and": {3, 4},
+	"or": {2, 1},
 }
 
 var prefixBP = map[string]int{
-	"+": 9,
-	"-": 9,
-	"not": 15,
+	"+": 7,
+	"-": 7,
+	"not": 5,
 }
 
 var postFixBP = map[string]int{
 	// This is a Call operator on a base class
 	".": 13,
 	// This is the indexing operator
-	"[": 11,
+	"[": 13,
 }
 
 var TokOp = Lexer.Symbols()["Op"]

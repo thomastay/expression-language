@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/alecthomas/participle/v2/lexer"
-	"github.com/thomastay/kaitai-expr-lang/pkg/parser"
+	"github.com/thomastay/expression_language/pkg/parser"
 )
 
 func TestValidTokens(t *testing.T) {
