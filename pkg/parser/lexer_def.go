@@ -37,8 +37,8 @@ var endExpr = [...]string{
 	`\]`,
 }
 
-var operatorString = fmt.Sprintf("(%s)", strings.Join(operators[:], "|"))
-var endExprString = fmt.Sprintf("(%s)", strings.Join(endExpr[:], "|"))
+var operatorString = fmt.Sprintf("%s", strings.Join(operators[:], "|"))
+var endExprString = fmt.Sprintf("%s", strings.Join(endExpr[:], "|"))
 
 var GenLexerDefinition = lexer.MustStateful(lexer.Rules{
 	"Root": {
