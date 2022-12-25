@@ -33,6 +33,8 @@ func TestValidStrings(t *testing.T) {
 		// "bar(20)",
 		// method calls on integers
 		"20.to_int",
+		// Regressions
+		"not temp[i] ? 5 / -2 : 10 * f.foo",
 	}
 
 	for _, tt := range tests {
