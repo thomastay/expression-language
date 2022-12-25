@@ -30,7 +30,9 @@ func TestValidStrings(t *testing.T) {
 		"foo.bar()",
 		"foo.bar(3*3, 2/2*(4+xoo))",
 		// Method calls on identifier (not implemented)
-		// "bar(20)",
+		"bar()",
+		"bar(20)",
+		"bar(20, 30, 40)",
 		// method calls on integers
 		"20.to_int",
 		// Regressions

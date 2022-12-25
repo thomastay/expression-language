@@ -54,23 +54,23 @@ func ParseString(s string) (Expr, error) {
 func exprBP(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 	var lhs Expr
 	var err error
-	nextVal := lex.Peek()
-	switch nextVal.Type {
+	firstVal := lex.Peek()
+	switch firstVal.Type {
 	case TokEndExpr:
 		return nil, nil
 	case TokOp:
-		lhs, err = parsePrefix(lex, nextVal)
+		lhs, err = parsePrefix(lex, firstVal)
 		if err != nil {
 			return lhs, err
 		}
 	case TokIdent:
 		lex.Next()
-		lhs = &EValue{val: nextVal}
+		lhs = &EValue{val: firstVal}
 	case TokInt:
 		lex.Next()
-		lhs = &EValue{val: nextVal}
+		lhs = &EValue{val: firstVal}
 	default:
-		return nil, errors.Errorf("Unrecognized token %s %d", nextVal, nextVal.Type)
+		return nil, errors.Errorf("Unrecognized token %s %d", firstVal, firstVal.Type)
 	}
 
 Loop:
@@ -93,7 +93,7 @@ Loop:
 			}
 			// Skip the operator token
 			lex.Next()
-			lhs, err = parsePostfix(lhs, lex, op)
+			lhs, err = parsePostfix(lhs, lex, op, firstVal)
 			if err != nil {
 				return lhs, err
 			}
@@ -157,7 +157,7 @@ func parsePrefix(lex *lexer.PeekingLexer, op *lexer.Token) (Expr, error) {
 	return lhs, err
 }
 
-func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token) (Expr, error) {
+func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, lhsIdent *lexer.Token) (Expr, error) {
 	switch op.Value {
 	case "[":
 		// Array indexing
@@ -185,6 +185,17 @@ func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token) (Expr, err
 		lhs, err = parseCallWithBase(lhs, lex)
 		if err != nil {
 			return nil, err
+		}
+	case "(":
+		// Method call
+		exprList, err := parseExprList(lex)
+		if err != nil {
+			return nil, err
+		}
+		lhs = &Call{
+			base:   nil, // No base
+			method: lhsIdent,
+			exprs:  exprList,
 		}
 	default:
 		return nil, errors.Errorf("No other postfix operators %s", op)
@@ -320,6 +331,8 @@ var postFixBP = map[string]int{
 	".": 13,
 	// This is the indexing operator
 	"[": 13,
+	// This is a Call operator on a function
+	"(": 13,
 }
 
 var TokOp = Lexer.Symbols()["Op"]
