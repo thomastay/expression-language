@@ -98,7 +98,6 @@ func exprBP(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 		lex.Next()
 		lhs = &EValue{val: nextVal}
 	default:
-		lex.Next()
 		return nil, errors.Errorf("Unrecognized token %s %d", nextVal, nextVal.Type)
 	}
 
@@ -122,35 +121,9 @@ Loop:
 			}
 			// Skip the operator token
 			lex.Next()
-			switch op.Value {
-			case "[":
-				// Array indexing
-				inner, err := exprBP(lex, 0)
-				if err != nil {
-					return nil, err
-				}
-				end := lex.Peek()
-				switch end.Type {
-				case TokEndExpr:
-					if end.Value != "]" {
-						return lhs, errors.New("Unmatched [")
-					}
-				default:
-					return lhs, errors.New("Unmatched [")
-				}
-				lex.Next()
-				lhs = &EIdxAccess{
-					base:  lhs,
-					index: inner,
-				}
-			case ".":
-				// Call operator with a base
-				lhs, err = parseCallWithBase(lhs, lex)
-				if err != nil {
-					return nil, err
-				}
-			default:
-				return nil, errors.Errorf("No other postfix operators %s", op)
+			lhs, err = parsePostfix(lhs, lex, op)
+			if err != nil {
+				return lhs, err
 			}
 			continue
 		}
@@ -202,6 +175,41 @@ Loop:
 			continue
 		}
 		break
+	}
+	return lhs, nil
+}
+
+func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token) (Expr, error) {
+	switch op.Value {
+	case "[":
+		// Array indexing
+		inner, err := exprBP(lex, 0)
+		if err != nil {
+			return nil, err
+		}
+		end := lex.Peek()
+		switch end.Type {
+		case TokEndExpr:
+			if end.Value != "]" {
+				return lhs, errors.New("Unmatched [")
+			}
+		default:
+			return lhs, errors.New("Unmatched [")
+		}
+		lex.Next()
+		lhs = &EIdxAccess{
+			base:  lhs,
+			index: inner,
+		}
+	case ".":
+		var err error
+		// Call operator with a base
+		lhs, err = parseCallWithBase(lhs, lex)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, errors.Errorf("No other postfix operators %s", op)
 	}
 	return lhs, nil
 }
