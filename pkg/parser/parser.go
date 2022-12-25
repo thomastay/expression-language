@@ -247,29 +247,10 @@ func parseCallWithBase(base Expr, lex *lexer.PeekingLexer) (*Call, error) {
 			if next.Value == "(" {
 				// It is an expression list. Start to parse.
 				lex.Next()
-			ExprLoop:
-				for {
-					param, err := exprBP(lex, 0)
-					if err != nil {
-						return nil, err
-					}
-					exprList = append(exprList, param)
-					op := lex.Peek()
-					switch op.Type {
-					case TokEndExpr:
-						switch op.Value {
-						case ",":
-							lex.Next()
-							continue
-						case ")":
-							lex.Next()
-							break ExprLoop
-						default:
-							return nil, errors.Errorf("Unrecognized end of expression in param list: %s", op)
-						}
-					default:
-						return nil, errors.Errorf("Unrecognized token in parsing param list: %s", op)
-					}
+				var err error
+				exprList, err = parseExprList(lex)
+				if err != nil {
+					return nil, err
 				}
 			}
 			// else, fallthrough
@@ -285,6 +266,33 @@ func parseCallWithBase(base Expr, lex *lexer.PeekingLexer) (*Call, error) {
 		return nil, errors.Errorf("Only identifiers can be used for a method call, found %s", ident)
 	}
 	return expr, nil
+}
+
+func parseExprList(lex *lexer.PeekingLexer) (ExprList, error) {
+	var exprList ExprList
+	for {
+		param, err := exprBP(lex, 0)
+		if err != nil {
+			return nil, err
+		}
+		exprList = append(exprList, param)
+		op := lex.Peek()
+		switch op.Type {
+		case TokEndExpr:
+			switch op.Value {
+			case ",":
+				lex.Next()
+				continue
+			case ")":
+				lex.Next()
+				return exprList, nil
+			default:
+				return nil, errors.Errorf("Unrecognized end of expression in param list: %s", op)
+			}
+		default:
+			return nil, errors.Errorf("Unrecognized token in parsing param list: %s", op)
+		}
+	}
 }
 
 type InfixBP struct {
