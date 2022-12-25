@@ -53,7 +53,7 @@ var GenLexerDefinition = lexer.MustStateful(lexer.Rules{
 		{`EndExpr`, endExprString, nil},
 		{"Ident", `[a-zA-Z]\w*`, nil},
 		{"Float", `\d*\.\d+(e\d+)?`, nil},
-		{"Int", `[1-9]\d*`, nil},
+		{"Int", `[1-9]\d*|0x[0-9a-fA-F]+`, nil},
 		// {"ExprEnd", `}`, lexer.Pop()},
 	},
 	"DoubleString": {

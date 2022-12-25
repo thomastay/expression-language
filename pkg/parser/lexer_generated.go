@@ -504,7 +504,7 @@ groups[1] = np
 return
 }
 
-// [1-9][0-9]*
+// [1-9][0-9]*|0x[0-9A-Fa-f]+
 func matchInt(s string, p int, backrefs []string) (groups [2]int) {
 // [1-9] (CharClass)
 l0 := func(s string, p int) int {
@@ -537,7 +537,43 @@ if p = l0(s, p); p == -1 { return -1 }
 if p = l2(s, p); p == -1 { return -1 }
 return p
 }
-np := l3(s, p)
+// 0x (Literal)
+l4 := func(s string, p int) int {
+if p+2 <= len(s) && s[p:p+2] == "0x" { return p+2 }
+return -1
+}
+// [0-9A-Fa-f] (CharClass)
+l5 := func(s string, p int) int {
+if len(s) <= p { return -1 }
+rn := s[p]
+switch {
+case rn >= '0' && rn <= '9': return p+1
+case rn >= 'A' && rn <= 'F': return p+1
+case rn >= 'a' && rn <= 'f': return p+1
+}
+return -1
+}
+// [0-9A-Fa-f]+ (Plus)
+l6 := func(s string, p int) int {
+if p = l5(s, p); p == -1 { return -1 }
+for len(s) > p {
+if np := l5(s, p); np == -1 { return p } else { p = np }
+}
+return p
+}
+// 0x[0-9A-Fa-f]+ (Concat)
+l7 := func(s string, p int) int {
+if p = l4(s, p); p == -1 { return -1 }
+if p = l6(s, p); p == -1 { return -1 }
+return p
+}
+// [1-9][0-9]*|0x[0-9A-Fa-f]+ (Alternate)
+l8 := func(s string, p int) int {
+if np := l3(s, p); np != -1 { return np }
+if np := l7(s, p); np != -1 { return np }
+return -1
+}
+np := l8(s, p)
 if np == -1 {
   return
 }

@@ -47,7 +47,7 @@
     },
     {
       "name": "Int",
-      "pattern": "[1-9]\\d*"
+      "pattern": "[1-9]\\d*|0x[0-9a-fA-F]+"
     }
   ],
   "Root": [
@@ -89,7 +89,7 @@
     },
     {
       "name": "Int",
-      "pattern": "[1-9]\\d*"
+      "pattern": "[1-9]\\d*|0x[0-9a-fA-F]+"
     }
   ]
 }
