@@ -256,18 +256,21 @@ var infixBP = map[string]InfixBP{
 	"-": {3, 4},
 	"*": {5, 6},
 	"/": {5, 6},
+	"and": {7, 8},
+	"or": {7, 8},
 }
 
 var prefixBP = map[string]int{
-	"+": 7,
-	"-": 7,
+	"+": 9,
+	"-": 9,
+	"not": 15,
 }
 
 var postFixBP = map[string]int{
 	// This is a Call operator on a base class
-	".": 11,
+	".": 13,
 	// This is the indexing operator
-	"[": 9,
+	"[": 11,
 }
 
 var TokOp = Lexer.Symbols()["Op"]
