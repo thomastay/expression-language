@@ -109,9 +109,11 @@ func (es ExprList) String() string {
 	if es == nil {
 		return ""
 	}
-	exprs := make([]string, len(es))
-	for i, val := range es {
-		exprs[i] = val.String()
+	exprs := make([]string, 0, len(es))
+	for _, val := range es {
+		if val != nil {
+			exprs = append(exprs, val.String())
+		}
 	}
 	return strings.Join(exprs, ", ")
 }

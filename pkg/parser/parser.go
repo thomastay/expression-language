@@ -117,7 +117,8 @@ Loop:
 			if lp < minBP {
 				break
 			}
-			lex.Next() // skip op
+			// Skip the operator token
+			lex.Next()
 			switch op.Value {
 			case "[":
 				// Array indexing
@@ -125,7 +126,7 @@ Loop:
 				if err != nil {
 					return nil, err
 				}
-				end := lex.Next()
+				end := lex.Peek()
 				switch end.Type {
 				case TokEndExpr:
 					if end.Value != "]" {
@@ -134,6 +135,7 @@ Loop:
 				default:
 					return lhs, errors.New("Unmatched [")
 				}
+				lex.Next()
 				lhs = &EIdxAccess{
 					base:  lhs,
 					index: inner,
@@ -164,7 +166,7 @@ Loop:
 				if err != nil {
 					return nil, err
 				}
-				end := lex.Next()
+				end := lex.Peek()
 				switch end.Type {
 				case TokOp:
 					if end.Value != ":" {
@@ -173,6 +175,7 @@ Loop:
 				default:
 					return lhs, errors.New("Unmatched ?")
 				}
+				lex.Next()
 				rhs, err := exprBP(lex, rp)
 				if err != nil {
 					return nil, err
@@ -203,11 +206,12 @@ Loop:
 func parseCallWithBase(base Expr, lex *lexer.PeekingLexer) (*Call, error) {
 	var expr *Call
 
-	ident := lex.Next()
+	ident := lex.Peek()
 	switch ident.Type {
 	case TokIdent:
 		// A method call is a base.ident, then followed by possible expression list.
 		var exprList ExprList
+		lex.Next()
 		next := lex.Peek()
 		switch next.Type {
 		case TokOp:
@@ -221,13 +225,15 @@ func parseCallWithBase(base Expr, lex *lexer.PeekingLexer) (*Call, error) {
 						return nil, err
 					}
 					exprList = append(exprList, param)
-					op := lex.Next()
+					op := lex.Peek()
 					switch op.Type {
 					case TokEndExpr:
 						switch op.Value {
 						case ",":
+							lex.Next()
 							continue
 						case ")":
+							lex.Next()
 							break ExprLoop
 						default:
 							return nil, errors.Errorf("Unrecognized end of expression in param list: %s", op)
