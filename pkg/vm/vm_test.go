@@ -45,6 +45,8 @@ func TestValidStrings(t *testing.T) {
 		"10.3 <= 10 ? 20 : 40",
 		"10 >= 10.5 ? 20 : 40",
 		"'asd' < buzz ? fizz : 'bar'",
+		// Fizzbuzz!
+		"a % 3 ? a % 5 ? a : 'buzz' : a % 5 ? fizz : fizzbuzz",
 	}
 
 	for _, tt := range tests {
@@ -95,6 +97,7 @@ func seedVM(m vm.VMState) {
 	m.AddInt("b", 2)
 	m.AddFloat("foo", 10.5)
 	m.AddStr("bar", "I am a string")
+	m.AddStr("fizzbuzz", "fizzbuzz")
 	m.AddStr("fizz", "fizz")
 	m.AddStr("buzz", "buzz")
 }
