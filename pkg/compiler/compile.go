@@ -3,6 +3,7 @@
 package compiler
 
 import (
+	"log"
 	"strconv"
 
 	"github.com/alecthomas/participle/v2/lexer"
@@ -31,6 +32,7 @@ func Compile(expr parser.Expr) Compilation {
 	var compileRec func(parser.Expr)
 	compileRec = func(expr parser.Expr) {
 		if expr == nil {
+			log.Println("Expressions shouldn't be nil.")
 			return
 		}
 		switch node := expr.(type) {
@@ -184,6 +186,31 @@ func Compile(expr parser.Expr) Compilation {
 			compileRec(node.First)
 			// Patch the second jump
 			c.Bytecode[secondJumpIdx].IntVal = len(c.Bytecode)
+		case *parser.Call:
+			if node.Base != nil {
+				panic("Not implemented objects yet")
+			} else {
+				// Just a plain old function call
+				// Bytecode:
+				// | 0        Load params in reverse order onto stack
+				// | 1        Load Field
+				// | 2       	Call (num params embedded in bytecode)
+				numParams := len(node.Exprs)
+				for i := numParams - 1; i >= 0; i-- {
+					param := node.Exprs[i]
+					compileRec(param)
+				}
+				c.Bytecode = append(c.Bytecode,
+					Bytecode{
+						Inst: OpLoad,
+						Val:  BStr(node.Method.Value),
+					},
+					Bytecode{
+						Inst:   OpCall,
+						IntVal: numParams,
+					},
+				)
+			}
 		default:
 			panic("Not impl")
 		}

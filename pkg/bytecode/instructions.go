@@ -22,6 +22,7 @@ const (
 	OpEq
 	OpNe
 	OpReturn
+	OpCall
 	// Unconditional branch
 	OpBr
 	// Conditional branch if top of stack is truthy. Also consume top of stack.

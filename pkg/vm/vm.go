@@ -231,6 +231,27 @@ InstLoop:
 			} else {
 				stack.pop()
 			}
+		// ----------------Function Operations------------------
+		case OpCall:
+			name := stack.pop()
+			bFn, ok := name.(BFunc)
+			if !ok {
+				return Result{}, fmt.Errorf("Stack value %s is not a function", name)
+			}
+			// load params
+			numParams := code.IntVal
+			if numParams != bFn.NumArgs {
+				return Result{}, fmt.Errorf("Fn %s passed wrong number of args, expected %d, got %d", bFn.Name, bFn.NumArgs, numParams)
+			}
+			params := make([]BVal, numParams)
+			for i := 0; i < numParams; i++ {
+				params[i] = stack.pop()
+			}
+			result, err := bFn.Fn(params)
+			if err != nil {
+				return Result{}, err
+			}
+			stack.push(result)
 		default:
 			return Result{}, errors.New("not impl")
 		}

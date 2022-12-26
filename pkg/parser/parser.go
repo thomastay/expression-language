@@ -300,7 +300,9 @@ func parseExprList(lex *lexer.PeekingLexer) (ExprList, error) {
 		if err != nil {
 			return nil, err
 		}
-		exprList = append(exprList, param)
+		if param != nil {
+			exprList = append(exprList, param)
+		}
 		op := lex.Peek()
 		switch op.Type {
 		case TokEndExpr:
