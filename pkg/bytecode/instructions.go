@@ -14,6 +14,11 @@ const (
 	OpMul
 	OpDiv
 	OpAnd
+	OpMod
+	OpLt
+	OpGt
+	OpGe
+	OpLe
 	OpReturn
 	// Unconditional branch
 	OpBr

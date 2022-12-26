@@ -44,6 +44,16 @@ func (b Bytecode) String() string {
 		fallthrough
 	case OpAnd:
 		fallthrough
+	case OpMod:
+		fallthrough
+	case OpLt:
+		fallthrough
+	case OpGt:
+		fallthrough
+	case OpGe:
+		fallthrough
+	case OpLe:
+		fallthrough
 	case OpMinus:
 		return b.Inst.String()
 	default:

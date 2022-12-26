@@ -115,6 +115,14 @@ InstLoop:
 				return Result{}, err
 			}
 			stack.push(result)
+		case OpMod:
+			b := stack.pop()
+			a := stack.pop()
+			result, err := modulo(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			stack.push(result)
 		// ----------------Conditional Operations------------------
 		case OpBr:
 			pc = int(code.IntVal)

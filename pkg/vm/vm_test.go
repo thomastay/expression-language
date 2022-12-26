@@ -34,7 +34,7 @@ func TestValidStrings(t *testing.T) {
 		// variables
 		"a * 30",
 		"buzz * 30",
-		// "a % 3 ? fizz : buzz",
+		"a % 3 ? fizz : buzz",
 	}
 
 	for _, tt := range tests {

@@ -1,6 +1,7 @@
 package vm
 
 import (
+	"math"
 	"strings"
 
 	"github.com/johncgriffin/overflow"
@@ -219,6 +220,47 @@ func div(aVal BVal, bVal BVal) (BVal, error) {
 			}
 			result := float64(a) / float64(b)
 			// Note: find another lib to check for overflow
+			return BFloat(result), nil
+		case BStr:
+			return nil, errMismatchedTypes
+		default:
+			panic("Unreachable")
+		}
+	case BStr:
+		return nil, errMismatchedTypes
+	default:
+		panic("Unreachable")
+	}
+}
+
+func modulo(aVal BVal, bVal BVal) (BVal, error) {
+	// For lack of a MATCH, the happiness was lost...
+	switch a := aVal.(type) {
+	case BInt:
+		switch b := bVal.(type) {
+		case BInt:
+			// case 1: both ints
+			return BInt(a % b), nil
+		case BFloat:
+			// Case 2a: one int, one float
+			// Cast int to float and add
+			result := math.Mod(float64(a), float64(b))
+			return BFloat(result), nil
+		case BStr:
+			return nil, errMismatchedTypes
+		default:
+			panic("Unreachable")
+		}
+	case BFloat:
+		switch b := bVal.(type) {
+		case BInt:
+			// case 2b: one each
+			result := math.Mod(float64(a), float64(b))
+			return BFloat(result), nil
+		case BFloat:
+			// Case 3: both floats
+			// Cast int to float and add
+			result := math.Mod(float64(a), float64(b))
 			return BFloat(result), nil
 		case BStr:
 			return nil, errMismatchedTypes

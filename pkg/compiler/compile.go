@@ -90,6 +90,16 @@ func Compile(expr parser.Expr) Compilation {
 					inst = OpMul
 				case "/":
 					inst = OpDiv
+				case "%":
+					inst = OpMod
+				case "<":
+					inst = OpLt
+				case ">":
+					inst = OpGt
+				case ">=":
+					inst = OpGe
+				case "<=":
+					inst = OpLe
 				default:
 					panic("Not a simple binary op!")
 				}
@@ -174,6 +184,16 @@ func isSimpleBinOp(op string) bool {
 	case "*":
 		return true
 	case "/":
+		return true
+	case "%":
+		return true
+	case "<":
+		return true
+	case ">":
+		return true
+	case ">=":
+		return true
+	case "<=":
 		return true
 	}
 	return false
