@@ -26,7 +26,7 @@ func New(params Params) VMState {
 }
 
 type VMState struct {
-	stack     Stack
+	// stack     Stack // we don't need a stack for now
 	variables map[string]BVal
 	params    Params
 }
@@ -61,7 +61,8 @@ func (vm *VMState) AddStr(key string, val string) {
 func (vm *VMState) Eval(compilation compiler.Compilation) (Result, error) {
 	executedInsts := 0
 	pc := 0
-	stack := vm.stack
+	// stack := vm.stack
+	stack := make(Stack, 0, 64) // preallocate some space for items
 	codes := compilation.Bytecode
 InstLoop:
 	for pc < len(codes) && executedInsts < vm.params.MaxInstructions {
@@ -71,7 +72,7 @@ InstLoop:
 		case OpReturn:
 			break InstLoop
 		case OpConst:
-			stack = append(stack, code.Val)
+			stack.push(code.Val)
 		case OpLoad:
 			identName, ok := code.Val.(BStr)
 			if !ok {
@@ -227,7 +228,7 @@ InstLoop:
 		pc++
 	}
 	val := stack.pop()
-	vm.stack = stack
+	// vm.stack = stack
 	return Result{Val: val}, nil
 }
 
