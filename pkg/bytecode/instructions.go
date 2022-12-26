@@ -21,6 +21,9 @@ const (
 	OpLe
 	OpEq
 	OpNe
+	OpNot
+	OpUnaryPlus
+	OpUnaryMinus
 	OpReturn
 	OpCall
 	// Unconditional branch

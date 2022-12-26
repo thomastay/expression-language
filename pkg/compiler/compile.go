@@ -161,6 +161,26 @@ func Compile(expr parser.Expr) Compilation {
 					log.Panicf("Not implemented %v", node)
 				}
 			}
+		case *parser.EUnOp:
+			switch node.Op.Value {
+			case "+":
+				compileRec(node.Val)
+				c.Bytecode = append(c.Bytecode, Bytecode{
+					Inst: OpUnaryPlus,
+				})
+			case "-":
+				compileRec(node.Val)
+				c.Bytecode = append(c.Bytecode, Bytecode{
+					Inst: OpUnaryMinus,
+				})
+			case "not":
+				compileRec(node.Val)
+				c.Bytecode = append(c.Bytecode, Bytecode{
+					Inst: OpNot,
+				})
+			default:
+				log.Panicf("Not implemented %v", node)
+			}
 		case *parser.ECond:
 			// This places the condition val onto the stack.
 			compileRec(node.Cond)
@@ -216,7 +236,7 @@ func Compile(expr parser.Expr) Compilation {
 				)
 			}
 		default:
-			panic("Not impl")
+			log.Panicf("Not implemented %v", node)
 		}
 	}
 	compileRec(expr)
