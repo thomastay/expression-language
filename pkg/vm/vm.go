@@ -15,7 +15,12 @@ import (
 	"github.com/thomastay/expression_language/pkg/parser"
 )
 
+var defaultMaxInstructions = 1000
+
 func New(params Params) VMState {
+	if params.MaxInstructions == 0 {
+		params.MaxInstructions = defaultMaxInstructions
+	}
 	return VMState{params: params}
 }
 
@@ -43,11 +48,13 @@ func (vm *VMState) EvalString(s string) (Result, error) {
 }
 
 func (vm *VMState) Eval(compilation compiler.Compilation) (Result, error) {
+	executedInsts := 0
 	pc := 0
 	stack := vm.stack
 	codes := compilation.Bytecode
 InstLoop:
-	for pc < len(codes) {
+	for pc < len(codes) && executedInsts < vm.params.MaxInstructions {
+		executedInsts++
 		code := codes[pc]
 		switch code.Inst {
 		case OpReturn:
@@ -119,6 +126,14 @@ InstLoop:
 		case OpBrIfOrPop:
 			a := stack.peek()
 			if a != 0 {
+				pc = int(code.Val)
+				continue InstLoop
+			} else {
+				stack.pop()
+			}
+		case OpBrIfFalseOrPop:
+			a := stack.peek()
+			if a == 0 {
 				pc = int(code.Val)
 				continue InstLoop
 			} else {

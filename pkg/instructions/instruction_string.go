@@ -19,11 +19,12 @@ func _() {
 	_ = x[OpBr-8]
 	_ = x[OpBrIf-9]
 	_ = x[OpBrIfOrPop-10]
+	_ = x[OpBrIfFalseOrPop-11]
 }
 
-const _Instruction_name = "OpConstOpAddOpMinusOpMulOpDivOpAndOpReturnOpPopOpBrOpBrIfOpBrIfOrPop"
+const _Instruction_name = "OpConstOpAddOpMinusOpMulOpDivOpAndOpReturnOpPopOpBrOpBrIfOpBrIfOrPopOpBrIfFalseOrPop"
 
-var _Instruction_index = [...]uint8{0, 7, 12, 19, 24, 29, 34, 42, 47, 51, 57, 68}
+var _Instruction_index = [...]uint8{0, 7, 12, 19, 24, 29, 34, 42, 47, 51, 57, 68, 84}
 
 func (i Instruction) String() string {
 	if i < 0 || i >= Instruction(len(_Instruction_index)-1) {

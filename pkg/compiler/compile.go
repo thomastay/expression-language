@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/alecthomas/participle/v2/lexer"
-	"github.com/thomastay/expression_language/pkg/instructions"
+	. "github.com/thomastay/expression_language/pkg/instructions"
 	"github.com/thomastay/expression_language/pkg/parser"
 )
 
@@ -42,41 +42,52 @@ func Compile(expr parser.Expr) Compilation {
 				panic("Not implemented")
 			}
 			c.Bytecode = append(c.Bytecode, Bytecode{
-				Inst: instructions.OpConst,
+				Inst: OpConst,
 				Val:  val,
 			})
 		case *parser.EBinOp:
 			if isSimpleBinOp(node.Op.Value) {
 				compileRec(node.Left)
 				compileRec(node.Right)
-				var inst instructions.Instruction
+				var inst Instruction
 				switch node.Op.Value {
 				case "+":
-					inst = instructions.OpAdd
+					inst = OpAdd
 				case "-":
-					inst = instructions.OpMinus
+					inst = OpMinus
 				case "*":
-					inst = instructions.OpMul
+					inst = OpMul
 				case "/":
-					inst = instructions.OpDiv
-				case "and":
-					inst = instructions.OpAnd
+					inst = OpDiv
 				default:
 					panic("Not a simple binary op!")
 				}
 				c.Bytecode = append(c.Bytecode, Bytecode{Inst: inst})
 			} else {
 				switch node.Op.Value {
+				case "and":
+					// Bytecode:
+					// | 0        First expr
+					// | 1   |    BR_IF_FALSE_OR_POP
+					// | 2   |    Second Expr
+					// | 3   ---> ...
+					compileRec(node.Left)
+					c.Bytecode = append(c.Bytecode, Bytecode{
+						Inst: OpBrIfFalseOrPop,
+						// patch the val later on
+					})
+					jumpIdx := len(c.Bytecode) - 1
+					compileRec(node.Right)
+					c.Bytecode[jumpIdx].Val = int64(len(c.Bytecode))
 				case "or":
 					// Bytecode:
 					// | 0        First expr
 					// | 1   |    BR_IF_OR_POP
 					// | 2   |    Second Expr
 					// | 3   ---> ...
-					// Thus, we put the else clause first, and branch to the then clause if true
 					compileRec(node.Left)
 					c.Bytecode = append(c.Bytecode, Bytecode{
-						Inst: instructions.OpBrIfOrPop,
+						Inst: OpBrIfOrPop,
 						// patch the val later on
 					})
 					jumpIdx := len(c.Bytecode) - 1
@@ -99,14 +110,14 @@ func Compile(expr parser.Expr) Compilation {
 			// | 5     --> ....
 			// Thus, we put the else clause first, and branch to the then clause if true
 			c.Bytecode = append(c.Bytecode, Bytecode{
-				Inst: instructions.OpBrIf,
+				Inst: OpBrIf,
 				// patch the val later on
 			})
 			firstJumpIdx := len(c.Bytecode) - 1
 
 			compileRec(node.Second)
 			c.Bytecode = append(c.Bytecode, Bytecode{
-				Inst: instructions.OpBr,
+				Inst: OpBr,
 			})
 			secondJumpIdx := len(c.Bytecode) - 1
 			// Patch the first jump
@@ -133,8 +144,6 @@ func isSimpleBinOp(op string) bool {
 		return true
 	case "/":
 		return true
-	case "and":
-		return true
 	}
 	return false
 }
@@ -146,22 +155,22 @@ type Compilation struct {
 }
 
 type Bytecode struct {
-	Inst instructions.Instruction
+	Inst Instruction
 	Val  int64 // TODO
 }
 
 func (b Bytecode) String() string {
 	switch b.Inst {
 	// No value
-	case instructions.OpAdd:
+	case OpAdd:
 		fallthrough
-	case instructions.OpMul:
+	case OpMul:
 		fallthrough
-	case instructions.OpDiv:
+	case OpDiv:
 		fallthrough
-	case instructions.OpAnd:
+	case OpAnd:
 		fallthrough
-	case instructions.OpMinus:
+	case OpMinus:
 		return fmt.Sprintf("%s", b.Inst)
 	default:
 		return fmt.Sprintf("%s %d", b.Inst, b.Val)

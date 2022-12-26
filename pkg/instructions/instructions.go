@@ -21,4 +21,6 @@ const (
 	OpBrIf
 	// Conditional branch if top of stack is truthy. If so, doesn't consume, else it does.
 	OpBrIfOrPop
+	// Conditional branch if top of stack is falsey. If so, doesn't consume, else it does.
+	OpBrIfFalseOrPop
 )
