@@ -42,7 +42,7 @@ func main() {
 	m.AddFunc("foobar", vm.Wrap1(func(x bytecode.BVal) bytecode.BVal {
 		log.Println(x)
 		return bytecode.BInt(1)
-	}), 1)
+	}))
 	result, err := m.Eval(comp)
 	if err != nil {
 		log.Fatal(err)

@@ -41,11 +41,16 @@ func (vm *VMState) AddStr(key string, val string) {
 	vm.variables[key] = BStr(val)
 }
 
+type VMFuncWithArgs struct {
+	Fn      VMFunc
+	NumArgs int
+}
+
 // Adds a function to the VM. Users must specify the number of arguments the function takes.
-func (vm *VMState) AddFunc(name string, fn VMFunc, numArgs int) {
+func (vm *VMState) AddFunc(name string, fnWithArgs VMFuncWithArgs) {
 	vm.variables[name] = BFunc{
-		Fn:      fn,
-		NumArgs: numArgs,
+		Fn:      fnWithArgs.Fn,
+		NumArgs: fnWithArgs.NumArgs,
 		Name:    name,
 	}
 }
