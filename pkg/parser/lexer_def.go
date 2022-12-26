@@ -52,7 +52,7 @@ var GenLexerDefinition = lexer.MustStateful(lexer.Rules{
 		lexer.Include("Expr"),
 	},
 	"Expr": {
-		{"DoubleString", `"`, lexer.Push("DoubleString")},
+		// {"DoubleString", `"`, lexer.Push("DoubleString")},
 		{"SingleString", `'[^\']*'`, nil},
 		{`whitespace`, `\s+`, nil},
 		{`Bool`, "true|false", nil},
@@ -66,13 +66,13 @@ var GenLexerDefinition = lexer.MustStateful(lexer.Rules{
 		{"Int", `0|[1-9][\d_]*`, nil},
 		// {"ExprEnd", `}`, lexer.Pop()},
 	},
-	"DoubleString": {
-		// TODO string escapes
-		// {"ExprEscaped", `\\.`, nil},
-		{"DoubleStringEnd", `"`, lexer.Pop()},
-		// {"Expr", `\${`, lexer.Push("Expr")},
-		// {"ExprChar", `[^$`\]+`, nil},
-	},
+	// "DoubleString": {
+	// 	// TODO string escapes
+	// 	// {"ExprEscaped", `\\.`, nil},
+	// 	{"DoubleStringEnd", `"`, lexer.Pop()},
+	// 	// {"Expr", `\${`, lexer.Push("Expr")},
+	// 	// {"ExprChar", `[^$`\]+`, nil},
+	// },
 	// "ExprReference": {
 	// 	{"ExprDot", `\.`, nil},
 	// 	{"Ident", `\w+`, nil},

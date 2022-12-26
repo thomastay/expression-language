@@ -1,22 +1,5 @@
 {
-  "DoubleString": [
-    {
-      "name": "DoubleStringEnd",
-      "pattern": "\"",
-      "action": {
-        "kind": "pop"
-      }
-    }
-  ],
   "Expr": [
-    {
-      "name": "DoubleString",
-      "pattern": "\"",
-      "action": {
-        "kind": "push",
-        "state": "DoubleString"
-      }
-    },
     {
       "name": "SingleString",
       "pattern": "'[^\\']*'"
@@ -63,14 +46,6 @@
     }
   ],
   "Root": [
-    {
-      "name": "DoubleString",
-      "pattern": "\"",
-      "action": {
-        "kind": "push",
-        "state": "DoubleString"
-      }
-    },
     {
       "name": "SingleString",
       "pattern": "'[^\\']*'"

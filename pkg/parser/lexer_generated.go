@@ -24,20 +24,18 @@ type lexerDefinitionImpl struct {}
 
 func (lexerDefinitionImpl) Symbols() map[string]lexer.TokenType {
 	return map[string]lexer.TokenType{
-      "BinInt": -25,
-      "Bool": -18,
-      "DoubleString": -15,
-      "DoubleStringEnd": -2,
+      "BinInt": -22,
+      "Bool": -15,
       "EOF": -1,
-      "EndExpr": -20,
-      "Float": -22,
-      "HexInt": -23,
-      "Ident": -21,
-      "Int": -26,
-      "OctInt": -24,
-      "Op": -19,
-      "SingleString": -16,
-      "whitespace": -17,
+      "EndExpr": -17,
+      "Float": -19,
+      "HexInt": -20,
+      "Ident": -18,
+      "Int": -23,
+      "OctInt": -21,
+      "Op": -16,
+      "SingleString": -13,
+      "whitespace": -14,
 	}
 }
 
@@ -88,85 +86,72 @@ func (l *lexerImpl) Next() (lexer.Token, error) {
 		sym lexer.TokenType
 	)
 	switch state.name {
-	case "DoubleString":if match := matchDoubleStringEnd(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -2
-			groups = match[:]
-			l.states = l.states[:len(l.states)-1]
-		}
-	case "Expr":if match := matchDoubleString(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -15
-			groups = match[:]
-			l.states = append(l.states, lexerState{name: "DoubleString"})
-		} else if match := matchSingleString(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -16
+	case "Expr":if match := matchSingleString(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -13
 			groups = match[:]
 		} else if match := matchwhitespace(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -17
+			sym = -14
 			groups = match[:]
 		} else if match := matchBool(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -18
-			groups = match[:]
-		} else if match := matchOp(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -19
-			groups = match[:]
-		} else if match := matchEndExpr(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -20
-			groups = match[:]
-		} else if match := matchIdent(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -21
-			groups = match[:]
-		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -22
-			groups = match[:]
-		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -23
-			groups = match[:]
-		} else if match := matchOctInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -24
-			groups = match[:]
-		} else if match := matchBinInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -25
-			groups = match[:]
-		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -26
-			groups = match[:]
-		}
-	case "Root":if match := matchDoubleString(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -15
 			groups = match[:]
-			l.states = append(l.states, lexerState{name: "DoubleString"})
-		} else if match := matchSingleString(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchOp(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -16
 			groups = match[:]
-		} else if match := matchwhitespace(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchEndExpr(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -17
 			groups = match[:]
-		} else if match := matchBool(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchIdent(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -18
 			groups = match[:]
-		} else if match := matchOp(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -19
 			groups = match[:]
-		} else if match := matchEndExpr(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -20
 			groups = match[:]
-		} else if match := matchIdent(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchOctInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -21
 			groups = match[:]
-		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchBinInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -22
 			groups = match[:]
-		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -23
 			groups = match[:]
+		}
+	case "Root":if match := matchSingleString(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -13
+			groups = match[:]
+		} else if match := matchwhitespace(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -14
+			groups = match[:]
+		} else if match := matchBool(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -15
+			groups = match[:]
+		} else if match := matchOp(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -16
+			groups = match[:]
+		} else if match := matchEndExpr(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -17
+			groups = match[:]
+		} else if match := matchIdent(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -18
+			groups = match[:]
+		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -19
+			groups = match[:]
+		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -20
+			groups = match[:]
 		} else if match := matchOctInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -24
+			sym = -21
 			groups = match[:]
 		} else if match := matchBinInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -25
+			sym = -22
 			groups = match[:]
 		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -26
+			sym = -23
 			groups = match[:]
 		}
 	}
@@ -195,24 +180,6 @@ func (l *lexerImpl) sgroups(match []int) []string {
 	}
 	return sgroups
 }
-// "
-func matchDoubleStringEnd(s string, p int, backrefs []string) (groups [2]int) {
-if p < len(s) && s[p] == '"' {
-groups[0] = p
-groups[1] = p + 1
-}
-return
-}
-
-// "
-func matchDoubleString(s string, p int, backrefs []string) (groups [2]int) {
-if p < len(s) && s[p] == '"' {
-groups[0] = p
-groups[1] = p + 1
-}
-return
-}
-
 // '[^']*'
 func matchSingleString(s string, p int, backrefs []string) (groups [2]int) {
 // ' (Literal)
