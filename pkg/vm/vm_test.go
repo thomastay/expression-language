@@ -123,6 +123,31 @@ func TestFizzBuzz(t *testing.T) {
 	}
 }
 
+func TestCollatz(t *testing.T) {
+	m := vm.New(vm.Params{})
+	s := "i % 2 ? 3 * i + 1 : i / 2"
+	compilation := compiler.CompileString(s)
+	if len(compilation.Errors) > 0 {
+		t.Fatal("Found compile errors")
+	}
+	for i := 1000; i > 1; {
+		m.AddInt("i", int64(i))
+		result, err := m.Eval(compilation)
+		if err != nil {
+			t.Error(err)
+		}
+		switch cltz := result.Val.(type) {
+		case bytecode.BInt:
+			if int(cltz) != collatz(i) {
+				t.Fatalf("Wanted %d, got %d", collatz(i), cltz)
+			}
+			i = int(cltz)
+		default:
+			t.Fatal("Bad return")
+		}
+	}
+}
+
 func fizzBuzz(i int) string {
 	if i%3 == 0 {
 		if i%5 == 0 {
@@ -133,6 +158,13 @@ func fizzBuzz(i int) string {
 		return "buzz"
 	}
 	return fmt.Sprint(i)
+}
+
+func collatz(i int) int {
+	if i%2 == 0 {
+		return i / 2
+	}
+	return 3*i + 1
 }
 
 func seedVM(m vm.VMState) {
