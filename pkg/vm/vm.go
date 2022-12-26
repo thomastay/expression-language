@@ -63,10 +63,6 @@ InstLoop:
 			stack = append(stack, code.Val)
 		// ----------------Binary Operations------------------
 		case OpAdd:
-			n := len(stack)
-			if n < 2 {
-				return Result{}, errNotEnoughStackValues
-			}
 			b := stack.pop()
 			a := stack.pop()
 			result, ok := overflow.Add64(a, b)
@@ -75,10 +71,6 @@ InstLoop:
 			}
 			stack.push(result)
 		case OpMinus:
-			n := len(stack)
-			if n < 2 {
-				return Result{}, errNotEnoughStackValues
-			}
 			b := stack.pop()
 			a := stack.pop()
 			result, ok := overflow.Sub64(a, b)
@@ -87,10 +79,6 @@ InstLoop:
 			}
 			stack.push(result)
 		case OpMul:
-			n := len(stack)
-			if n < 2 {
-				return Result{}, errNotEnoughStackValues
-			}
 			b := stack.pop()
 			a := stack.pop()
 			result, ok := overflow.Mul64(a, b)
@@ -99,10 +87,6 @@ InstLoop:
 			}
 			stack.push(result)
 		case OpDiv:
-			n := len(stack)
-			if n < 2 {
-				return Result{}, errNotEnoughStackValues
-			}
 			b := stack.pop()
 			a := stack.pop()
 			if b == 0 {
