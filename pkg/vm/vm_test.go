@@ -10,8 +10,8 @@ import (
 func TestValidStrings(t *testing.T) {
 	var tests = []string{
 		// Floats
-		// "1.1",
-		// "1.1e10",
+		"1.1",
+		"1.1e10",
 		// Ints
 		"1", // base 10
 		// Calculator
@@ -20,6 +20,10 @@ func TestValidStrings(t *testing.T) {
 		"1 - 100 - 3",
 		"1 / 10",
 		"100 / 10 * 3",
+		"((10 * 3.0) ? 3 : 10) * 5.0e10",
+		"((10 * 3.0) ? 3 : 10) * 5.0",
+		// conditionals
+		"0.7 or 9",
 	}
 
 	for _, tt := range tests {
@@ -38,6 +42,7 @@ func TestInvalidStrings(t *testing.T) {
 	var tests = []string{
 		// Overflow
 		"1 + 101000000000000000 * 20000000000000000",
+		"((10 * 3.0) ? 3 : 1000000000000000000000000000000000000) * 5.0e1000000000",
 		// div 0
 		"1 / 0",
 	}

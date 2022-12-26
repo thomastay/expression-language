@@ -45,7 +45,7 @@ func (b Bytecode) String() string {
 	case OpAnd:
 		fallthrough
 	case OpMinus:
-		return fmt.Sprintf("%s", b.Inst)
+		return b.Inst.String()
 	default:
 		if b.Val == nil {
 			return fmt.Sprintf("%s %d", b.Inst, b.IntVal)
