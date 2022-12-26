@@ -9,7 +9,7 @@ import (
 )
 
 func add(aVal BVal, bVal BVal) (BVal, error) {
-	// For lack of a MATCH, the happiness was lost...
+	// For want of a MATCH, the happiness was lost...
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {
@@ -67,7 +67,7 @@ func add(aVal BVal, bVal BVal) (BVal, error) {
 }
 
 func sub(aVal BVal, bVal BVal) (BVal, error) {
-	// For lack of a MATCH, the happiness was lost...
+	// For want of a MATCH, the happiness was lost...
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {
@@ -115,7 +115,7 @@ func sub(aVal BVal, bVal BVal) (BVal, error) {
 }
 
 func mul(aVal BVal, bVal BVal) (BVal, error) {
-	// For lack of a MATCH, the happiness was lost...
+	// For want of a MATCH, the happiness was lost...
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {
@@ -174,7 +174,7 @@ func mul(aVal BVal, bVal BVal) (BVal, error) {
 }
 
 func div(aVal BVal, bVal BVal) (BVal, error) {
-	// For lack of a MATCH, the happiness was lost...
+	// For want of a MATCH, the happiness was lost...
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {
@@ -234,7 +234,7 @@ func div(aVal BVal, bVal BVal) (BVal, error) {
 }
 
 func modulo(aVal BVal, bVal BVal) (BVal, error) {
-	// For lack of a MATCH, the happiness was lost...
+	// For want of a MATCH, the happiness was lost...
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {
