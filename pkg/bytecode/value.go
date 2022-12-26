@@ -17,11 +17,13 @@ type BVal interface {
 	IsTruthy() bool
 }
 
+func (b BNull) isBVal()  {}
 func (b BFloat) isBVal() {}
 func (b BInt) isBVal()   {}
 func (b BStr) isBVal()   {}
 func (b BFunc) isBVal()  {}
 
+type BNull struct{}
 type BFloat float64
 type BInt int64
 type BStr string
@@ -33,6 +35,9 @@ type BFunc struct {
 	Name    string // for debugging
 }
 
+func (b BNull) String() string {
+	return "null"
+}
 func (b BFloat) String() string {
 	return fmt.Sprintf("%f", float64(b))
 }
@@ -46,6 +51,9 @@ func (b BFunc) String() string {
 	return fmt.Sprintf("Function %s taking in %d args", b.Name, b.NumArgs)
 }
 
+func (b BNull) IsTruthy() bool {
+	return false
+}
 func (b BFloat) IsTruthy() bool {
 	return int64(b) != 0
 }
@@ -57,7 +65,7 @@ func (b BStr) IsTruthy() bool {
 }
 
 func (b BFunc) IsTruthy() bool {
-	return false
+	return true
 }
 
 func (b Bytecode) String() string {

@@ -8,6 +8,16 @@ import (
 
 var ErrInvalidNumParams = errors.New("Invalid number of arguments provided")
 
+func Wrap0(fn func() BVal) VMFunc {
+	return func(args []BVal) (BVal, error) {
+		if len(args) != 0 {
+			return nil, ErrInvalidNumParams
+		}
+		fn()
+		return BNull{}, nil
+	}
+}
+
 func Wrap1(fn func(p1 BVal) BVal) VMFunc {
 	return func(args []BVal) (BVal, error) {
 		if len(args) != 1 {
