@@ -12,6 +12,7 @@ import (
 	"github.com/johncgriffin/overflow"
 	"github.com/thomastay/expression_language/pkg/compiler"
 	. "github.com/thomastay/expression_language/pkg/instructions"
+	"github.com/thomastay/expression_language/pkg/parser"
 )
 
 func New(params Params) VMState {
@@ -22,6 +23,23 @@ type VMState struct {
 	stack     Stack
 	variables map[string]int64 // TODO don't use int
 	params    Params
+}
+
+// Convenience method if you just want to evaluate a string. Concatenates all compile errors into one
+func (vm *VMState) EvalString(s string) (Result, error) {
+	expr, err := parser.ParseString(s)
+	if err != nil {
+		return Result{}, err
+	}
+	comp := compiler.Compile(expr)
+	if len(comp.Errors) > 0 {
+		var errString string
+		for _, c := range comp.Errors {
+			errString += c.Error()
+		}
+		return Result{}, errors.New(errString)
+	}
+	return vm.Eval(comp)
 }
 
 func (vm *VMState) Eval(compilation compiler.Compilation) (Result, error) {

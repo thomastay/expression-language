@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/thomastay/expression_language/pkg/compiler"
-	"github.com/thomastay/expression_language/pkg/parser"
 	"github.com/thomastay/expression_language/pkg/vm"
 )
 
@@ -27,16 +25,8 @@ func TestValidStrings(t *testing.T) {
 	for _, tt := range tests {
 		testname := fmt.Sprintf("%s", tt)
 		t.Run(testname, func(t *testing.T) {
-			expr, err := parser.ParseString(tt)
-			if err != nil {
-				t.Fatalf("got %v", err)
-			}
-			comp := compiler.Compile(expr)
-			if len(comp.Errors) > 0 {
-				t.Fatal(comp.Errors)
-			}
 			vm := vm.New(vm.Params{})
-			_, err = vm.Eval(comp)
+			_, err := vm.EvalString(tt)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -48,23 +38,17 @@ func TestInvalidStrings(t *testing.T) {
 	var tests = []string{
 		// Overflow
 		"1 + 101000000000000000 * 20000000000000000",
+		// div 0
+		"1 / 0",
 	}
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("%s", tt)
 		t.Run(testname, func(t *testing.T) {
-			expr, err := parser.ParseString(tt)
-			if err != nil {
-				t.Fatalf("got %v", err)
-			}
-			comp := compiler.Compile(expr)
-			if len(comp.Errors) > 0 {
-				t.Fatal(comp.Errors)
-			}
 			vm := vm.New(vm.Params{})
-			_, err = vm.Eval(comp)
+			_, err := vm.EvalString(tt)
 			if err == nil {
-				t.Errorf("Should have got an error, but received nothing")
+				t.Fatal("Expected an error, got nil")
 			}
 		})
 	}

@@ -68,6 +68,8 @@ func Compile(expr parser.Expr) Compilation {
 			c.Bytecode = append(c.Bytecode, Bytecode{
 				Inst: inst,
 			})
+		default:
+			panic("Not impl")
 		}
 	}
 	compileRec(expr)
@@ -105,4 +107,8 @@ type CompileError struct {
 	Err   error
 	Start *lexer.Token
 	End   *lexer.Token
+}
+
+func (c CompileError) Error() string {
+	return c.Err.Error()
 }
