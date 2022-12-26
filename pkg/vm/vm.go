@@ -31,6 +31,25 @@ type VMState struct {
 	params    Params
 }
 
+func (vm *VMState) AddInt(key string, val int64) {
+	vm.variables[key] = BInt(val)
+}
+func (vm *VMState) AddFloat(key string, val float64) {
+	vm.variables[key] = BFloat(val)
+}
+func (vm *VMState) AddStr(key string, val string) {
+	vm.variables[key] = BStr(val)
+}
+
+// Adds a function to the VM. Users must specify the number of arguments the function takes.
+func (vm *VMState) AddFunc(name string, fn VMFunc, numArgs int) {
+	vm.variables[name] = BFunc{
+		Fn:      fn,
+		NumArgs: numArgs,
+		Name:    name,
+	}
+}
+
 // Convenience method if you just want to evaluate a string. Concatenates all compile errors into one
 func (vm *VMState) EvalString(s string) (Result, error) {
 	expr, err := parser.ParseString(s)
@@ -46,16 +65,6 @@ func (vm *VMState) EvalString(s string) (Result, error) {
 		return Result{}, errors.New(errString)
 	}
 	return vm.Eval(comp)
-}
-
-func (vm *VMState) AddInt(key string, val int64) {
-	vm.variables[key] = BInt(val)
-}
-func (vm *VMState) AddFloat(key string, val float64) {
-	vm.variables[key] = BFloat(val)
-}
-func (vm *VMState) AddStr(key string, val string) {
-	vm.variables[key] = BStr(val)
 }
 
 func (vm *VMState) Eval(compilation compiler.Compilation) (Result, error) {
