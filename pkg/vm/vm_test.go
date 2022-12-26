@@ -151,6 +151,40 @@ func TestCollatz(t *testing.T) {
 	}
 }
 
+func BenchmarkCollatz(b *testing.B) {
+	// Just for fun
+	m := vm.New(vm.Params{})
+	s := "i % 2 ? 3*i + 1 : i/2 "
+	compilation := compiler.CompileString(s)
+	if len(compilation.Errors) > 0 {
+		b.Fatal("Found compile errors")
+	}
+	for numRuns := 0; numRuns < b.N; numRuns++ {
+		for i := 100000; i > 1; {
+			m.AddInt("i", int64(i))
+			result, err := m.Eval(compilation)
+			if err != nil {
+				b.Error(err)
+			}
+			switch cltz := result.Val.(type) {
+			case bytecode.BInt:
+				i = int(cltz)
+			default:
+				b.Fatal("Bad return")
+			}
+		}
+	}
+}
+
+func BenchmarkCollatzRegular(b *testing.B) {
+	// Just for fun
+	for numRuns := 0; numRuns < b.N; numRuns++ {
+		for i := 100000; i > 1; {
+			i = collatz(i)
+		}
+	}
+}
+
 func fizzBuzz(i int) string {
 	if i%3 == 0 {
 		if i%5 == 0 {
