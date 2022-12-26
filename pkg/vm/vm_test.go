@@ -22,6 +22,9 @@ func TestValidStrings(t *testing.T) {
 		"100 / 10 * 3",
 		"((10 * 3.0) ? 3 : 10) * 5.0e10",
 		"((10 * 3.0) ? 3 : 10) * 5.0",
+		// strings
+		"'a'",
+		"'a' * 2",
 		// conditionals
 		"0.7 or 9",
 	}

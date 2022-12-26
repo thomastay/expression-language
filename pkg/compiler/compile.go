@@ -54,6 +54,12 @@ func Compile(expr parser.Expr) Compilation {
 					Inst: OpConst,
 					Val:  BFloat(val),
 				})
+			case parser.TokSingleString:
+				val := node.Val.Value
+				c.Bytecode = append(c.Bytecode, Bytecode{
+					Inst: OpConst,
+					Val:  BStr(val),
+				})
 			default:
 				panic("Not implemented")
 			}
