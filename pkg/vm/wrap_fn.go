@@ -14,8 +14,7 @@ func Wrap0(fn func() BVal) VMFuncWithArgs {
 			if len(args) != 0 {
 				return nil, ErrInvalidNumParams
 			}
-			fn()
-			return BNull{}, nil
+			return fn(), nil
 		},
 		NumArgs: 0,
 	}
