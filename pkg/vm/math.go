@@ -26,10 +26,8 @@ func add(aVal BVal, bVal BVal) (BVal, error) {
 			result := float64(a) + float64(b)
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
-		case BStr:
-			return nil, errTypeMismatch("+", aVal, bVal)
 		default:
-			panic("Unreachable")
+			return nil, errTypeMismatch("+", aVal, bVal)
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -44,10 +42,8 @@ func add(aVal BVal, bVal BVal) (BVal, error) {
 			result := float64(a) + float64(b)
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
-		case BStr:
-			return nil, errTypeMismatch("+", aVal, bVal)
 		default:
-			panic("Unreachable")
+			return nil, errTypeMismatch("+", aVal, bVal)
 		}
 	case BStr:
 		switch b := bVal.(type) {
@@ -59,10 +55,10 @@ func add(aVal BVal, bVal BVal) (BVal, error) {
 			s := a + b
 			return BStr(s), nil
 		default:
-			panic("Unreachable")
+			return nil, errTypeMismatch("+", aVal, bVal)
 		}
 	default:
-		panic("Unreachable")
+		return nil, errTypeMismatch("+", aVal, bVal)
 	}
 }
 
@@ -84,10 +80,8 @@ func sub(aVal BVal, bVal BVal) (BVal, error) {
 			result := float64(a) - float64(b)
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
-		case BStr:
-			return nil, errTypeMismatch("-", aVal, bVal)
 		default:
-			panic("Unreachable")
+			return nil, errTypeMismatch("-", aVal, bVal)
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -102,15 +96,11 @@ func sub(aVal BVal, bVal BVal) (BVal, error) {
 			result := float64(a) - float64(b)
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
-		case BStr:
-			return nil, errTypeMismatch("-", aVal, bVal)
 		default:
-			panic("Unreachable")
+			return nil, errTypeMismatch("-", aVal, bVal)
 		}
-	case BStr:
-		return nil, errTypeMismatch("-", aVal, bVal)
 	default:
-		panic("Unreachable")
+		return nil, errTypeMismatch("-", aVal, bVal)
 	}
 }
 
@@ -136,7 +126,7 @@ func mul(aVal BVal, bVal BVal) (BVal, error) {
 			s := strings.Repeat(string(b), int(a))
 			return BStr(s), nil
 		default:
-			panic("Unreachable")
+			return nil, errTypeMismatch("*", aVal, bVal)
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -151,10 +141,8 @@ func mul(aVal BVal, bVal BVal) (BVal, error) {
 			result := float64(a) * float64(b)
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
-		case BStr:
-			return nil, errTypeMismatch("*", aVal, bVal)
 		default:
-			panic("Unreachable")
+			return nil, errTypeMismatch("*", aVal, bVal)
 		}
 	case BStr:
 		switch b := bVal.(type) {
@@ -163,13 +151,11 @@ func mul(aVal BVal, bVal BVal) (BVal, error) {
 			return BStr(s), nil
 		case BFloat:
 			return nil, errTypeMismatch("*", aVal, bVal)
-		case BStr:
-			return nil, errTypeMismatch("*", aVal, bVal)
 		default:
-			panic("Unreachable")
+			return nil, errTypeMismatch("*", aVal, bVal)
 		}
 	default:
-		panic("Unreachable")
+		return nil, errTypeMismatch("*", aVal, bVal)
 	}
 }
 
@@ -197,10 +183,8 @@ func div(aVal BVal, bVal BVal) (BVal, error) {
 			result := float64(a) / float64(b)
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
-		case BStr:
-			return nil, errTypeMismatch("/", aVal, bVal)
 		default:
-			panic("Unreachable")
+			return nil, errTypeMismatch("/", aVal, bVal)
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -221,15 +205,11 @@ func div(aVal BVal, bVal BVal) (BVal, error) {
 			result := float64(a) / float64(b)
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
-		case BStr:
-			return nil, errTypeMismatch("/", aVal, bVal)
 		default:
-			panic("Unreachable")
+			return nil, errTypeMismatch("/", aVal, bVal)
 		}
-	case BStr:
-		return nil, errTypeMismatch("/", aVal, bVal)
 	default:
-		panic("Unreachable")
+		return nil, errTypeMismatch("/", aVal, bVal)
 	}
 }
 
@@ -246,10 +226,8 @@ func modulo(aVal BVal, bVal BVal) (BVal, error) {
 			// Cast int to float and add
 			result := math.Mod(float64(a), float64(b))
 			return BFloat(result), nil
-		case BStr:
-			return nil, errTypeMismatch("%", aVal, bVal)
 		default:
-			panic("Unreachable")
+			return nil, errTypeMismatch("%", aVal, bVal)
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -262,15 +240,11 @@ func modulo(aVal BVal, bVal BVal) (BVal, error) {
 			// Cast int to float and add
 			result := math.Mod(float64(a), float64(b))
 			return BFloat(result), nil
-		case BStr:
-			return nil, errTypeMismatch("%", aVal, bVal)
 		default:
-			panic("Unreachable")
+			return nil, errTypeMismatch("%", aVal, bVal)
 		}
-	case BStr:
-		return nil, errTypeMismatch("%", aVal, bVal)
 	default:
-		panic("Unreachable")
+		return nil, errTypeMismatch("%", aVal, bVal)
 	}
 }
 
@@ -298,10 +272,8 @@ func cmp(aVal BVal, bVal BVal) (int, error) {
 				return 0, nil
 			}
 			return 1, nil
-		case BStr:
-			return 0, errTypeMismatch("cmp", aVal, bVal)
 		default:
-			panic("Unreachable")
+			return 0, errTypeMismatch("cmp", aVal, bVal)
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -324,10 +296,8 @@ func cmp(aVal BVal, bVal BVal) (int, error) {
 				return 0, nil
 			}
 			return 1, nil
-		case BStr:
-			return 0, errTypeMismatch("cmp", aVal, bVal)
 		default:
-			panic("Unreachable")
+			return 0, errTypeMismatch("cmp", aVal, bVal)
 		}
 	case BStr:
 		b, ok := bVal.(BStr)
@@ -342,6 +312,6 @@ func cmp(aVal BVal, bVal BVal) (int, error) {
 		}
 		return 1, nil
 	default:
-		panic("Unreachable")
+		return 0, errTypeMismatch("cmp", aVal, bVal)
 	}
 }
