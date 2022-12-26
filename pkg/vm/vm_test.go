@@ -48,6 +48,15 @@ func TestValidStrings(t *testing.T) {
 		"10.3 <= 10 ? 20 : 40",
 		"10 >= 10.5 ? 20 : 40",
 		"'asd' < buzz ? fizz : 'bar'",
+		// comparing weird values
+		"1 == 4",
+		"2 == foo",
+		"3 != 'false'",
+		"4 == foobar(10)",
+		// "true == false",
+		// "true == foo",
+		// "true != 'false'",
+		// "true == foobar(10)",
 		// Fizzbuzz!
 		"a % 3 ? a % 5 ? a : 'buzz' : a % 5 ? fizz : fizzbuzz",
 		// Collatz
@@ -63,7 +72,7 @@ func TestValidStrings(t *testing.T) {
 			seedVM(vm)
 			_, err := vm.EvalString(tt)
 			if err != nil {
-				t.Fatal(err)
+				t.Error(err)
 			}
 		})
 	}
@@ -215,6 +224,6 @@ func seedVM(m vm.VMState) {
 	m.AddStr("buzz", "buzz")
 	m.AddFunc("foobar", vm.Wrap1(func(x bytecode.BVal) bytecode.BVal {
 		log.Println(x)
-		return bytecode.BInt(1)
+		return bytecode.BNull{}
 	}))
 }

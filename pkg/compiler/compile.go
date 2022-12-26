@@ -89,7 +89,7 @@ func Compile(expr parser.Expr) Compilation {
 					Val:  BStr(val),
 				})
 			default:
-				panic("Not implemented")
+				log.Panicf("Not implemented %s", node)
 			}
 		case *parser.EBinOp:
 			if isSimpleBinOp(node.Op.Value) {

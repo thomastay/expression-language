@@ -141,7 +141,7 @@ InstLoop:
 		case OpLt:
 			b := stack.pop()
 			a := stack.pop()
-			ord, err := cmp(a, b)
+			ord, err := cmp(a, b, "<")
 			if err != nil {
 				return Result{}, err
 			}
@@ -153,7 +153,7 @@ InstLoop:
 		case OpGt:
 			b := stack.pop()
 			a := stack.pop()
-			ord, err := cmp(a, b)
+			ord, err := cmp(a, b, ">")
 			if err != nil {
 				return Result{}, err
 			}
@@ -165,7 +165,7 @@ InstLoop:
 		case OpLe:
 			b := stack.pop()
 			a := stack.pop()
-			ord, err := cmp(a, b)
+			ord, err := cmp(a, b, "<=")
 			if err != nil {
 				return Result{}, err
 			}
@@ -177,7 +177,7 @@ InstLoop:
 		case OpGe:
 			b := stack.pop()
 			a := stack.pop()
-			ord, err := cmp(a, b)
+			ord, err := cmp(a, b, ">=")
 			if err != nil {
 				return Result{}, err
 			}
@@ -189,24 +189,18 @@ InstLoop:
 		case OpEq:
 			b := stack.pop()
 			a := stack.pop()
-			ord, err := cmp(a, b)
-			if err != nil {
-				return Result{}, err
-			}
+			equal := eq(a, b)
 			result := 0
-			if ord == 0 {
+			if equal {
 				result = 1
 			}
 			stack.push(BInt(result))
 		case OpNe:
 			b := stack.pop()
 			a := stack.pop()
-			ord, err := cmp(a, b)
-			if err != nil {
-				return Result{}, err
-			}
+			equal := eq(a, b)
 			result := 0
-			if ord != 0 {
+			if !equal {
 				result = 1
 			}
 			stack.push(BInt(result))
