@@ -24,11 +24,10 @@ func main() {
 		}
 		os.Exit(1)
 	}
-	var bytecodeStrs []string
-	for _, b := range comp.Bytecode {
-		bytecodeStrs = append(bytecodeStrs, b.String())
+	fmt.Println("Bytecode:")
+	for i, b := range comp.Bytecode {
+		fmt.Println("  ", i, b.String())
 	}
-	fmt.Println("Bytecode:", strings.Join(bytecodeStrs, ", "))
 	vm := vm.New(vm.Params{})
 	result, err := vm.Eval(comp)
 	if err != nil {

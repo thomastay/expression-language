@@ -46,26 +46,46 @@ func Compile(expr parser.Expr) Compilation {
 				Val:  val,
 			})
 		case *parser.EBinOp:
-			// parse left
-			compileRec(node.Left)
-			compileRec(node.Right)
-			// parse right
-			var inst instructions.Instruction
-			switch node.Op.Value {
-			case "+":
-				inst = instructions.OpAdd
-			case "-":
-				inst = instructions.OpMinus
-			case "*":
-				inst = instructions.OpMul
-			case "/":
-				inst = instructions.OpDiv
-			default:
-				panic("Not implemented")
+			if isSimpleBinOp(node.Op.Value) {
+				compileRec(node.Left)
+				compileRec(node.Right)
+				var inst instructions.Instruction
+				switch node.Op.Value {
+				case "+":
+					inst = instructions.OpAdd
+				case "-":
+					inst = instructions.OpMinus
+				case "*":
+					inst = instructions.OpMul
+				case "/":
+					inst = instructions.OpDiv
+				case "and":
+					inst = instructions.OpAnd
+				default:
+					panic("Not a simple binary op!")
+				}
+				c.Bytecode = append(c.Bytecode, Bytecode{Inst: inst})
+			} else {
+				switch node.Op.Value {
+				case "or":
+					// Bytecode:
+					// | 0        First expr
+					// | 1   |    BR_IF_OR_POP
+					// | 2   |    Second Expr
+					// | 3   ---> ...
+					// Thus, we put the else clause first, and branch to the then clause if true
+					compileRec(node.Left)
+					c.Bytecode = append(c.Bytecode, Bytecode{
+						Inst: instructions.OpBrIfOrPop,
+						// patch the val later on
+					})
+					jumpIdx := len(c.Bytecode) - 1
+					compileRec(node.Right)
+					c.Bytecode[jumpIdx].Val = int64(len(c.Bytecode))
+				default:
+					panic("Not implemented")
+				}
 			}
-			c.Bytecode = append(c.Bytecode, Bytecode{
-				Inst: inst,
-			})
 		case *parser.ECond:
 			// This places the condition val onto the stack.
 			compileRec(node.Cond)
@@ -101,6 +121,22 @@ func Compile(expr parser.Expr) Compilation {
 	}
 	compileRec(expr)
 	return c
+}
+
+func isSimpleBinOp(op string) bool {
+	switch op {
+	case "+":
+		return true
+	case "-":
+		return true
+	case "*":
+		return true
+	case "/":
+		return true
+	case "and":
+		return true
+	}
+	return false
 }
 
 // represents the

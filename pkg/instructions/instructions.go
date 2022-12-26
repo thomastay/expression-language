@@ -12,6 +12,7 @@ const (
 	OpMinus
 	OpMul
 	OpDiv
+	OpAnd
 	OpReturn
 	OpPop
 	// Unconditional branch
