@@ -53,10 +53,10 @@ func TestValidStrings(t *testing.T) {
 		"2 == foo",
 		"3 != 'false'",
 		"4 == foobar(10)",
-		// "true == false",
-		// "true == foo",
-		// "true != 'false'",
-		// "true == foobar(10)",
+		"true == false",
+		"true == foo",
+		"true != 'false'",
+		"true == foobar(10)",
 		// Fizzbuzz!
 		"a % 3 ? a % 5 ? a : 'buzz' : a % 5 ? fizz : fizzbuzz",
 		// Collatz

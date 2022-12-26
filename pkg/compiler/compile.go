@@ -38,13 +38,7 @@ func Compile(expr parser.Expr) Compilation {
 		switch node := expr.(type) {
 		case *parser.EValue:
 			switch node.Val.Type {
-			case parser.TokInt:
-				fallthrough
-			case parser.TokHexInt:
-				fallthrough
-			case parser.TokOctInt:
-				fallthrough
-			case parser.TokBinInt:
+			case parser.TokInt, parser.TokHexInt, parser.TokOctInt, parser.TokBinInt:
 				tok := node.Val
 				val, err := strconv.ParseInt(tok.Value, 0, 64)
 				if err != nil {
@@ -88,8 +82,18 @@ func Compile(expr parser.Expr) Compilation {
 					Inst: OpLoad,
 					Val:  BStr(val),
 				})
+			case parser.TokBool:
+				val := node.Val.Value
+				iVal := 0
+				if val == "true" {
+					iVal = 1
+				}
+				c.Bytecode = append(c.Bytecode, Bytecode{
+					Inst: OpConst,
+					Val:  BInt(iVal),
+				})
 			default:
-				log.Panicf("Not implemented %s", node)
+				log.Panicf("Not implemented %v", node)
 			}
 		case *parser.EBinOp:
 			if isSimpleBinOp(node.Op.Value) {
