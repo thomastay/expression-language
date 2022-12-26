@@ -159,6 +159,8 @@ func (b Bytecode) String() string {
 		fallthrough
 	case instructions.OpDiv:
 		fallthrough
+	case instructions.OpAnd:
+		fallthrough
 	case instructions.OpMinus:
 		return fmt.Sprintf("%s", b.Inst)
 	default:
