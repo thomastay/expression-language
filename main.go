@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/thomastay/expression_language/pkg/bytecode"
 	"github.com/thomastay/expression_language/pkg/compiler"
 	"github.com/thomastay/expression_language/pkg/parser"
 	"github.com/thomastay/expression_language/pkg/vm"
@@ -28,17 +29,21 @@ func main() {
 	for i, b := range comp.Bytecode {
 		fmt.Println("  ", i, b.String())
 	}
-	vm := vm.New(vm.Params{})
+	m := vm.New(vm.Params{})
 	// seed the VM with some useful variables
-	vm.AddInt("a", 43)
-	vm.AddInt("b", 2)
-	vm.AddInt("c", 15)
-	vm.AddFloat("foo", 10.5)
-	vm.AddStr("bar", "I am a string")
-	vm.AddStr("fizzbuzz", "fizzbuzz")
-	vm.AddStr("fizz", "fizz")
-	vm.AddStr("buzz", "buzz")
-	result, err := vm.Eval(comp)
+	m.AddInt("a", 43)
+	m.AddInt("b", 2)
+	m.AddInt("c", 15)
+	m.AddFloat("foo", 10.5)
+	m.AddStr("bar", "I am a string")
+	m.AddStr("fizzbuzz", "fizzbuzz")
+	m.AddStr("fizz", "fizz")
+	m.AddStr("buzz", "buzz")
+	m.AddFunc("foobar", vm.Wrap1(func(x bytecode.BVal) bytecode.BVal {
+		log.Println(x)
+		return bytecode.BInt(1)
+	}), 1)
+	result, err := m.Eval(comp)
 	if err != nil {
 		log.Fatal(err)
 	}

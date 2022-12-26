@@ -2,6 +2,7 @@ package vm_test
 
 import (
 	"fmt"
+	"log"
 	"testing"
 
 	"github.com/thomastay/expression_language/pkg/bytecode"
@@ -51,6 +52,8 @@ func TestValidStrings(t *testing.T) {
 		"a % 3 ? a % 5 ? a : 'buzz' : a % 5 ? fizz : fizzbuzz",
 		// Collatz
 		"a % 2 ? 3 * a + 1 : a / 2",
+		// functions!
+		"foobar(123)",
 	}
 
 	for _, tt := range tests {
@@ -176,4 +179,8 @@ func seedVM(m vm.VMState) {
 	m.AddStr("fizzbuzz", "fizzbuzz")
 	m.AddStr("fizz", "fizz")
 	m.AddStr("buzz", "buzz")
+	m.AddFunc("foobar", vm.Wrap1(func(x bytecode.BVal) bytecode.BVal {
+		log.Println(x)
+		return bytecode.BInt(1)
+	}), 1)
 }
