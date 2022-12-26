@@ -171,6 +171,30 @@ InstLoop:
 				result = 1
 			}
 			stack.push(BInt(result))
+		case OpEq:
+			b := stack.pop()
+			a := stack.pop()
+			ord, err := cmp(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			result := 0
+			if ord == 0 {
+				result = 1
+			}
+			stack.push(BInt(result))
+		case OpNe:
+			b := stack.pop()
+			a := stack.pop()
+			ord, err := cmp(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			result := 0
+			if ord != 0 {
+				result = 1
+			}
+			stack.push(BInt(result))
 		// ----------------Conditional Operations------------------
 		case OpBr:
 			pc = int(code.IntVal)

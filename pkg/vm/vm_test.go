@@ -125,7 +125,7 @@ func TestFizzBuzz(t *testing.T) {
 
 func TestCollatz(t *testing.T) {
 	m := vm.New(vm.Params{})
-	s := "i % 2 ? 3 * i + 1 : i / 2"
+	s := "i % 2 == 0 ? i/2 : 3*i + 1"
 	compilation := compiler.CompileString(s)
 	if len(compilation.Errors) > 0 {
 		t.Fatal("Found compile errors")

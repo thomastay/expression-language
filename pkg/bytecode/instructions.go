@@ -19,6 +19,8 @@ const (
 	OpGt
 	OpGe
 	OpLe
+	OpEq
+	OpNe
 	OpReturn
 	// Unconditional branch
 	OpBr

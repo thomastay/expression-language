@@ -113,6 +113,10 @@ func Compile(expr parser.Expr) Compilation {
 					inst = OpGe
 				case "<=":
 					inst = OpLe
+				case "==":
+					inst = OpEq
+				case "!=":
+					inst = OpNe
 				default:
 					panic("Not a simple binary op!")
 				}
@@ -207,6 +211,10 @@ func isSimpleBinOp(op string) bool {
 	case ">=":
 		return true
 	case "<=":
+		return true
+	case "==":
+		return true
+	case "!=":
 		return true
 	}
 	return false
