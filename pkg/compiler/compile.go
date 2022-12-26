@@ -3,7 +3,6 @@
 package compiler
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 
@@ -17,8 +16,6 @@ import (
 // object to report them. Note that a Compilation may have errors but still be ok to interpret
 // because this package will attempt a best effort compile
 func Compile(expr parser.Expr) Compilation {
-	// We are going to build this up slowly.
-	// Let's start by being able to interpret Add operations
 	c := Compilation{}
 	var compileRec func(parser.Expr)
 	compileRec = func(expr parser.Expr) {
@@ -71,11 +68,6 @@ func Compile(expr parser.Expr) Compilation {
 			})
 		case *parser.ECond:
 			// This places the condition val onto the stack.
-			err := checkCond(node)
-			if err.IsErr() {
-				c.Errors = append(c.Errors, err)
-				// continue, best effort compile
-			}
 			compileRec(node.Cond)
 			// Next, we want to add a branch instruction to branch if true
 			// Note that br_if is a very common instruction and br_if_false is not well supported by CPUs
@@ -112,25 +104,6 @@ func Compile(expr parser.Expr) Compilation {
 	}
 	compileRec(expr)
 	return c
-}
-
-func checkCond(c *parser.ECond) CompileError {
-	// validate that c.Cond is a boolean (we just do a very simple check)
-	switch cond := c.Cond.(type) {
-	case *parser.EValue:
-		switch cond.Val.Type {
-		case parser.TokBool:
-			return CompileError{}
-		default:
-			return CompileError{
-				Err:   errors.New("Should only use Boolean in conditional expression"),
-				Start: cond.Val,
-				End:   cond.Val,
-			}
-		}
-	default:
-		return CompileError{}
-	}
 }
 
 // represents the
