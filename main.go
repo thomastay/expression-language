@@ -6,7 +6,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/thomastay/expression_language/pkg/compiler"
 	"github.com/thomastay/expression_language/pkg/parser"
+	"github.com/thomastay/expression_language/pkg/vm"
 )
 
 func main() {
@@ -14,5 +16,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Print(expr.String())
+	fmt.Println("Expression:", expr.String())
+	comp := compiler.Compile(expr)
+	if len(comp.Errors) > 0 {
+		for _, compErr := range comp.Errors {
+			log.Println(compErr)
+		}
+		os.Exit(1)
+	}
+	fmt.Println("Bytecode:", comp.Bytecode)
+	vm := vm.New(vm.Params{})
+	result := vm.Eval(comp)
+	if result.Err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("VM result:", result.Val)
 }
