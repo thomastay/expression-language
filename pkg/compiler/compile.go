@@ -3,6 +3,7 @@
 package compiler
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -70,6 +71,11 @@ func Compile(expr parser.Expr) Compilation {
 			})
 		case *parser.ECond:
 			// This places the condition val onto the stack.
+			err := checkCond(node)
+			if err.IsErr() {
+				c.Errors = append(c.Errors, err)
+				// continue, best effort compile
+			}
 			compileRec(node.Cond)
 			// Next, we want to add a branch instruction to branch if true
 			// Note that br_if is a very common instruction and br_if_false is not well supported by CPUs
@@ -108,6 +114,25 @@ func Compile(expr parser.Expr) Compilation {
 	return c
 }
 
+func checkCond(c *parser.ECond) CompileError {
+	// validate that c.Cond is a boolean (we just do a very simple check)
+	switch cond := c.Cond.(type) {
+	case *parser.EValue:
+		switch cond.Val.Type {
+		case parser.TokBool:
+			return CompileError{}
+		default:
+			return CompileError{
+				Err:   errors.New("Should only use Boolean in conditional expression"),
+				Start: cond.Val,
+				End:   cond.Val,
+			}
+		}
+	default:
+		return CompileError{}
+	}
+}
+
 // represents the
 type Compilation struct {
 	Bytecode []Bytecode
@@ -143,4 +168,8 @@ type CompileError struct {
 
 func (c CompileError) Error() string {
 	return c.Err.Error()
+}
+
+func (c CompileError) IsErr() bool {
+	return c.Err != nil
 }

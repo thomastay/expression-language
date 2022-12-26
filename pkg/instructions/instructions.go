@@ -16,6 +16,6 @@ const (
 	OpPop
 	// Unconditional branch
 	OpBr
-	// Conditional branch if top of stack is nonzero
+	// Conditional branch if top of stack is nonzero. Also consume top of stack.
 	OpBrIf
 )
