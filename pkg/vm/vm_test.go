@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/thomastay/expression_language/pkg/bytecode"
+	"github.com/thomastay/expression_language/pkg/compiler"
 	"github.com/thomastay/expression_language/pkg/vm"
 )
 
@@ -91,6 +93,46 @@ func TestInvalidStrings(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestFizzBuzz(t *testing.T) {
+	m := vm.New(vm.Params{})
+	s := "i % 3 ? i % 5 ? i : 'buzz' : i % 5 ? fizz : 'fizzbuzz'"
+	m.AddStr("fizz", "fizz")
+	compilation := compiler.CompileString(s)
+	if len(compilation.Errors) > 0 {
+		t.Fatal("Found compile errors")
+	}
+	for i := 0; i < 100; i++ {
+		m.AddInt("i", int64(i))
+		result, err := m.Eval(compilation)
+		if err != nil {
+			t.Error(err)
+		}
+		switch fizzStr := result.Val.(type) {
+		case bytecode.BStr:
+			if string(fizzStr) != fizzBuzz(i) {
+				t.Errorf("Wanted %s, got %s", fizzBuzz(i), fizzStr)
+			}
+		case bytecode.BInt:
+			// temp until we can do int->string in the VM
+			if fmt.Sprint(fizzStr) != fizzBuzz(i) {
+				t.Errorf("Wanted %s, got %s", fizzBuzz(i), fizzStr)
+			}
+		}
+	}
+}
+
+func fizzBuzz(i int) string {
+	if i%3 == 0 {
+		if i%5 == 0 {
+			return "fizzbuzz"
+		}
+		return "fizz"
+	} else if i%5 == 0 {
+		return "buzz"
+	}
+	return fmt.Sprint(i)
 }
 
 func seedVM(m vm.VMState) {

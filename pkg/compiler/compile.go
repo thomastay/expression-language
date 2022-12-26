@@ -10,6 +10,18 @@ import (
 	"github.com/thomastay/expression_language/pkg/parser"
 )
 
+// The main entry point for apps who want to cache the bytecode across several runs
+// If you don't, then just do vm.EvalString(s)
+func CompileString(s string) Compilation {
+	expr, err := parser.ParseString(s)
+	if err != nil {
+		return Compilation{
+			Errors: []CompileError{{Err: err}},
+		}
+	}
+	return Compile(expr)
+}
+
 // Compiles the parse tree down to IR, represented by the Compilation object
 // Note that a compilation may have errors. Users are expected to check the Compilation.Errors
 // object to report them. Note that a Compilation may have errors but still be ok to interpret
@@ -62,6 +74,7 @@ func Compile(expr parser.Expr) Compilation {
 				})
 			case parser.TokSingleString:
 				val := node.Val.Value
+				val = val[1 : len(val)-1]
 				c.Bytecode = append(c.Bytecode, Bytecode{
 					Inst: OpConst,
 					Val:  BStr(val),
