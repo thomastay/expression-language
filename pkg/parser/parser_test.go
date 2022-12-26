@@ -13,6 +13,7 @@ func TestValidStrings(t *testing.T) {
 		"1.1",
 		"1.1e10",
 		// Ints
+		"0",
 		"1",           // base 10
 		"100_000_000", // base 10
 		"0x10",        // hex

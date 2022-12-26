@@ -46,10 +46,6 @@
       "pattern": "\\d*\\.\\d+(e\\d+)?"
     },
     {
-      "name": "Int",
-      "pattern": "[1-9][\\d_]*"
-    },
-    {
       "name": "HexInt",
       "pattern": "0x[0-9a-fA-F_]+"
     },
@@ -60,6 +56,10 @@
     {
       "name": "BinInt",
       "pattern": "0b[01_]+"
+    },
+    {
+      "name": "Int",
+      "pattern": "0|[1-9][\\d_]*"
     }
   ],
   "Root": [
@@ -100,10 +100,6 @@
       "pattern": "\\d*\\.\\d+(e\\d+)?"
     },
     {
-      "name": "Int",
-      "pattern": "[1-9][\\d_]*"
-    },
-    {
       "name": "HexInt",
       "pattern": "0x[0-9a-fA-F_]+"
     },
@@ -114,6 +110,10 @@
     {
       "name": "BinInt",
       "pattern": "0b[01_]+"
+    },
+    {
+      "name": "Int",
+      "pattern": "0|[1-9][\\d_]*"
     }
   ]
 }

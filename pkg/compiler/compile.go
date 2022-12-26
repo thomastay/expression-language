@@ -90,6 +90,10 @@ func (b Bytecode) String() string {
 	// No value
 	case instructions.OpAdd:
 		fallthrough
+	case instructions.OpMul:
+		fallthrough
+	case instructions.OpDiv:
+		fallthrough
 	case instructions.OpMinus:
 		return fmt.Sprintf("%s", b.Inst)
 	default:

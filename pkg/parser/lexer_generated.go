@@ -24,17 +24,17 @@ type lexerDefinitionImpl struct {}
 
 func (lexerDefinitionImpl) Symbols() map[string]lexer.TokenType {
 	return map[string]lexer.TokenType{
-      "BinInt": -26,
+      "BinInt": -25,
       "Bool": -18,
       "DoubleString": -15,
       "DoubleStringEnd": -2,
       "EOF": -1,
       "EndExpr": -20,
       "Float": -22,
-      "HexInt": -24,
+      "HexInt": -23,
       "Ident": -21,
-      "Int": -23,
-      "OctInt": -25,
+      "Int": -26,
+      "OctInt": -24,
       "Op": -19,
       "SingleString": -16,
       "whitespace": -17,
@@ -118,16 +118,16 @@ func (l *lexerImpl) Next() (lexer.Token, error) {
 		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -22
 			groups = match[:]
-		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -23
 			groups = match[:]
-		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchOctInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -24
 			groups = match[:]
-		} else if match := matchOctInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchBinInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -25
 			groups = match[:]
-		} else if match := matchBinInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -26
 			groups = match[:]
 		}
@@ -156,16 +156,16 @@ func (l *lexerImpl) Next() (lexer.Token, error) {
 		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -22
 			groups = match[:]
-		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -23
 			groups = match[:]
-		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchOctInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -24
 			groups = match[:]
-		} else if match := matchOctInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchBinInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -25
 			groups = match[:]
-		} else if match := matchBinInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -26
 			groups = match[:]
 		}
@@ -525,49 +525,6 @@ groups[1] = np
 return
 }
 
-// [1-9][0-9_]*
-func matchInt(s string, p int, backrefs []string) (groups [2]int) {
-// [1-9] (CharClass)
-l0 := func(s string, p int) int {
-if len(s) <= p { return -1 }
-rn := s[p]
-switch {
-case rn >= '1' && rn <= '9': return p+1
-}
-return -1
-}
-// [0-9_] (CharClass)
-l1 := func(s string, p int) int {
-if len(s) <= p { return -1 }
-rn := s[p]
-switch {
-case rn >= '0' && rn <= '9': return p+1
-case rn == '_': return p+1
-}
-return -1
-}
-// [0-9_]* (Star)
-l2 := func(s string, p int) int {
-for len(s) > p {
-if np := l1(s, p); np == -1 { return p } else { p = np }
-}
-return p
-}
-// [1-9][0-9_]* (Concat)
-l3 := func(s string, p int) int {
-if p = l0(s, p); p == -1 { return -1 }
-if p = l2(s, p); p == -1 { return -1 }
-return p
-}
-np := l3(s, p)
-if np == -1 {
-  return
-}
-groups[0] = p
-groups[1] = np
-return
-}
-
 // 0x[0-9A-F_a-f]+
 func matchHexInt(s string, p int, backrefs []string) (groups [2]int) {
 // 0x (Literal)
@@ -682,6 +639,60 @@ if p = l2(s, p); p == -1 { return -1 }
 return p
 }
 np := l3(s, p)
+if np == -1 {
+  return
+}
+groups[0] = p
+groups[1] = np
+return
+}
+
+// 0|[1-9][0-9_]*
+func matchInt(s string, p int, backrefs []string) (groups [2]int) {
+// 0 (Literal)
+l0 := func(s string, p int) int {
+if p < len(s) && s[p] == '0' { return p+1 }
+return -1
+}
+// [1-9] (CharClass)
+l1 := func(s string, p int) int {
+if len(s) <= p { return -1 }
+rn := s[p]
+switch {
+case rn >= '1' && rn <= '9': return p+1
+}
+return -1
+}
+// [0-9_] (CharClass)
+l2 := func(s string, p int) int {
+if len(s) <= p { return -1 }
+rn := s[p]
+switch {
+case rn >= '0' && rn <= '9': return p+1
+case rn == '_': return p+1
+}
+return -1
+}
+// [0-9_]* (Star)
+l3 := func(s string, p int) int {
+for len(s) > p {
+if np := l2(s, p); np == -1 { return p } else { p = np }
+}
+return p
+}
+// [1-9][0-9_]* (Concat)
+l4 := func(s string, p int) int {
+if p = l1(s, p); p == -1 { return -1 }
+if p = l3(s, p); p == -1 { return -1 }
+return p
+}
+// 0|[1-9][0-9_]* (Alternate)
+l5 := func(s string, p int) int {
+if np := l0(s, p); np != -1 { return np }
+if np := l4(s, p); np != -1 { return np }
+return -1
+}
+np := l5(s, p)
 if np == -1 {
   return
 }
