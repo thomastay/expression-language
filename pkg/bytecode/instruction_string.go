@@ -9,21 +9,22 @@ func _() {
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
 	_ = x[OpConst-0]
-	_ = x[OpAdd-1]
-	_ = x[OpMinus-2]
-	_ = x[OpMul-3]
-	_ = x[OpDiv-4]
-	_ = x[OpAnd-5]
-	_ = x[OpReturn-6]
-	_ = x[OpBr-7]
-	_ = x[OpBrIf-8]
-	_ = x[OpBrIfOrPop-9]
-	_ = x[OpBrIfFalseOrPop-10]
+	_ = x[OpLoad-1]
+	_ = x[OpAdd-2]
+	_ = x[OpMinus-3]
+	_ = x[OpMul-4]
+	_ = x[OpDiv-5]
+	_ = x[OpAnd-6]
+	_ = x[OpReturn-7]
+	_ = x[OpBr-8]
+	_ = x[OpBrIf-9]
+	_ = x[OpBrIfOrPop-10]
+	_ = x[OpBrIfFalseOrPop-11]
 }
 
-const _Instruction_name = "OpConstOpAddOpMinusOpMulOpDivOpAndOpReturnOpBrOpBrIfOpBrIfOrPopOpBrIfFalseOrPop"
+const _Instruction_name = "OpConstOpLoadOpAddOpMinusOpMulOpDivOpAndOpReturnOpBrOpBrIfOpBrIfOrPopOpBrIfFalseOrPop"
 
-var _Instruction_index = [...]uint8{0, 7, 12, 19, 24, 29, 34, 42, 46, 52, 63, 79}
+var _Instruction_index = [...]uint8{0, 7, 13, 18, 25, 30, 35, 40, 48, 52, 58, 69, 85}
 
 func (i Instruction) String() string {
 	if i < 0 || i >= Instruction(len(_Instruction_index)-1) {

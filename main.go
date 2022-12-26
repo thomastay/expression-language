@@ -29,6 +29,13 @@ func main() {
 		fmt.Println("  ", i, b.String())
 	}
 	vm := vm.New(vm.Params{})
+	// seed the VM with some useful variables
+	vm.AddInt("a", 43)
+	vm.AddInt("b", 2)
+	vm.AddFloat("foo", 10.5)
+	vm.AddStr("bar", "I am a string")
+	vm.AddStr("fizz", "fizz")
+	vm.AddStr("buzz", "buzz")
 	result, err := vm.Eval(comp)
 	if err != nil {
 		log.Fatal(err)

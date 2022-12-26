@@ -66,6 +66,13 @@ func Compile(expr parser.Expr) Compilation {
 					Inst: OpConst,
 					Val:  BStr(val),
 				})
+			// Parse and load identifier
+			case parser.TokIdent:
+				val := node.Val.Value
+				c.Bytecode = append(c.Bytecode, Bytecode{
+					Inst: OpLoad,
+					Val:  BStr(val),
+				})
 			default:
 				panic("Not implemented")
 			}

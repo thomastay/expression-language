@@ -8,6 +8,7 @@ package vm
 
 import (
 	"errors"
+	"fmt"
 
 	. "github.com/thomastay/expression_language/pkg/bytecode"
 	"github.com/thomastay/expression_language/pkg/compiler"
@@ -20,7 +21,8 @@ func New(params Params) VMState {
 	if params.MaxInstructions == 0 {
 		params.MaxInstructions = defaultMaxInstructions
 	}
-	return VMState{params: params}
+	vars := make(map[string]BVal)
+	return VMState{params: params, variables: vars}
 }
 
 type VMState struct {
@@ -46,6 +48,16 @@ func (vm *VMState) EvalString(s string) (Result, error) {
 	return vm.Eval(comp)
 }
 
+func (vm *VMState) AddInt(key string, val int64) {
+	vm.variables[key] = BInt(val)
+}
+func (vm *VMState) AddFloat(key string, val float64) {
+	vm.variables[key] = BFloat(val)
+}
+func (vm *VMState) AddStr(key string, val string) {
+	vm.variables[key] = BStr(val)
+}
+
 func (vm *VMState) Eval(compilation compiler.Compilation) (Result, error) {
 	executedInsts := 0
 	pc := 0
@@ -60,6 +72,16 @@ InstLoop:
 			break InstLoop
 		case OpConst:
 			stack = append(stack, code.Val)
+		case OpLoad:
+			identName, ok := code.Val.(BStr)
+			if !ok {
+				panic("Internal Compiler Error: OpLoad called with non string Val")
+			}
+			val, ok := vm.variables[string(identName)]
+			if !ok {
+				return Result{}, fmt.Errorf("Identifier %s not found", identName)
+			}
+			stack = append(stack, val)
 		// ----------------Binary Operations------------------
 		case OpAdd:
 			b := stack.pop()
