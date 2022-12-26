@@ -32,8 +32,10 @@ func main() {
 	// seed the VM with some useful variables
 	vm.AddInt("a", 43)
 	vm.AddInt("b", 2)
+	vm.AddInt("c", 15)
 	vm.AddFloat("foo", 10.5)
 	vm.AddStr("bar", "I am a string")
+	vm.AddStr("fizzbuzz", "fizzbuzz")
 	vm.AddStr("fizz", "fizz")
 	vm.AddStr("buzz", "buzz")
 	result, err := vm.Eval(comp)

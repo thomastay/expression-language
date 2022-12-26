@@ -47,6 +47,8 @@ func TestValidStrings(t *testing.T) {
 		"'asd' < buzz ? fizz : 'bar'",
 		// Fizzbuzz!
 		"a % 3 ? a % 5 ? a : 'buzz' : a % 5 ? fizz : fizzbuzz",
+		// Collatz
+		"a % 2 ? 3 * a + 1 : a / 2",
 	}
 
 	for _, tt := range tests {
