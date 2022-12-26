@@ -25,8 +25,14 @@ func Compile(expr parser.Expr) Compilation {
 		case *parser.EValue:
 			switch node.Val.Type {
 			case parser.TokInt:
+				fallthrough
+			case parser.TokHexInt:
+				fallthrough
+			case parser.TokOctInt:
+				fallthrough
+			case parser.TokBinInt:
 				tok := node.Val
-				val, err := strconv.ParseInt(tok.Value, 10, 64)
+				val, err := strconv.ParseInt(tok.Value, 0, 64)
 				if err != nil {
 					c.Errors = append(c.Errors, CompileError{
 						Err:   err,

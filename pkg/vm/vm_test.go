@@ -14,6 +14,9 @@ func TestValidStrings(t *testing.T) {
 		"1.1e10",
 		// Ints
 		"1", // base 10
+		"0x10",
+		"0b10",
+		"0o70",
 		// Calculator
 		"1 * 10",
 		"1 + 10",
