@@ -25,6 +25,7 @@ func TestValidStrings(t *testing.T) {
 		// strings
 		"'a'",
 		"'a' * 2",
+		"'a' + 'b'",
 		// conditionals
 		"0.7 or 9",
 	}
@@ -48,6 +49,13 @@ func TestInvalidStrings(t *testing.T) {
 		"((10 * 3.0) ? 3 : 1000000000000000000000000000000000000) * 5.0e1000000000",
 		// div 0
 		"1 / 0",
+		// strings
+		"'a' + 2",
+		"2 + 'a'",
+		"'a' + 2.0",
+		"2.0 + 'a'",
+		"'a' / 2",
+		"2 / 'a'",
 	}
 
 	for _, tt := range tests {
