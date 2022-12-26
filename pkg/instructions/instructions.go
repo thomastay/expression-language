@@ -7,7 +7,7 @@ type Instruction int32
 
 //go:generate stringer -type Instruction
 const (
-	OpConstant Instruction = iota
+	OpConst Instruction = iota
 	OpAdd
 	OpMinus
 	OpMul

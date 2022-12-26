@@ -34,7 +34,7 @@ InstLoop:
 		switch code.Inst {
 		case OpReturn:
 			break InstLoop
-		case OpConstant:
+		case OpConst:
 			stack = append(stack, code.Val)
 		case OpAdd:
 			n := len(stack)

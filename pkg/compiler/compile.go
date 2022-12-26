@@ -44,7 +44,7 @@ func Compile(expr parser.Expr) Compilation {
 				panic("Not implemented")
 			}
 			c.Bytecode = append(c.Bytecode, Bytecode{
-				Inst: instructions.OpConstant,
+				Inst: instructions.OpConst,
 				Val:  val,
 			})
 		case *parser.EBinOp:
