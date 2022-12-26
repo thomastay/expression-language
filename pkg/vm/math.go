@@ -27,7 +27,7 @@ func add(aVal BVal, bVal BVal) (BVal, error) {
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
 		case BStr:
-			return nil, errMismatchedTypes
+			return nil, errTypeMismatch("+", aVal, bVal)
 		default:
 			panic("Unreachable")
 		}
@@ -45,16 +45,16 @@ func add(aVal BVal, bVal BVal) (BVal, error) {
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
 		case BStr:
-			return nil, errMismatchedTypes
+			return nil, errTypeMismatch("+", aVal, bVal)
 		default:
 			panic("Unreachable")
 		}
 	case BStr:
 		switch b := bVal.(type) {
 		case BInt:
-			return nil, errMismatchedTypes
+			return nil, errTypeMismatch("+", aVal, bVal)
 		case BFloat:
-			return nil, errMismatchedTypes
+			return nil, errTypeMismatch("+", aVal, bVal)
 		case BStr:
 			s := a + b
 			return BStr(s), nil
@@ -85,7 +85,7 @@ func sub(aVal BVal, bVal BVal) (BVal, error) {
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
 		case BStr:
-			return nil, errMismatchedTypes
+			return nil, errTypeMismatch("-", aVal, bVal)
 		default:
 			panic("Unreachable")
 		}
@@ -103,12 +103,12 @@ func sub(aVal BVal, bVal BVal) (BVal, error) {
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
 		case BStr:
-			return nil, errMismatchedTypes
+			return nil, errTypeMismatch("-", aVal, bVal)
 		default:
 			panic("Unreachable")
 		}
 	case BStr:
-		return nil, errMismatchedTypes
+		return nil, errTypeMismatch("-", aVal, bVal)
 	default:
 		panic("Unreachable")
 	}
@@ -152,7 +152,7 @@ func mul(aVal BVal, bVal BVal) (BVal, error) {
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
 		case BStr:
-			return nil, errMismatchedTypes
+			return nil, errTypeMismatch("*", aVal, bVal)
 		default:
 			panic("Unreachable")
 		}
@@ -162,9 +162,9 @@ func mul(aVal BVal, bVal BVal) (BVal, error) {
 			s := strings.Repeat(string(a), int(b))
 			return BStr(s), nil
 		case BFloat:
-			return nil, errMismatchedTypes
+			return nil, errTypeMismatch("*", aVal, bVal)
 		case BStr:
-			return nil, errMismatchedTypes
+			return nil, errTypeMismatch("*", aVal, bVal)
 		default:
 			panic("Unreachable")
 		}
@@ -198,7 +198,7 @@ func div(aVal BVal, bVal BVal) (BVal, error) {
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
 		case BStr:
-			return nil, errMismatchedTypes
+			return nil, errTypeMismatch("/", aVal, bVal)
 		default:
 			panic("Unreachable")
 		}
@@ -222,12 +222,12 @@ func div(aVal BVal, bVal BVal) (BVal, error) {
 			// Note: find another lib to check for overflow
 			return BFloat(result), nil
 		case BStr:
-			return nil, errMismatchedTypes
+			return nil, errTypeMismatch("/", aVal, bVal)
 		default:
 			panic("Unreachable")
 		}
 	case BStr:
-		return nil, errMismatchedTypes
+		return nil, errTypeMismatch("/", aVal, bVal)
 	default:
 		panic("Unreachable")
 	}
@@ -247,7 +247,7 @@ func modulo(aVal BVal, bVal BVal) (BVal, error) {
 			result := math.Mod(float64(a), float64(b))
 			return BFloat(result), nil
 		case BStr:
-			return nil, errMismatchedTypes
+			return nil, errTypeMismatch("%", aVal, bVal)
 		default:
 			panic("Unreachable")
 		}
@@ -263,12 +263,12 @@ func modulo(aVal BVal, bVal BVal) (BVal, error) {
 			result := math.Mod(float64(a), float64(b))
 			return BFloat(result), nil
 		case BStr:
-			return nil, errMismatchedTypes
+			return nil, errTypeMismatch("%", aVal, bVal)
 		default:
 			panic("Unreachable")
 		}
 	case BStr:
-		return nil, errMismatchedTypes
+		return nil, errTypeMismatch("%", aVal, bVal)
 	default:
 		panic("Unreachable")
 	}
@@ -299,7 +299,7 @@ func cmp(aVal BVal, bVal BVal) (int, error) {
 			}
 			return 1, nil
 		case BStr:
-			return 0, errMismatchedTypes
+			return 0, errTypeMismatch("cmp", aVal, bVal)
 		default:
 			panic("Unreachable")
 		}
@@ -325,14 +325,14 @@ func cmp(aVal BVal, bVal BVal) (int, error) {
 			}
 			return 1, nil
 		case BStr:
-			return 0, errMismatchedTypes
+			return 0, errTypeMismatch("cmp", aVal, bVal)
 		default:
 			panic("Unreachable")
 		}
 	case BStr:
 		b, ok := bVal.(BStr)
 		if !ok {
-			return 0, errMismatchedTypes
+			return 0, errTypeMismatch("cmp", aVal, bVal)
 		}
 		aa, bb := string(a), string(b)
 		if aa < bb {

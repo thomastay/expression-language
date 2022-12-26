@@ -15,6 +15,7 @@ type BVal interface {
 	fmt.Stringer
 	isBVal()
 	IsTruthy() bool
+	Typename() string
 }
 
 func (b BNull) isBVal()  {}
@@ -66,6 +67,22 @@ func (b BStr) IsTruthy() bool {
 
 func (b BFunc) IsTruthy() bool {
 	return true
+}
+
+func (b BNull) Typename() string {
+	return "null"
+}
+func (b BFloat) Typename() string {
+	return "float"
+}
+func (b BInt) Typename() string {
+	return "int"
+}
+func (b BStr) Typename() string {
+	return "string"
+}
+func (b BFunc) Typename() string {
+	return "function"
 }
 
 func (b Bytecode) String() string {
