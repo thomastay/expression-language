@@ -70,9 +70,6 @@ func Compile(expr parser.Expr) Compilation {
 			// This places the condition val onto the stack.
 			compileRec(node.Cond)
 			// Next, we want to add a branch instruction to branch if true
-			// Note that br_if is a very common instruction and br_if_false is not well supported by CPUs
-			// More or less, CPUs expect that if you branch in an if condition, it's a forward jump
-			// Backward jumps are for loops.
 			// Bytecode:
 			// | 0       Condition Expression
 			// | 1   |    BR_IF

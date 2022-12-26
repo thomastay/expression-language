@@ -87,7 +87,7 @@ type ECond struct {
 }
 
 func (x *ECond) String() string {
-	return fmt.Sprintf("%s ? %s : %s", x.Cond, x.First, x.Second)
+	return fmt.Sprintf("(%s ? %s : %s)", x.Cond, x.First, x.Second)
 }
 
 type Call struct {

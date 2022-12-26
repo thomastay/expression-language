@@ -16,6 +16,8 @@ const (
 	OpPop
 	// Unconditional branch
 	OpBr
-	// Conditional branch if top of stack is nonzero. Also consume top of stack.
+	// Conditional branch if top of stack is truthy. Also consume top of stack.
 	OpBrIf
+	// Conditional branch if top of stack is truthy. If so, doesn't consume, else it does.
+	OpBrIfOrPop
 )

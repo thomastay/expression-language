@@ -54,6 +54,7 @@ InstLoop:
 			break InstLoop
 		case OpConst:
 			stack = append(stack, code.Val)
+		// ----------------Binary Operations------------------
 		case OpAdd:
 			n := len(stack)
 			if n < 2 {
@@ -105,6 +106,24 @@ InstLoop:
 				return Result{}, errOverflow
 			}
 			stack.push(result)
+		// ----------------Conditional Operations------------------
+		case OpBr:
+			pc = int(code.Val)
+			continue InstLoop
+		case OpBrIf:
+			a := stack.pop()
+			if a != 0 {
+				pc = int(code.Val)
+				continue InstLoop
+			} // else fallthrough
+		case OpBrIfOrPop:
+			a := stack.peek()
+			if a != 0 {
+				pc = int(code.Val)
+				continue InstLoop
+			} else {
+				stack.pop()
+			}
 		default:
 			return Result{}, errors.New("not impl")
 		}
@@ -122,6 +141,13 @@ func (stack *Stack) pop() (result int64) {
 	n := len(*stack)
 	result = (*stack)[n-1]
 	*stack = (*stack)[:n-1]
+	return result
+}
+
+// Make sure inlined
+func (stack *Stack) peek() (result int64) {
+	n := len(*stack)
+	result = (*stack)[n-1]
 	return result
 }
 
