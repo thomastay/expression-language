@@ -11,12 +11,14 @@ func _() {
 	_ = x[OpConstant-0]
 	_ = x[OpAdd-1]
 	_ = x[OpMinus-2]
-	_ = x[OpReturn-3]
+	_ = x[OpMul-3]
+	_ = x[OpDiv-4]
+	_ = x[OpReturn-5]
 }
 
-const _Instruction_name = "OpConstantOpAddOpMinusOpReturn"
+const _Instruction_name = "OpConstantOpAddOpMinusOpMulOpDivOpReturn"
 
-var _Instruction_index = [...]uint8{0, 10, 15, 22, 30}
+var _Instruction_index = [...]uint8{0, 10, 15, 22, 27, 32, 40}
 
 func (i Instruction) String() string {
 	if i < 0 || i >= Instruction(len(_Instruction_index)-1) {

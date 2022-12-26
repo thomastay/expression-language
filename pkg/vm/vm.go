@@ -51,6 +51,25 @@ InstLoop:
 			b := stack.pop()
 			a := stack.pop()
 			stack.push(a - b)
+		case OpMul:
+			n := len(stack)
+			if n < 2 {
+				return Result{Err: errors.New("Not enough values on stack")}
+			}
+			b := stack.pop()
+			a := stack.pop()
+			stack.push(a * b)
+		case OpDiv:
+			n := len(stack)
+			if n < 2 {
+				return Result{Err: errors.New("Not enough values on stack")}
+			}
+			b := stack.pop()
+			a := stack.pop()
+			if b == 0 {
+				return Result{Err: errors.New("Divide by Zero")}
+			}
+			stack.push(a / b) // TODO implement casting to float
 		default:
 			return Result{Err: errors.New("Not implemented")}
 		}

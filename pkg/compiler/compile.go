@@ -26,10 +26,12 @@ func Compile(expr parser.Expr) Compilation {
 		}
 		switch node := expr.(type) {
 		case *parser.EValue:
+			var val int64
+			var err error
 			switch node.Val.Type {
 			case parser.TokInt:
 				tok := node.Val
-				val, err := strconv.ParseInt(tok.Value, 10, 63)
+				val, err = strconv.ParseInt(tok.Value, 10, 63)
 				if err != nil {
 					c.Errors = append(c.Errors, CompileError{
 						Err:   err,
@@ -38,30 +40,34 @@ func Compile(expr parser.Expr) Compilation {
 					})
 					return
 				}
-				c.Bytecode = append(c.Bytecode, Bytecode{
-					Inst: instructions.OpConstant,
-					Val:  val,
-				})
 			default:
 				panic("Not implemented")
 			}
+			c.Bytecode = append(c.Bytecode, Bytecode{
+				Inst: instructions.OpConstant,
+				Val:  val,
+			})
 		case *parser.EBinOp:
 			// parse left
 			compileRec(node.Left)
 			compileRec(node.Right)
 			// parse right
+			var inst instructions.Instruction
 			switch node.Op.Value {
 			case "+":
-				c.Bytecode = append(c.Bytecode, Bytecode{
-					Inst: instructions.OpAdd,
-				})
+				inst = instructions.OpAdd
 			case "-":
-				c.Bytecode = append(c.Bytecode, Bytecode{
-					Inst: instructions.OpMinus,
-				})
+				inst = instructions.OpMinus
+			case "*":
+				inst = instructions.OpMul
+			case "/":
+				inst = instructions.OpDiv
 			default:
 				panic("Not implemented")
 			}
+			c.Bytecode = append(c.Bytecode, Bytecode{
+				Inst: inst,
+			})
 		}
 	}
 	compileRec(expr)
@@ -80,7 +86,15 @@ type Bytecode struct {
 }
 
 func (b Bytecode) String() string {
-	return fmt.Sprintf("%s %d", b.Inst, b.Val)
+	switch b.Inst {
+	// No value
+	case instructions.OpAdd:
+		fallthrough
+	case instructions.OpMinus:
+		return fmt.Sprintf("%s", b.Inst)
+	default:
+		return fmt.Sprintf("%s %d", b.Inst, b.Val)
+	}
 }
 
 type CompileError struct {

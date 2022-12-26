@@ -10,5 +10,7 @@ const (
 	OpConstant Instruction = iota
 	OpAdd
 	OpMinus
+	OpMul
+	OpDiv
 	OpReturn
 )
