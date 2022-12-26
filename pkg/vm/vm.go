@@ -10,8 +10,8 @@ import (
 	"errors"
 
 	"github.com/johncgriffin/overflow"
+	. "github.com/thomastay/expression_language/pkg/bytecode"
 	"github.com/thomastay/expression_language/pkg/compiler"
-	. "github.com/thomastay/expression_language/pkg/instructions"
 	"github.com/thomastay/expression_language/pkg/parser"
 )
 

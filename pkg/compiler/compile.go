@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/alecthomas/participle/v2/lexer"
-	. "github.com/thomastay/expression_language/pkg/instructions"
+	. "github.com/thomastay/expression_language/pkg/bytecode"
 	"github.com/thomastay/expression_language/pkg/parser"
 )
 
