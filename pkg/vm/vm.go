@@ -201,13 +201,13 @@ InstLoop:
 			continue InstLoop
 		case OpBrIf:
 			a := stack.pop()
-			if isTruthy(a) {
+			if a.IsTruthy() {
 				pc = int(code.IntVal)
 				continue InstLoop
 			} // else fallthrough
 		case OpBrIfOrPop:
 			a := stack.peek()
-			if isTruthy(a) {
+			if a.IsTruthy() {
 				pc = int(code.IntVal)
 				continue InstLoop
 			} else {
@@ -215,7 +215,7 @@ InstLoop:
 			}
 		case OpBrIfFalseOrPop:
 			a := stack.peek()
-			if !isTruthy(a) {
+			if !a.IsTruthy() {
 				pc = int(code.IntVal)
 				continue InstLoop
 			} else {

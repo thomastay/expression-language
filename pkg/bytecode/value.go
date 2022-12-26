@@ -2,6 +2,7 @@ package bytecode
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 )
 
@@ -13,6 +14,7 @@ type Bytecode struct {
 type BVal interface {
 	fmt.Stringer
 	isBVal()
+	IsTruthy() bool
 }
 
 func (b BFloat) isBVal() {}
@@ -31,6 +33,16 @@ func (b BInt) String() string {
 }
 func (b BStr) String() string {
 	return string(b)
+}
+
+func (b BFloat) IsTruthy() bool {
+	return int64(b) != 0
+}
+func (b BInt) IsTruthy() bool {
+	return float64(b) != 0 && !math.IsNaN(float64(b))
+}
+func (b BStr) IsTruthy() bool {
+	return len(string(b)) > 0
 }
 
 func (b Bytecode) String() string {
