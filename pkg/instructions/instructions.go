@@ -14,7 +14,6 @@ const (
 	OpDiv
 	OpAnd
 	OpReturn
-	OpPop
 	// Unconditional branch
 	OpBr
 	// Conditional branch if top of stack is truthy. Also consume top of stack.
