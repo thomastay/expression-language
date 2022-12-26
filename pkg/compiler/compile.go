@@ -158,7 +158,7 @@ func Compile(expr parser.Expr) Compilation {
 					compileRec(node.Right)
 					c.Bytecode[jumpIdx].IntVal = len(c.Bytecode)
 				default:
-					panic("Not implemented")
+					log.Panicf("Not implemented %v", node)
 				}
 			}
 		case *parser.ECond:
