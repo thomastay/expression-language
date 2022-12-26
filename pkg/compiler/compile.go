@@ -32,7 +32,7 @@ func Compile(expr parser.Expr) Compilation {
 			switch node.Val.Type {
 			case parser.TokInt:
 				tok := node.Val
-				val, err = strconv.ParseInt(tok.Value, 10, 63)
+				val, err = strconv.ParseInt(tok.Value, 10, 64)
 				if err != nil {
 					c.Errors = append(c.Errors, CompileError{
 						Err:   err,
