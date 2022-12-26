@@ -9,6 +9,7 @@ package vm
 import (
 	"errors"
 
+	"github.com/johncgriffin/overflow"
 	"github.com/thomastay/expression_language/pkg/compiler"
 	. "github.com/thomastay/expression_language/pkg/instructions"
 )
@@ -23,7 +24,7 @@ type VMState struct {
 	params    Params
 }
 
-func (vm *VMState) Eval(compilation compiler.Compilation) Result {
+func (vm *VMState) Eval(compilation compiler.Compilation) (Result, error) {
 	pc := 0
 	stack := vm.stack
 	codes := compilation.Bytecode
@@ -38,46 +39,62 @@ InstLoop:
 		case OpAdd:
 			n := len(stack)
 			if n < 2 {
-				return Result{Err: errors.New("Not enough values on stack")}
+				return Result{}, errNotEnoughStackValues
 			}
 			b := stack.pop()
 			a := stack.pop()
-			stack.push(a + b)
+			result, ok := overflow.Add64(a, b)
+			if !ok {
+				return Result{}, errOverflow
+			}
+			stack.push(result)
 		case OpMinus:
 			n := len(stack)
 			if n < 2 {
-				return Result{Err: errors.New("Not enough values on stack")}
+				return Result{}, errNotEnoughStackValues
 			}
 			b := stack.pop()
 			a := stack.pop()
-			stack.push(a - b)
+			result, ok := overflow.Sub64(a, b)
+			if !ok {
+				return Result{}, errOverflow
+			}
+			stack.push(result)
 		case OpMul:
 			n := len(stack)
 			if n < 2 {
-				return Result{Err: errors.New("Not enough values on stack")}
+				return Result{}, errNotEnoughStackValues
 			}
 			b := stack.pop()
 			a := stack.pop()
-			stack.push(a * b)
+			result, ok := overflow.Mul64(a, b)
+			if !ok {
+				return Result{}, errOverflow
+			}
+			stack.push(result)
 		case OpDiv:
 			n := len(stack)
 			if n < 2 {
-				return Result{Err: errors.New("Not enough values on stack")}
+				return Result{}, errNotEnoughStackValues
 			}
 			b := stack.pop()
 			a := stack.pop()
 			if b == 0 {
-				return Result{Err: errors.New("Divide by Zero")}
+				return Result{}, errors.New("Divide by zero")
 			}
-			stack.push(a / b) // TODO implement casting to float
+			result, ok := overflow.Div64(a, b) // TODO cast to float
+			if !ok {
+				return Result{}, errOverflow
+			}
+			stack.push(result)
 		default:
-			return Result{Err: errors.New("Not implemented")}
+			return Result{}, errors.New("not impl")
 		}
 		pc++
 	}
 	val := stack.pop()
 	vm.stack = stack
-	return Result{Val: val}
+	return Result{Val: val}, nil
 }
 
 type Stack []int64
@@ -97,7 +114,6 @@ func (stack *Stack) push(x int64) {
 
 type Result struct {
 	Val int64 // TODO, what should an evaluator return?
-	Err error
 }
 
 // Configuring the VM

@@ -30,8 +30,8 @@ func main() {
 	}
 	fmt.Println("Bytecode:", strings.Join(bytecodeStrs, ", "))
 	vm := vm.New(vm.Params{})
-	result := vm.Eval(comp)
-	if result.Err != nil {
+	result, err := vm.Eval(comp)
+	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("VM result:", result.Val)
