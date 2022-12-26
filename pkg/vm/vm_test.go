@@ -35,6 +35,16 @@ func TestValidStrings(t *testing.T) {
 		"a * 30",
 		"buzz * 30",
 		"a % 3 ? fizz : buzz",
+		// Comparison ops
+		"10 < 30 ? 20 : 40",
+		"10 > 30 ? 20 : 40",
+		"10 <= 10 ? 20 : 40",
+		"10 >= 10 ? 20 : 40",
+		"10.0 < 30 ? 20 : 40",
+		"10 > 30.3 ? 20 : 40",
+		"10.3 <= 10 ? 20 : 40",
+		"10 >= 10.5 ? 20 : 40",
+		"'asd' < buzz ? fizz : 'bar'",
 	}
 
 	for _, tt := range tests {

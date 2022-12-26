@@ -273,3 +273,75 @@ func modulo(aVal BVal, bVal BVal) (BVal, error) {
 		panic("Unreachable")
 	}
 }
+
+// Returns -1 if a < b, 0 if a == b, 1 if a > b
+func cmp(aVal BVal, bVal BVal) (int, error) {
+	// For want of a MATCH, the happiness was lost...
+	switch a := aVal.(type) {
+	case BInt:
+		switch b := bVal.(type) {
+		case BInt:
+			// case 1: both int
+			if a < b {
+				return -1, nil
+			} else if a == b {
+				return 0, nil
+			}
+			return 1, nil
+		case BFloat:
+			// Case 2a: one int, one float
+			// Cast int to float and add
+			aa, bb := float64(a), float64(b)
+			if aa < bb {
+				return -1, nil
+			} else if aa == bb {
+				return 0, nil
+			}
+			return 1, nil
+		case BStr:
+			return 0, errMismatchedTypes
+		default:
+			panic("Unreachable")
+		}
+	case BFloat:
+		switch b := bVal.(type) {
+		case BInt:
+			// case 2b: one each
+			aa, bb := float64(a), float64(b)
+			if aa < bb {
+				return -1, nil
+			} else if aa == bb {
+				return 0, nil
+			}
+			return 1, nil
+		case BFloat:
+			// Case 3: both floats
+			// Cast int to float and add
+			aa, bb := float64(a), float64(b)
+			if aa < bb {
+				return -1, nil
+			} else if aa == bb {
+				return 0, nil
+			}
+			return 1, nil
+		case BStr:
+			return 0, errMismatchedTypes
+		default:
+			panic("Unreachable")
+		}
+	case BStr:
+		b, ok := bVal.(BStr)
+		if !ok {
+			return 0, errMismatchedTypes
+		}
+		aa, bb := string(a), string(b)
+		if aa < bb {
+			return -1, nil
+		} else if aa == bb {
+			return 0, nil
+		}
+		return 1, nil
+	default:
+		panic("Unreachable")
+	}
+}

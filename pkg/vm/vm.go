@@ -123,6 +123,54 @@ InstLoop:
 				return Result{}, err
 			}
 			stack.push(result)
+		case OpLt:
+			b := stack.pop()
+			a := stack.pop()
+			ord, err := cmp(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			result := 0
+			if ord == -1 {
+				result = 1
+			}
+			stack.push(BInt(result))
+		case OpGt:
+			b := stack.pop()
+			a := stack.pop()
+			ord, err := cmp(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			result := 0
+			if ord == 1 {
+				result = 1
+			}
+			stack.push(BInt(result))
+		case OpLe:
+			b := stack.pop()
+			a := stack.pop()
+			ord, err := cmp(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			result := 0
+			if ord != 1 {
+				result = 1
+			}
+			stack.push(BInt(result))
+		case OpGe:
+			b := stack.pop()
+			a := stack.pop()
+			ord, err := cmp(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			result := 0
+			if ord != -1 {
+				result = 1
+			}
+			stack.push(BInt(result))
 		// ----------------Conditional Operations------------------
 		case OpBr:
 			pc = int(code.IntVal)
