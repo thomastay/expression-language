@@ -63,6 +63,9 @@ func parseExpr(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 		if err != nil {
 			return lhs, err
 		}
+	// Note that we don't do any parsing of these tokens to validate or strconv them
+	// We do this later on in the semantic analysis, which lets us do things like limit the size of integers, etc
+	// Also lets us report multiple errors. Fundamentally our assumption is that the parser only returns one error
 	case TokIdent:
 		fallthrough
 	case TokInt:
@@ -79,7 +82,7 @@ func parseExpr(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 		fallthrough
 	case TokSingleString:
 		lex.Next()
-		lhs = &EValue{val: firstVal}
+		lhs = &EValue{Val: firstVal}
 	default:
 		return nil, errors.Errorf("Unrecognized token %s", firstVal)
 	}
@@ -158,8 +161,8 @@ func parsePrefix(lex *lexer.PeekingLexer, op *lexer.Token) (Expr, error) {
 				return nil, err
 			}
 			lhs = &EUnOp{
-				op:  op,
-				val: rhs,
+				Op:  op,
+				Val: rhs,
 			}
 		} else {
 			return lhs, errors.Errorf("Unrecognized prefix operator %s", op.Value)
@@ -187,8 +190,8 @@ func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, lhsIdent *
 		}
 		lex.Next()
 		lhs = &EIdxAccess{
-			base:  lhs,
-			index: inner,
+			Base:  lhs,
+			Index: inner,
 		}
 	case ".":
 		var err error
@@ -204,9 +207,9 @@ func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, lhsIdent *
 			return nil, err
 		}
 		lhs = &Call{
-			base:   nil, // No base
-			method: lhsIdent,
-			exprs:  exprList,
+			Base:   nil, // No base
+			Method: lhsIdent,
+			Exprs:  exprList,
 		}
 	default:
 		return nil, errors.Errorf("No other postfix operators %s", op)
@@ -236,9 +239,9 @@ func parseInfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, rp int) (Exp
 			return nil, err
 		}
 		lhs = &ECond{
-			cond:   lhs,
-			first:  inner,
-			second: rhs,
+			Cond:   lhs,
+			First:  inner,
+			Second: rhs,
 		}
 	} else {
 		rhs, err := parseExpr(lex, rp)
@@ -246,9 +249,9 @@ func parseInfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, rp int) (Exp
 			return nil, err
 		}
 		lhs = &EBinOp{
-			op:    op,
-			left:  lhs,
-			right: rhs,
+			Op:    op,
+			Left:  lhs,
+			Right: rhs,
 		}
 	}
 	return lhs, nil
@@ -280,9 +283,9 @@ func parseCallWithBase(base Expr, lex *lexer.PeekingLexer) (*Call, error) {
 			// fallthrough, do nothing here.
 		}
 		expr = &Call{
-			base:   base,
-			method: ident,
-			exprs:  exprList,
+			Base:   base,
+			Method: ident,
+			Exprs:  exprList,
 		}
 	default:
 		return nil, errors.Errorf("Only identifiers can be used for a method call, found %s", ident)

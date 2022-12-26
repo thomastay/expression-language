@@ -45,62 +45,62 @@ func (x *Call) isExpr()       {}
 func (x *ValueList) isExpr()  {}
 
 type EValue struct {
-	val *lexer.Token
+	Val *lexer.Token
 }
 
 func (x *EValue) String() string {
-	return x.val.String()
+	return x.Val.String()
 }
 
 type EBinOp struct {
-	left  Expr
-	op    *lexer.Token
-	right Expr
+	Left  Expr
+	Op    *lexer.Token
+	Right Expr
 }
 
 func (x *EBinOp) String() string {
-	return fmt.Sprintf("(%s %s %s)", x.left, string(x.op.Value), x.right)
+	return fmt.Sprintf("(%s %s %s)", x.Left, string(x.Op.Value), x.Right)
 }
 
 type EUnOp struct {
-	op  *lexer.Token
-	val Expr
+	Op  *lexer.Token
+	Val Expr
 }
 
 func (x *EUnOp) String() string {
-	return fmt.Sprintf("(%s %s)", string(x.op.Value), x.val)
+	return fmt.Sprintf("(%s %s)", string(x.Op.Value), x.Val)
 }
 
 type EIdxAccess struct {
-	base  Expr
-	index Expr
+	Base  Expr
+	Index Expr
 }
 
 func (x *EIdxAccess) String() string {
-	return fmt.Sprintf("%s[%s]", x.base, x.index)
+	return fmt.Sprintf("%s[%s]", x.Base, x.Index)
 }
 
 type ECond struct {
-	cond   Expr
-	first  Expr
-	second Expr
+	Cond   Expr
+	First  Expr
+	Second Expr
 }
 
 func (x *ECond) String() string {
-	return fmt.Sprintf("%s ? %s : %s", x.cond, x.first, x.second)
+	return fmt.Sprintf("%s ? %s : %s", x.Cond, x.First, x.Second)
 }
 
 type Call struct {
-	base   Expr         // ( @@ "." )?`
-	method *lexer.Token // @Ident`
-	exprs  ExprList     // ( @@ )?`
+	Base   Expr         // ( @@ "." )?`
+	Method *lexer.Token // @Ident`
+	Exprs  ExprList     // ( @@ )?`
 }
 
 func (x *Call) String() string {
-	if x.base != nil {
-		return fmt.Sprintf("%s.%s(%s)", x.base, x.method, x.exprs)
+	if x.Base != nil {
+		return fmt.Sprintf("%s.%s(%s)", x.Base, x.Method, x.Exprs)
 	}
-	return fmt.Sprintf("%s(%s)", x.method, x.exprs)
+	return fmt.Sprintf("%s(%s)", x.Method, x.Exprs)
 }
 
 type ExprList []Expr
@@ -119,15 +119,15 @@ func (es ExprList) String() string {
 }
 
 type ValueList struct {
-	vals []*lexer.Token // "[" ( @@ ( "," @@ )* )? "]"`
+	Vals []*lexer.Token // "[" ( @@ ( "," @@ )* )? "]"`
 }
 
 func (x *ValueList) String() string {
 	if x == nil {
 		return ""
 	}
-	exprs := make([]string, len(x.vals))
-	for i, val := range x.vals {
+	exprs := make([]string, len(x.Vals))
+	for i, val := range x.Vals {
 		exprs[i] = val.String()
 	}
 	return strings.Join(exprs, ", ")
