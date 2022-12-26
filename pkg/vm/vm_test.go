@@ -31,12 +31,17 @@ func TestValidStrings(t *testing.T) {
 		"'a' + 'b'",
 		// conditionals
 		"0.7 or 9",
+		// variables
+		"a * 30",
+		"buzz * 30",
+		// "a % 3 ? fizz : buzz",
 	}
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("%s", tt)
 		t.Run(testname, func(t *testing.T) {
 			vm := vm.New(vm.Params{})
+			seedVM(vm)
 			_, err := vm.EvalString(tt)
 			if err != nil {
 				t.Fatal(err)
@@ -65,10 +70,21 @@ func TestInvalidStrings(t *testing.T) {
 		testname := fmt.Sprintf("%s", tt)
 		t.Run(testname, func(t *testing.T) {
 			vm := vm.New(vm.Params{})
+			seedVM(vm)
 			_, err := vm.EvalString(tt)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
 			}
 		})
 	}
+}
+
+func seedVM(m vm.VMState) {
+	// seed the VM with some useful variables
+	m.AddInt("a", 43)
+	m.AddInt("b", 2)
+	m.AddFloat("foo", 10.5)
+	m.AddStr("bar", "I am a string")
+	m.AddStr("fizz", "fizz")
+	m.AddStr("buzz", "buzz")
 }
