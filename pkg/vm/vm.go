@@ -40,9 +40,17 @@ InstLoop:
 			if n < 2 {
 				return Result{Err: errors.New("Not enough values on stack")}
 			}
-			a := stack.pop()
 			b := stack.pop()
+			a := stack.pop()
 			stack.push(a + b)
+		case OpMinus:
+			n := len(stack)
+			if n < 2 {
+				return Result{Err: errors.New("Not enough values on stack")}
+			}
+			b := stack.pop()
+			a := stack.pop()
+			stack.push(a - b)
 		default:
 			return Result{Err: errors.New("Not implemented")}
 		}

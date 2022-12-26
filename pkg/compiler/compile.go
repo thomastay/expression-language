@@ -55,6 +55,10 @@ func Compile(expr parser.Expr) Compilation {
 				c.Bytecode = append(c.Bytecode, Bytecode{
 					Inst: instructions.OpAdd,
 				})
+			case "-":
+				c.Bytecode = append(c.Bytecode, Bytecode{
+					Inst: instructions.OpMinus,
+				})
 			default:
 				panic("Not implemented")
 			}
