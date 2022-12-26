@@ -3,7 +3,6 @@
 package compiler
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/alecthomas/participle/v2/lexer"
@@ -38,13 +37,13 @@ func Compile(expr parser.Expr) Compilation {
 					})
 					return
 				}
+				c.Bytecode = append(c.Bytecode, Bytecode{
+					Inst: OpConst,
+					Val:  BInt(val),
+				})
 			default:
 				panic("Not implemented")
 			}
-			c.Bytecode = append(c.Bytecode, Bytecode{
-				Inst: OpConst,
-				Val:  val,
-			})
 		case *parser.EBinOp:
 			if isSimpleBinOp(node.Op.Value) {
 				compileRec(node.Left)
@@ -78,7 +77,7 @@ func Compile(expr parser.Expr) Compilation {
 					})
 					jumpIdx := len(c.Bytecode) - 1
 					compileRec(node.Right)
-					c.Bytecode[jumpIdx].Val = int64(len(c.Bytecode))
+					c.Bytecode[jumpIdx].IntVal = len(c.Bytecode)
 				case "or":
 					// Bytecode:
 					// | 0        First expr
@@ -92,7 +91,7 @@ func Compile(expr parser.Expr) Compilation {
 					})
 					jumpIdx := len(c.Bytecode) - 1
 					compileRec(node.Right)
-					c.Bytecode[jumpIdx].Val = int64(len(c.Bytecode))
+					c.Bytecode[jumpIdx].IntVal = len(c.Bytecode)
 				default:
 					panic("Not implemented")
 				}
@@ -121,11 +120,11 @@ func Compile(expr parser.Expr) Compilation {
 			})
 			secondJumpIdx := len(c.Bytecode) - 1
 			// Patch the first jump
-			c.Bytecode[firstJumpIdx].Val = int64(len(c.Bytecode))
+			c.Bytecode[firstJumpIdx].IntVal = len(c.Bytecode)
 
 			compileRec(node.First)
 			// Patch the second jump
-			c.Bytecode[secondJumpIdx].Val = int64(len(c.Bytecode))
+			c.Bytecode[secondJumpIdx].IntVal = len(c.Bytecode)
 		default:
 			panic("Not impl")
 		}
@@ -152,29 +151,6 @@ func isSimpleBinOp(op string) bool {
 type Compilation struct {
 	Bytecode []Bytecode
 	Errors   []CompileError
-}
-
-type Bytecode struct {
-	Inst Instruction
-	Val  int64 // TODO
-}
-
-func (b Bytecode) String() string {
-	switch b.Inst {
-	// No value
-	case OpAdd:
-		fallthrough
-	case OpMul:
-		fallthrough
-	case OpDiv:
-		fallthrough
-	case OpAnd:
-		fallthrough
-	case OpMinus:
-		return fmt.Sprintf("%s", b.Inst)
-	default:
-		return fmt.Sprintf("%s %d", b.Inst, b.Val)
-	}
 }
 
 type CompileError struct {

@@ -9,7 +9,6 @@ package vm
 import (
 	"errors"
 
-	"github.com/johncgriffin/overflow"
 	. "github.com/thomastay/expression_language/pkg/bytecode"
 	"github.com/thomastay/expression_language/pkg/compiler"
 	"github.com/thomastay/expression_language/pkg/parser"
@@ -26,7 +25,7 @@ func New(params Params) VMState {
 
 type VMState struct {
 	stack     Stack
-	variables map[string]int64 // TODO don't use int
+	variables map[string]BVal
 	params    Params
 }
 
@@ -65,60 +64,57 @@ InstLoop:
 		case OpAdd:
 			b := stack.pop()
 			a := stack.pop()
-			result, ok := overflow.Add64(a, b)
-			if !ok {
-				return Result{}, errOverflow
+			result, err := add(a, b)
+			if err != nil {
+				return Result{}, err
 			}
 			stack.push(result)
 		case OpMinus:
 			b := stack.pop()
 			a := stack.pop()
-			result, ok := overflow.Sub64(a, b)
-			if !ok {
-				return Result{}, errOverflow
+			result, err := sub(a, b)
+			if err != nil {
+				return Result{}, err
 			}
 			stack.push(result)
 		case OpMul:
 			b := stack.pop()
 			a := stack.pop()
-			result, ok := overflow.Mul64(a, b)
-			if !ok {
-				return Result{}, errOverflow
+			result, err := mul(a, b)
+			if err != nil {
+				return Result{}, err
 			}
 			stack.push(result)
 		case OpDiv:
 			b := stack.pop()
 			a := stack.pop()
-			if b == 0 {
-				return Result{}, errors.New("Divide by zero")
-			}
-			result, ok := overflow.Div64(a, b) // TODO cast to float
-			if !ok {
-				return Result{}, errOverflow
+			result, err := div(a, b)
+			if err != nil {
+				return Result{}, err
 			}
 			stack.push(result)
 		// ----------------Conditional Operations------------------
 		case OpBr:
-			pc = int(code.Val)
+			pc = int(code.IntVal)
 			continue InstLoop
 		case OpBrIf:
 			a := stack.pop()
-			if a != 0 {
-				pc = int(code.Val)
+			if isTruthy(a) {
+				pc = int(code.IntVal)
 				continue InstLoop
 			} // else fallthrough
 		case OpBrIfOrPop:
 			a := stack.peek()
-			if a != 0 {
-				pc = int(code.Val)
+			if isTruthy(a) {
+				pc = int(code.IntVal)
 				continue InstLoop
 			} else {
 				stack.pop()
 			}
 		case OpBrIfFalseOrPop:
 			a := stack.peek()
-			if a == 0 {
-				pc = int(code.Val)
+			if !isTruthy(a) {
+				pc = int(code.IntVal)
 				continue InstLoop
 			} else {
 				stack.pop()
@@ -133,10 +129,10 @@ InstLoop:
 	return Result{Val: val}, nil
 }
 
-type Stack []int64
+type Stack []BVal
 
 // Make sure inlined
-func (stack *Stack) pop() (result int64) {
+func (stack *Stack) pop() (result BVal) {
 	n := len(*stack)
 	result = (*stack)[n-1]
 	*stack = (*stack)[:n-1]
@@ -144,19 +140,19 @@ func (stack *Stack) pop() (result int64) {
 }
 
 // Make sure inlined
-func (stack *Stack) peek() (result int64) {
+func (stack *Stack) peek() (result BVal) {
 	n := len(*stack)
 	result = (*stack)[n-1]
 	return result
 }
 
 // Make sure inlined
-func (stack *Stack) push(x int64) {
+func (stack *Stack) push(x BVal) {
 	*stack = append(*stack, x)
 }
 
 type Result struct {
-	Val int64 // TODO, what should an evaluator return?
+	Val BVal
 }
 
 // Configuring the VM
