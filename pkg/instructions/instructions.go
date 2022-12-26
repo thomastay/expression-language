@@ -13,4 +13,9 @@ const (
 	OpMul
 	OpDiv
 	OpReturn
+	OpPop
+	// Unconditional branch
+	OpBr
+	// Conditional branch if top of stack is nonzero
+	OpBrIf
 )

@@ -68,6 +68,38 @@ func Compile(expr parser.Expr) Compilation {
 			c.Bytecode = append(c.Bytecode, Bytecode{
 				Inst: inst,
 			})
+		case *parser.ECond:
+			// This places the condition val onto the stack.
+			compileRec(node.Cond)
+			// Next, we want to add a branch instruction to branch if true
+			// Note that br_if is a very common instruction and br_if_false is not well supported by CPUs
+			// More or less, CPUs expect that if you branch in an if condition, it's a forward jump
+			// Backward jumps are for loops.
+			// Bytecode:
+			// | 0       Condition Expression
+			// | 1   |    BR_IF
+			// | 2   |    Else clause
+			// | 3   | |  BR
+			// | 4   ---> Then clause
+			// | 5     --> ....
+			// Thus, we put the else clause first, and branch to the then clause if true
+			c.Bytecode = append(c.Bytecode, Bytecode{
+				Inst: instructions.OpBrIf,
+				// patch the val later on
+			})
+			firstJumpIdx := len(c.Bytecode) - 1
+
+			compileRec(node.Second)
+			c.Bytecode = append(c.Bytecode, Bytecode{
+				Inst: instructions.OpBr,
+			})
+			secondJumpIdx := len(c.Bytecode) - 1
+			// Patch the first jump
+			c.Bytecode[firstJumpIdx].Val = int64(len(c.Bytecode))
+
+			compileRec(node.First)
+			// Patch the second jump
+			c.Bytecode[secondJumpIdx].Val = int64(len(c.Bytecode))
 		default:
 			panic("Not impl")
 		}
