@@ -225,30 +225,11 @@ func Compile(expr parser.Expr) Compilation {
 
 func isSimpleBinOp(op string) bool {
 	switch op {
-	case "+":
+	case "+", "-", "*", "/", "%", "<", ">", ">=", "<=", "==", "!=":
 		return true
-	case "-":
-		return true
-	case "*":
-		return true
-	case "/":
-		return true
-	case "%":
-		return true
-	case "<":
-		return true
-	case ">":
-		return true
-	case ">=":
-		return true
-	case "<=":
-		return true
-	case "==":
-		return true
-	case "!=":
-		return true
+	default:
+		return false
 	}
-	return false
 }
 
 // represents the
