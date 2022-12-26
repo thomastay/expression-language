@@ -3,6 +3,7 @@
 package compiler
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/alecthomas/participle/v2/lexer"
@@ -72,6 +73,10 @@ type Compilation struct {
 type Bytecode struct {
 	Inst instructions.Instruction
 	Val  int64 // TODO
+}
+
+func (b Bytecode) String() string {
+	return fmt.Sprintf("%s %d", b.Inst, b.Val)
 }
 
 type CompileError struct {
