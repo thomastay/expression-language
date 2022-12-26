@@ -23,12 +23,10 @@ func Compile(expr parser.Expr) Compilation {
 		}
 		switch node := expr.(type) {
 		case *parser.EValue:
-			var val int64
-			var err error
 			switch node.Val.Type {
 			case parser.TokInt:
 				tok := node.Val
-				val, err = strconv.ParseInt(tok.Value, 10, 64)
+				val, err := strconv.ParseInt(tok.Value, 10, 64)
 				if err != nil {
 					c.Errors = append(c.Errors, CompileError{
 						Err:   err,
@@ -40,6 +38,21 @@ func Compile(expr parser.Expr) Compilation {
 				c.Bytecode = append(c.Bytecode, Bytecode{
 					Inst: OpConst,
 					Val:  BInt(val),
+				})
+			case parser.TokFloat:
+				tok := node.Val
+				val, err := strconv.ParseFloat(tok.Value, 64)
+				if err != nil {
+					c.Errors = append(c.Errors, CompileError{
+						Err:   err,
+						Start: tok,
+						End:   tok,
+					})
+					return
+				}
+				c.Bytecode = append(c.Bytecode, Bytecode{
+					Inst: OpConst,
+					Val:  BFloat(val),
 				})
 			default:
 				panic("Not implemented")
