@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 )
 
 type Bytecode struct {
@@ -56,9 +57,11 @@ func (b BFunc) String() string {
 func (b BObj) String() string {
 	// TODO nicer formatter which does newlines and maybe strings.Join?
 	s := "{ "
+	var arr []string
 	for k, v := range (map[string]BVal)(b) {
-		s += fmt.Sprintf("'%s': %s", k, v)
+		arr = append(arr, fmt.Sprintf("'%s': %s", k, v))
 	}
+	s += strings.Join(arr, ", ")
 	s += "}"
 	return s
 }
@@ -115,7 +118,7 @@ func (b BObj) Typename() string {
 func (b Bytecode) String() string {
 	switch b.Inst {
 	// No value
-	case OpAdd, OpMul, OpDiv, OpAnd, OpMod, OpLt, OpGt, OpGe, OpLe, OpMinus, OpNe, OpEq, OpUnaryMinus, OpUnaryPlus, OpUnaryNot:
+	case OpAdd, OpMul, OpDiv, OpAnd, OpMod, OpLt, OpGt, OpGe, OpLe, OpMinus, OpNe, OpEq, OpUnaryMinus, OpUnaryPlus, OpUnaryNot, OpLoadAttr:
 		return b.Inst.String()
 	default:
 		if b.Val == nil {

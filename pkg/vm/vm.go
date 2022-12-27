@@ -95,10 +95,7 @@ InstLoop:
 		case OpConst:
 			stack.push(code.Val)
 		case OpLoad:
-			identName, ok := code.Val.(BStr)
-			if !ok {
-				panic("Internal Compiler Error: OpLoad called with non string Val")
-			}
+			identName := code.Val.(BStr)
 			val, ok := vm.variables[string(identName)]
 			if !ok {
 				return Result{}, fmt.Errorf("NameError: name '%s' is not defined", identName)
@@ -211,6 +208,20 @@ InstLoop:
 				result = 1
 			}
 			stack.push(BInt(result))
+		case OpLoadAttr:
+			// Base is loaded before field, so field pops first
+			field := stack.pop()
+			base := stack.pop()
+			fieldStr := field.(BStr)
+			baseObj, ok := base.(BObj)
+			if !ok {
+				return Result{}, fmt.Errorf("AttributeError: %s object has no attribute %s", base, field)
+			}
+			val, ok := baseObj[string(fieldStr)]
+			if !ok {
+				return Result{}, fmt.Errorf("AttributeError: %s object has no attribute %s", base, field)
+			}
+			stack.push(val)
 		// ----------------Unary Operations------------------
 		case OpUnaryPlus:
 			a := stack.peek() // don't pop!

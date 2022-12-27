@@ -67,6 +67,9 @@ func TestValidStrings(t *testing.T) {
 		"a % 2 ? 3 * a + 1 : a / 2",
 		// functions!
 		"foobar(123)",
+		// objects
+		"fooObj.bar * 10",
+		"fooObj.baz(30) * 10",
 	}
 
 	for _, tt := range tests {
@@ -230,4 +233,19 @@ func seedVM(m vm.VMState) {
 		log.Println(x)
 		return bytecode.BNull{}
 	}))
+	// TODO make wrap1 return a BFunc
+	bazFn := vm.Wrap1(func(x bytecode.BVal) bytecode.BVal {
+		log.Println(x)
+		xx := x.(bytecode.BInt)
+		return bytecode.BFloat(float64(xx) * 43.4)
+	})
+	fooObjVal := map[string]bytecode.BVal{
+		"bar": bytecode.BInt(10),
+		"baz": bytecode.BFunc{
+			Fn:      bazFn.Fn,
+			NumArgs: bazFn.NumArgs,
+			Name:    "baz",
+		},
+	}
+	m.AddObject("fooObj", fooObjVal)
 }

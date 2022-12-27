@@ -215,8 +215,8 @@ func Compile(expr parser.Expr) Compilation {
 			// Just a plain old function call
 			// Bytecode:
 			// | 0        Load params in reverse order onto stack
-			// | 1        Load Field
-			// | 2        Load Base (if needed)
+			// | 1        Load Base (if needed)
+			// | 2        Load Field
 			// | 3        Load Base.Field (if needed)
 			// | 4       	Call (num params embedded in bytecode)
 			numParams := len(node.Exprs)
@@ -224,15 +224,21 @@ func Compile(expr parser.Expr) Compilation {
 				param := node.Exprs[i]
 				compileRec(param)
 			}
-			c.Bytecode = append(c.Bytecode,
-				Bytecode{
-					Inst: OpLoad,
-					Val:  BStr(node.Method.Value),
-				},
-			)
 			if node.Base != nil {
 				compileRec(node.Base)
-				c.Bytecode = append(c.Bytecode, Bytecode{Inst: OpLoadAttr})
+				c.Bytecode = append(c.Bytecode,
+					Bytecode{
+						Inst: OpConst,
+						Val:  BStr(node.Method.Value),
+					},
+					Bytecode{Inst: OpLoadAttr})
+			} else {
+				c.Bytecode = append(c.Bytecode,
+					Bytecode{
+						Inst: OpLoad,
+						Val:  BStr(node.Method.Value),
+					},
+				)
 			}
 			c.Bytecode = append(c.Bytecode,
 				Bytecode{
@@ -241,14 +247,15 @@ func Compile(expr parser.Expr) Compilation {
 				},
 			)
 		case *parser.EFieldAccess:
+			// Load Base, then Field
+			compileRec(node.Base)
 			c.Bytecode = append(c.Bytecode,
 				Bytecode{
-					Inst: OpLoad,
+					Inst: OpConst,
 					Val:  BStr(node.Field.Value),
 				},
+				Bytecode{Inst: OpLoadAttr},
 			)
-			compileRec(node.Base)
-			c.Bytecode = append(c.Bytecode, Bytecode{Inst: OpLoadAttr})
 		default:
 			log.Panicf("Not implemented %v", node)
 		}
