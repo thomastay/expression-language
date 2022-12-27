@@ -177,7 +177,7 @@ func Compile(expr parser.Expr) Compilation {
 			case "not":
 				compileRec(node.Val)
 				c.Bytecode = append(c.Bytecode, Bytecode{
-					Inst: OpNot,
+					Inst: OpUnaryNot,
 				})
 			default:
 				log.Panicf("Not implemented %v", node)

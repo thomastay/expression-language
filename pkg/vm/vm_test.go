@@ -28,7 +28,10 @@ func TestValidStrings(t *testing.T) {
 		"100 / 10 * 3",
 		"((10 * 3.0) ? 3 : 10) * 5.0e10",
 		"((10 * 3.0) ? 3 : 10) * 5.0",
+		// unary operators
 		"+foo",
+		"-10",
+		"not 10",
 		// strings
 		"'a'",
 		"'a' * 2",

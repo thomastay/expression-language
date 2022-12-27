@@ -21,7 +21,7 @@ const (
 	OpLe
 	OpEq
 	OpNe
-	OpNot
+	OpUnaryNot
 	OpUnaryPlus
 	OpUnaryMinus
 	OpReturn

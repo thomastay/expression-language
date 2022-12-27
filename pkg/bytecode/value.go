@@ -88,7 +88,7 @@ func (b BFunc) Typename() string {
 func (b Bytecode) String() string {
 	switch b.Inst {
 	// No value
-	case OpAdd, OpMul, OpDiv, OpAnd, OpMod, OpLt, OpGt, OpGe, OpLe, OpMinus, OpNe, OpEq, OpUnaryMinus, OpUnaryPlus, OpNot:
+	case OpAdd, OpMul, OpDiv, OpAnd, OpMod, OpLt, OpGt, OpGe, OpLe, OpMinus, OpNe, OpEq, OpUnaryMinus, OpUnaryPlus, OpUnaryNot:
 		return b.Inst.String()
 	default:
 		if b.Val == nil {
