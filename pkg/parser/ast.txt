@@ -7,10 +7,12 @@ E : V
   | E [ E ]
   | Call
   | KArr
+  | EFieldAccess
 
 Call: Ident ( EList )
     | E . Ident ( EList )
-    | E . Ident
+
+EFieldAccess : E . Ident
 
 EList : E ',' EList
       | E

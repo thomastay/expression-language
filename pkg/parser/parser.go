@@ -66,21 +66,7 @@ func parseExpr(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 	// Note that we don't do any parsing of these tokens to validate or strconv them
 	// We do this later on in the semantic analysis, which lets us do things like limit the size of integers, etc
 	// Also lets us report multiple errors. Fundamentally our assumption is that the parser only returns one error
-	case TokIdent:
-		fallthrough
-	case TokInt:
-		fallthrough
-	case TokHexInt:
-		fallthrough
-	case TokBinInt:
-		fallthrough
-	case TokOctInt:
-		fallthrough
-	case TokFloat:
-		fallthrough
-	case TokBool:
-		fallthrough
-	case TokSingleString:
+	case TokIdent, TokInt, TokHexInt, TokBinInt, TokOctInt, TokFloat, TokBool, TokSingleString:
 		lex.Next()
 		lhs = &EValue{Val: firstVal}
 	default:
@@ -196,7 +182,7 @@ func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, lhsIdent *
 	case ".":
 		var err error
 		// Call operator with a base
-		lhs, err = parseCallWithBase(lhs, lex)
+		lhs, err = parseCallWithBaseOrFieldAccess(lhs, lex)
 		if err != nil {
 			return nil, err
 		}
@@ -257,12 +243,12 @@ func parseInfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, rp int) (Exp
 	return lhs, nil
 }
 
-func parseCallWithBase(base Expr, lex *lexer.PeekingLexer) (*Call, error) {
-	var expr *Call
-
+func parseCallWithBaseOrFieldAccess(base Expr, lex *lexer.PeekingLexer) (Expr, error) {
 	ident := lex.Peek()
 	switch ident.Type {
 	case TokIdent:
+		// possibly a field access. check if ident is followed by a (
+		// If not, then it's a field access. If so, it's a method call.
 		// A method call is a base.ident, then followed by possible expression list.
 		var exprList ExprList
 		lex.Next()
@@ -277,20 +263,23 @@ func parseCallWithBase(base Expr, lex *lexer.PeekingLexer) (*Call, error) {
 				if err != nil {
 					return nil, err
 				}
+				return &Call{
+					Base:   base,
+					Method: ident,
+					Exprs:  exprList,
+				}, nil
 			}
-			// else, fallthrough
+			fallthrough
 		default:
+			return &EFieldAccess{
+				Base:  base,
+				Field: ident,
+			}, nil
 			// fallthrough, do nothing here.
-		}
-		expr = &Call{
-			Base:   base,
-			Method: ident,
-			Exprs:  exprList,
 		}
 	default:
 		return nil, errors.Errorf("Only identifiers can be used for a method call, found %s", ident)
 	}
-	return expr, nil
 }
 
 func parseExprList(lex *lexer.PeekingLexer) (ExprList, error) {

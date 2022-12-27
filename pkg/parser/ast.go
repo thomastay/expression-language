@@ -16,33 +16,36 @@ import (
 //   | E ? E : E
 //   | E [ E ]
 //   | Call
-// 	 | KArr
+//   | KArr
+//   | EFieldAccess
 //
 // Call: Ident ( EList )
-// 		 | E . Ident ( EList )
-// 		 | E . Ident
+//     | E . Ident ( EList )
+//
+// EFieldAccess : E . Ident
 //
 // EList : E ',' EList
-// 			 | E
+//       | E
 //
 // V : Ident | Int | Float | KStr | true | false
 //
 // KArr  : [ VList ]
 // VList : V ',' VList
-// 		 	 | V
+//       | V
 
 type Expr interface {
 	isExpr()
 	String() string
 }
 
-func (x *EValue) isExpr()     {}
-func (x *EBinOp) isExpr()     {}
-func (x *EUnOp) isExpr()      {}
-func (x *EIdxAccess) isExpr() {}
-func (x *ECond) isExpr()      {}
-func (x *Call) isExpr()       {}
-func (x *ValueList) isExpr()  {}
+func (x *EValue) isExpr()       {}
+func (x *EBinOp) isExpr()       {}
+func (x *EUnOp) isExpr()        {}
+func (x *EFieldAccess) isExpr() {}
+func (x *EIdxAccess) isExpr()   {}
+func (x *ECond) isExpr()        {}
+func (x *Call) isExpr()         {}
+func (x *ValueList) isExpr()    {}
 
 type EValue struct {
 	Val *lexer.Token
@@ -78,6 +81,15 @@ type EIdxAccess struct {
 
 func (x *EIdxAccess) String() string {
 	return fmt.Sprintf("%s[%s]", x.Base, x.Index)
+}
+
+type EFieldAccess struct {
+	Base  Expr
+	Field *lexer.Token
+}
+
+func (x *EFieldAccess) String() string {
+	return fmt.Sprintf("%s[%s]", x.Base, x.Field)
 }
 
 type ECond struct {
