@@ -64,6 +64,7 @@ func TestValidStrings(t *testing.T) {
 		// "[1.1, 2.2, potato] * 2",
 		// Regressions
 		"not temp[i] ? 5 / -2 : 10 * f.foo",
+		"not foo ? 5 * 10 : potato",
 	}
 
 	for _, tt := range tests {

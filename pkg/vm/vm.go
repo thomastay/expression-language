@@ -94,7 +94,7 @@ InstLoop:
 			}
 			val, ok := vm.variables[string(identName)]
 			if !ok {
-				return Result{}, fmt.Errorf("Identifier %s not found", identName)
+				return Result{}, fmt.Errorf("NameError: name '%s' is not defined", identName)
 			}
 			stack = append(stack, val)
 		// ----------------Binary Operations------------------
