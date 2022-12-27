@@ -48,4 +48,4 @@ func main() {
 
 ## What else is in the language?
 
-See vm_test.go
+See r`vm_test.go`
