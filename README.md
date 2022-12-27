@@ -19,8 +19,8 @@ In this case, the limitations of the language are a strength. Everything has to 
 
 ```json
 {
-  "diameter": 2,
-  "circumference": "3.14158 * diameter * diameter"
+  "radius": 2,
+  "circumference": "3.14158 * diameter * 2"
 }
 ```
 
@@ -48,4 +48,4 @@ func main() {
 
 ## What else is in the language?
 
-See r`vm_test.go`
+See `vm_test.go`
