@@ -7,9 +7,9 @@ This package is a library implementing a very simple **expression language** wri
 
 The expression language is just like what you see above. Just a one liner language which can evaluate numbers, strings, objects, and arrays. In particular, there are no:
 
-1. No variables
 1. No loops
-1. No (user-defined) functions
+1. No user defined variables
+1. No user defined functions
 
 # Use cases
 
@@ -45,3 +45,7 @@ func main() {
 	// prints 12.566320
 }
 ```
+
+## What else is in the language?
+
+See vm_test.go
