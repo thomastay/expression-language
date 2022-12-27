@@ -211,7 +211,7 @@ func Compile(expr parser.Expr) Compilation {
 			compileRec(node.First)
 			// Patch the second jump
 			c.Bytecode[secondJumpIdx].IntVal = len(c.Bytecode)
-		case *parser.Call:
+		case *parser.ECall:
 			if node.Base != nil {
 				panic("Not implemented objects yet")
 			} else {

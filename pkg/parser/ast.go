@@ -44,7 +44,7 @@ func (x *EUnOp) isExpr()        {}
 func (x *EFieldAccess) isExpr() {}
 func (x *EIdxAccess) isExpr()   {}
 func (x *ECond) isExpr()        {}
-func (x *Call) isExpr()         {}
+func (x *ECall) isExpr()        {}
 func (x *ValueList) isExpr()    {}
 
 type EValue struct {
@@ -102,13 +102,13 @@ func (x *ECond) String() string {
 	return fmt.Sprintf("(%s ? %s : %s)", x.Cond, x.First, x.Second)
 }
 
-type Call struct {
+type ECall struct {
 	Base   Expr         // ( @@ "." )?`
 	Method *lexer.Token // @Ident`
 	Exprs  ExprList     // ( @@ )?`
 }
 
-func (x *Call) String() string {
+func (x *ECall) String() string {
 	if x.Base != nil {
 		return fmt.Sprintf("%s.%s(%s)", x.Base, x.Method, x.Exprs)
 	}

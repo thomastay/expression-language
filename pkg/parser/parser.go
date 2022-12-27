@@ -192,7 +192,7 @@ func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, lhsIdent *
 		if err != nil {
 			return nil, err
 		}
-		lhs = &Call{
+		lhs = &ECall{
 			Base:   nil, // No base
 			Method: lhsIdent,
 			Exprs:  exprList,
@@ -263,7 +263,7 @@ func parseCallWithBaseOrFieldAccess(base Expr, lex *lexer.PeekingLexer) (Expr, e
 				if err != nil {
 					return nil, err
 				}
-				return &Call{
+				return &ECall{
 					Base:   base,
 					Method: ident,
 					Exprs:  exprList,
