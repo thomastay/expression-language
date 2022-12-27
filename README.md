@@ -27,7 +27,7 @@ In this case, the limitations of the language are a strength. Everything has to 
 
 ## Where do the variables come from?
 
-As you can see above, you can `evaluate` variables, but users just can't define them **in the language**. So, they have to be provided by the host environment. In the above example, the host environment has to provide `diameter` to the VM, by parsing the JSON file. Here's how the above snippet would be implemented in main.go
+As you can see above, you can `evaluate` variables, but users just can't define them **in the language**. So, they have to be provided by the host environment. In the above example, the host environment has to provide `radius` to the VM, by parsing the JSON file. Here's how the above snippet would be implemented in main.go
 
 ```go
 type Circle struct {
@@ -38,9 +38,9 @@ type Circle struct {
 func main() {
 	var circle Circle
 	err := json.Marshal(&circle, fileBytes)
-	// handle err
 	m := vm.New()
-	vm.AddInt("radius", circle.radius)
+	vm.AddInt("radius", circle.radius) // <-- Host environment provides the variable for use
+
 	vmResult, err := vm.EvalString(circle.circumference)
 	circumference := vmResult.Val
 	fmt.Println("circumference", circumference)
