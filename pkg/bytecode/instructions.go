@@ -2,6 +2,7 @@
 package bytecode
 
 // Instructions based on https://craftinginterpreters.com/a-virtual-machine.html
+// As well as https://docs.python.org/3/library/dis.html#python-bytecode-instructions
 // Note: these are imported wholesale into the VM, so always add the `Op` prefix in front
 type Instruction int32
 
@@ -26,6 +27,7 @@ const (
 	OpUnaryMinus
 	OpReturn
 	OpCall
+	OpLoadAttr
 	// Unconditional branch
 	OpBr
 	// Conditional branch if top of stack is truthy. Also consume top of stack.

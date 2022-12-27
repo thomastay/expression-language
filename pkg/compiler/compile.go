@@ -212,32 +212,43 @@ func Compile(expr parser.Expr) Compilation {
 			// Patch the second jump
 			c.Bytecode[secondJumpIdx].IntVal = len(c.Bytecode)
 		case *parser.ECall:
-			if node.Base != nil {
-				panic("Not implemented objects yet")
-			} else {
-				// Just a plain old function call
-				// Bytecode:
-				// | 0        Load params in reverse order onto stack
-				// | 1        Load Field
-				// | 2       	Call (num params embedded in bytecode)
-				numParams := len(node.Exprs)
-				for i := numParams - 1; i >= 0; i-- {
-					param := node.Exprs[i]
-					compileRec(param)
-				}
-				c.Bytecode = append(c.Bytecode,
-					Bytecode{
-						Inst: OpLoad,
-						Val:  BStr(node.Method.Value),
-					},
-					Bytecode{
-						Inst:   OpCall,
-						IntVal: numParams,
-					},
-				)
+			// Just a plain old function call
+			// Bytecode:
+			// | 0        Load params in reverse order onto stack
+			// | 1        Load Field
+			// | 2        Load Base (if needed)
+			// | 3        Load Base.Field (if needed)
+			// | 4       	Call (num params embedded in bytecode)
+			numParams := len(node.Exprs)
+			for i := numParams - 1; i >= 0; i-- {
+				param := node.Exprs[i]
+				compileRec(param)
 			}
+			c.Bytecode = append(c.Bytecode,
+				Bytecode{
+					Inst: OpLoad,
+					Val:  BStr(node.Method.Value),
+				},
+			)
+			if node.Base != nil {
+				compileRec(node.Base)
+				c.Bytecode = append(c.Bytecode, Bytecode{Inst: OpLoadAttr})
+			}
+			c.Bytecode = append(c.Bytecode,
+				Bytecode{
+					Inst:   OpCall,
+					IntVal: numParams,
+				},
+			)
 		case *parser.EFieldAccess:
-			panic("Not implemented objects yet")
+			c.Bytecode = append(c.Bytecode,
+				Bytecode{
+					Inst: OpLoad,
+					Val:  BStr(node.Field.Value),
+				},
+			)
+			compileRec(node.Base)
+			c.Bytecode = append(c.Bytecode, Bytecode{Inst: OpLoadAttr})
 		default:
 			log.Panicf("Not implemented %v", node)
 		}
