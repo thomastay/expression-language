@@ -23,11 +23,13 @@ func (b BFloat) isBVal() {}
 func (b BInt) isBVal()   {}
 func (b BStr) isBVal()   {}
 func (b BFunc) isBVal()  {}
+func (b BObj) isBVal()   {}
 
 type BNull struct{}
 type BFloat float64
 type BInt int64
 type BStr string
+type BObj map[string]BVal
 
 type VMFunc func(args []BVal) (BVal, error)
 type BFunc struct {
@@ -51,6 +53,22 @@ func (b BStr) String() string {
 func (b BFunc) String() string {
 	return fmt.Sprintf("Function %s taking in %d args", b.Name, b.NumArgs)
 }
+func (b BObj) String() string {
+	// TODO nicer formatter which does newlines and maybe strings.Join?
+	s := "{ "
+	for k, v := range (map[string]BVal)(b) {
+		s += fmt.Sprintf("'%s': %s", k, v)
+	}
+	s += "}"
+	return s
+}
+
+// We just go off Python's Truthy:
+// https://docs.python.org/3/library/stdtypes.html
+// Here are most of the built-in objects considered false:
+// - constants defined to be false: None and False.
+// - zero of any numeric type: 0, 0.0, 0j, Decimal(0), Fraction(0, 1)
+// - empty sequences and collections: '', (), [], {}, set(), range(0)
 
 func (b BNull) IsTruthy() bool {
 	return false
@@ -64,12 +82,18 @@ func (b BInt) IsTruthy() bool {
 func (b BStr) IsTruthy() bool {
 	return len(string(b)) > 0
 }
-
 func (b BFunc) IsTruthy() bool {
 	return true
 }
+func (b BObj) IsTruthy() bool {
+	return len(b) > 0
+}
 
 func (b BNull) Typename() string {
+	// NULL IS NOT AN OBJECT NULL IS NOT AN OBJECT NULL IS NOT AN OBJECT
+	// NULL IS NOT AN OBJECT NULL IS NOT AN OBJECT NULL IS NOT AN OBJECT
+	// NULL IS NOT AN OBJECT NULL IS NOT AN OBJECT NULL IS NOT AN OBJECT
+	// How can Javascript get it so wrong
 	return "null"
 }
 func (b BFloat) Typename() string {
@@ -83,6 +107,9 @@ func (b BStr) Typename() string {
 }
 func (b BFunc) Typename() string {
 	return "function"
+}
+func (b BObj) Typename() string {
+	return "object"
 }
 
 func (b Bytecode) String() string {

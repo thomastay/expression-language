@@ -40,10 +40,12 @@ func (vm *VMState) AddFloat(key string, val float64) {
 func (vm *VMState) AddStr(key string, val string) {
 	vm.variables[key] = BStr(val)
 }
-
-type VMFuncWithArgs struct {
-	Fn      VMFunc
-	NumArgs int
+func (vm *VMState) AddObject(key string, obj BObj) {
+	if obj == nil {
+		// No nil objects in the VM
+		obj = make(map[string]BVal)
+	}
+	vm.variables[key] = obj
 }
 
 // Adds a function to the VM. Users must specify the number of arguments the function takes.
@@ -53,6 +55,11 @@ func (vm *VMState) AddFunc(name string, fnWithArgs VMFuncWithArgs) {
 		NumArgs: fnWithArgs.NumArgs,
 		Name:    name,
 	}
+}
+
+type VMFuncWithArgs struct {
+	Fn      VMFunc
+	NumArgs int
 }
 
 // Convenience method if you just want to evaluate a string. Concatenates all compile errors into one
