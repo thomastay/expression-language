@@ -19,8 +19,9 @@ In this case, the limitations of the language are a strength. Everything has to 
 
 ```json
 {
-  "radius": 2,
-  "circumference": "3.14158 * diameter * 2"
+  "radius": 3,
+  "circumference": "3.14158 * radius * 2",
+  "area": "3.14158 * radius * radius"
 }
 ```
 
@@ -30,20 +31,27 @@ As you can see above, you can `evaluate` variables, but users just can't define 
 
 ```go
 type Circle struct {
-	diameter int,
+	radius int
 	circumference string
+	area string
 }
 func main() {
 	var circle Circle
 	err := json.Marshal(&circle, fileBytes)
 	// handle err
 	m := vm.New()
-	vm.AddInt("diameter", circle.diameter)
+	vm.AddInt("radius", circle.radius)
 	vmResult, err := vm.EvalString(circle.circumference)
-	computedCircumference := vmResult.Val
-	fmt.Println(computedCircumference)
-	// prints 12.566320
+	circumference := vmResult.Val
+	fmt.Println("circumference", circumference)
+
+	vmResult, err := vm.EvalString(circle.area)
+	area := vmResult.Val
+	fmt.Println("area", area)
 }
+// prints:
+// circumference 18.849480
+// area 28.274220
 ```
 
 ## What else is in the language?
