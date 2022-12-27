@@ -236,6 +236,8 @@ func Compile(expr parser.Expr) Compilation {
 					},
 				)
 			}
+		case *parser.EFieldAccess:
+			panic("Not implemented objects yet")
 		default:
 			log.Panicf("Not implemented %v", node)
 		}

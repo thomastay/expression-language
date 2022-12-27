@@ -89,7 +89,7 @@ type EFieldAccess struct {
 }
 
 func (x *EFieldAccess) String() string {
-	return fmt.Sprintf("%s[%s]", x.Base, x.Field)
+	return fmt.Sprintf("(%s.%s)", x.Base, x.Field)
 }
 
 type ECond struct {
