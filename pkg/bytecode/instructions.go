@@ -9,7 +9,9 @@ type Instruction int32
 //go:generate stringer -type Instruction
 const (
 	OpConst Instruction = iota
+	// Load a variable
 	OpLoad
+	// Your usual run of the mill binary operators
 	OpAdd
 	OpMinus
 	OpMul
@@ -25,8 +27,11 @@ const (
 	OpUnaryNot
 	OpUnaryPlus
 	OpUnaryMinus
+	// Return from a stack frame. Currently there arent any, so this just halts the VM
 	OpReturn
+	// Call a function
 	OpCall
+	// A binary operator, loads base.field
 	OpLoadAttr
 	// Unconditional branch
 	OpBr
