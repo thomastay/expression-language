@@ -204,6 +204,15 @@ InstLoop:
 				result = 1
 			}
 			stack.push(BInt(result))
+		// ----------------Unary Operations------------------
+		case OpUnaryPlus:
+			a := stack.peek()
+			switch a.(type) {
+			case BInt, BFloat:
+				// do nothing
+			default:
+				return Result{}, fmt.Errorf("TypeError: bad operand type for unary +RuntimeError: %s", a.Typename())
+			}
 		// ----------------Conditional Operations------------------
 		case OpBr:
 			pc = int(code.IntVal)

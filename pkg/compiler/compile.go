@@ -164,6 +164,7 @@ func Compile(expr parser.Expr) Compilation {
 		case *parser.EUnOp:
 			switch node.Op.Value {
 			case "+":
+				// Plus is basically worthless but it does a typecheck for numerics
 				compileRec(node.Val)
 				c.Bytecode = append(c.Bytecode, Bytecode{
 					Inst: OpUnaryPlus,
