@@ -1,6 +1,7 @@
 package parser
 
 // Parser based on the Pratt Parser by Matklad
+// https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html
 
 import (
 	"fmt"
@@ -315,36 +316,37 @@ type InfixBP struct {
 	l, r int
 }
 
+// Based on https://docs.python.org/3/reference/expressions.html
 var infixBP = map[string]InfixBP{
-	"?":   {6, 5},
-	"+":   {7, 8},
-	"-":   {7, 8},
-	"*":   {9, 10},
-	"/":   {9, 10},
-	"%":   {9, 10},
+	"*":   {13, 14},
+	"/":   {13, 14},
+	"%":   {13, 14},
+	"+":   {11, 12},
+	"-":   {11, 12},
 	">":   {9, 10},
+	"<=":  {9, 10},
 	"<":   {9, 10},
 	">=":  {9, 10},
-	"<=":  {9, 10},
 	"==":  {9, 10},
 	"!=":  {9, 10},
-	"and": {3, 4},
-	"or":  {2, 1},
+	"and": {5, 6},
+	"or":  {3, 4},
+	"?":   {2, 1},
 }
 
 var prefixBP = map[string]int{
-	"+":   7,
-	"-":   7,
-	"not": 5,
+	"+":   15,
+	"-":   15,
+	"not": 7,
 }
 
 var postFixBP = map[string]int{
 	// This is a Call operator on a base class
-	".": 13,
+	".": 17,
 	// This is the indexing operator
-	"[": 13,
+	"[": 17,
 	// This is a Call operator on a function
-	"(": 13,
+	"(": 17,
 }
 
 var TokOp = Lexer.Symbols()["Op"]
