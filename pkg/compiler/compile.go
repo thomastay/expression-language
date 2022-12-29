@@ -135,24 +135,10 @@ func Compile(expr parser.Expr) Compilation {
 				}
 			}
 		case *parser.EUnOp:
-			switch node.Op.Value {
-			case "+":
-				// Plus is basically worthless but it does a typecheck for numerics
+			if inst, ok := unaryOps[node.Op.Value]; ok {
 				compileRec(node.Val)
-				c.Bytecode = append(c.Bytecode, Bytecode{
-					Inst: OpUnaryPlus,
-				})
-			case "-":
-				compileRec(node.Val)
-				c.Bytecode = append(c.Bytecode, Bytecode{
-					Inst: OpUnaryMinus,
-				})
-			case "not":
-				compileRec(node.Val)
-				c.Bytecode = append(c.Bytecode, Bytecode{
-					Inst: OpUnaryNot,
-				})
-			default:
+				c.Bytecode = append(c.Bytecode, Bytecode{Inst: inst})
+			} else {
 				log.Panicf("Not implemented %v", node)
 			}
 		case *parser.ECond:
@@ -250,6 +236,12 @@ var simpleBinaryOps = map[string]Instruction{
 	"<=": OpLe,
 	"==": OpEq,
 	"!=": OpNe,
+}
+
+var unaryOps = map[string]Instruction{
+	"+":   OpUnaryPlus,
+	"-":   OpUnaryMinus,
+	"not": OpUnaryNot,
 }
 
 // represents the
