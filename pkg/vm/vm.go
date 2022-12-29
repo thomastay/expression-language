@@ -134,6 +134,14 @@ InstLoop:
 				return Result{}, err
 			}
 			stack.push(result)
+		case OpFloorDiv:
+			b := stack.pop()
+			a := stack.pop()
+			result, err := floorDiv(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			stack.push(result)
 		case OpMod:
 			b := stack.pop()
 			a := stack.pop()

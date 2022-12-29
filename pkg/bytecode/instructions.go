@@ -16,6 +16,7 @@ const (
 	OpMinus
 	OpMul
 	OpDiv
+	OpFloorDiv
 	OpAnd
 	OpMod
 	OpLt

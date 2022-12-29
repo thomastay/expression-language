@@ -109,6 +109,8 @@ func Compile(expr parser.Expr) Compilation {
 					inst = OpMul
 				case "/":
 					inst = OpDiv
+				case "//":
+					inst = OpFloorDiv
 				case "%":
 					inst = OpMod
 				case "<":
@@ -266,7 +268,7 @@ func Compile(expr parser.Expr) Compilation {
 
 func isSimpleBinOp(op string) bool {
 	switch op {
-	case "+", "-", "*", "/", "%", "<", ">", ">=", "<=", "==", "!=":
+	case "+", "-", "*", "/", "//", "%", "<", ">", ">=", "<=", "==", "!=":
 		return true
 	default:
 		return false

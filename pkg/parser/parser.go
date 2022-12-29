@@ -320,6 +320,7 @@ type InfixBP struct {
 var infixBP = map[string]InfixBP{
 	"*":   {13, 14},
 	"/":   {13, 14},
+	"//":  {13, 14},
 	"%":   {13, 14},
 	"+":   {11, 12},
 	"-":   {11, 12},
