@@ -62,9 +62,11 @@ func TestValidStrings(t *testing.T) {
 		// "[1.1, 2.2, potato].len",
 		// // Arrays are expressions
 		// "[1.1, 2.2, potato] * 2",
+		// "3 * [1, (2, 3), 4][1]"
 		// Regressions
 		"not temp[i] ? 5 / -2 : 10 * f.foo",
 		"not foo ? 5 * 10 : potato",
+		"0.1 + 0.2 == 0.3",
 	}
 
 	for _, tt := range tests {

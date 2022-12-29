@@ -13,8 +13,10 @@ import (
 
 var operators = [...]string{
 	// Sort in descending length order
+	// 3 chars
 	"and",
 	"not",
+	// 2 chars
 	"or",
 	`\+=`,
 	`\-=`,
@@ -24,6 +26,8 @@ var operators = [...]string{
 	"<=",
 	"==",
 	"!=",
+	"//",
+	// 1 char
 	":",
 	"%",
 	">",

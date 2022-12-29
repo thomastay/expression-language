@@ -64,7 +64,7 @@ func TestValidStrings(t *testing.T) {
 		// Fizzbuzz!
 		"a % 3 ? a % 5 ? a : 'buzz' : a % 5 ? fizz : fizzbuzz",
 		// Collatz
-		"a % 2 ? 3 * a + 1 : a / 2",
+		"a % 2 ? 3 * a + 1 : a // 2",
 		// functions!
 		"foobar(123)",
 		// objects
@@ -144,7 +144,7 @@ func TestFizzBuzz(t *testing.T) {
 
 func TestCollatz(t *testing.T) {
 	m := vm.New(vm.Params{})
-	s := "i % 2 == 0 ? i/2 : 3*i + 1"
+	s := "i % 2 == 0 ? i//2 : 3*i + 1"
 	compilation := compiler.CompileString(s)
 	if len(compilation.Errors) > 0 {
 		t.Fatal("Found compile errors")
