@@ -169,11 +169,8 @@ func div(aVal BVal, bVal BVal) (BVal, error) {
 				return nil, errDivByZero
 			}
 			// case 1: both ints
-			result, ok := overflow.Div64(int64(a), int64(b))
-			if !ok {
-				return nil, errOverflow
-			}
-			return BInt(result), nil
+			result := float64(a) / float64(b)
+			return BFloat(result), nil
 		case BFloat:
 			if b == 0 {
 				return nil, errDivByZero
@@ -181,7 +178,6 @@ func div(aVal BVal, bVal BVal) (BVal, error) {
 			// Case 2a: one int, one float
 			// Cast int to float and add
 			result := float64(a) / float64(b)
-			// Note: find another lib to check for overflow
 			return BFloat(result), nil
 		default:
 			return nil, errTypeMismatch("/", aVal, bVal)
