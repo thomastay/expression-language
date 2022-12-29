@@ -197,9 +197,15 @@ func div(aVal, bVal BVal) (BVal, error) {
 	case BInt:
 		switch b := bVal.(type) {
 		case BInt:
+			if b == 0 {
+				return nil, errDivByZero
+			}
 			result := float64(a) / float64(b)
 			return BFloat(result), nil
 		case BFloat:
+			if b == 0 {
+				return nil, errDivByZero
+			}
 			result := float64(a) / float64(b)
 			return BFloat(result), nil
 		case BStr:
@@ -214,9 +220,15 @@ func div(aVal, bVal BVal) (BVal, error) {
 	case BFloat:
 		switch b := bVal.(type) {
 		case BInt:
+			if b == 0 {
+				return nil, errDivByZero
+			}
 			result := float64(a) / float64(b)
 			return BFloat(result), nil
 		case BFloat:
+			if b == 0 {
+				return nil, errDivByZero
+			}
 			result := float64(a) / float64(b)
 			return BFloat(result), nil
 		case BStr:
@@ -239,6 +251,66 @@ func div(aVal, bVal BVal) (BVal, error) {
 
 	}
 	panic(fmt.Sprintf("Unhandled operation: %s(%T) / %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+}
+func floorDiv(aVal, bVal BVal) (BVal, error) {
+	switch a := aVal.(type) {
+	case BInt:
+		switch b := bVal.(type) {
+		case BInt:
+			if b == 0 {
+				return nil, errDivByZero
+			}
+			result := BInt(a) / BInt(b)
+			return BInt(result), nil
+		case BFloat:
+			if b == 0 {
+				return nil, errDivByZero
+			}
+			result := float64(a) / float64(b)
+			return BFloat(result), nil
+		case BStr:
+			return nil, errTypeMismatch("//", aVal, bVal)
+		case BObj:
+			return nil, errTypeMismatch("//", aVal, bVal)
+		case BFunc:
+			return nil, errTypeMismatch("//", aVal, bVal)
+		case BNull:
+			return nil, errTypeMismatch("//", aVal, bVal)
+		}
+	case BFloat:
+		switch b := bVal.(type) {
+		case BInt:
+			if b == 0 {
+				return nil, errDivByZero
+			}
+			result := float64(a) / float64(b)
+			return BFloat(result), nil
+		case BFloat:
+			if b == 0 {
+				return nil, errDivByZero
+			}
+			result := float64(a) / float64(b)
+			return BFloat(result), nil
+		case BStr:
+			return nil, errTypeMismatch("//", aVal, bVal)
+		case BObj:
+			return nil, errTypeMismatch("//", aVal, bVal)
+		case BFunc:
+			return nil, errTypeMismatch("//", aVal, bVal)
+		case BNull:
+			return nil, errTypeMismatch("//", aVal, bVal)
+		}
+	case BStr:
+		return nil, errTypeMismatch("//", aVal, bVal)
+	case BObj:
+		return nil, errTypeMismatch("//", aVal, bVal)
+	case BFunc:
+		return nil, errTypeMismatch("//", aVal, bVal)
+	case BNull:
+		return nil, errTypeMismatch("//", aVal, bVal)
+
+	}
+	panic(fmt.Sprintf("Unhandled operation: %s(%T) // %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func modulo(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {

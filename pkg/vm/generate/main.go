@@ -45,6 +45,11 @@ var allowedCases = map[Case]CaseResult{
 	{"/", "BInt", "BFloat"}:   defaultFloat("/"),
 	{"/", "BFloat", "BInt"}:   defaultFloat("/"),
 	{"/", "BFloat", "BFloat"}: defaultFloat("/"),
+	// Integer division
+	{"//", "BInt", "BInt"}:     defaultOp("/", "BInt"),
+	{"//", "BInt", "BFloat"}:   defaultFloat("/"),
+	{"//", "BFloat", "BInt"}:   defaultFloat("/"),
+	{"//", "BFloat", "BFloat"}: defaultFloat("/"),
 	// mod
 	{"%", "BInt", "BInt"}:     defaultOp("%%", "BInt"),
 	{"%", "BInt", "BFloat"}:   {s: `result := math.Mod(float64(a), float64(b))`, tp: "BFloat"},
@@ -85,6 +90,10 @@ func cases(op string) string {
 					}
 				} else {
 					hasAnyCase = true
+					if op == "/" || op == "//" {
+						// div by zero
+						echo(`if b == 0 { return nil, errDivByZero }`)
+					}
 					echo(result.s)
 					if result.tp == "" {
 						result.tp = aType
@@ -214,6 +223,12 @@ func div(aVal, bVal BVal) (BVal, error) {
 	{{ cases "/" }}
 	}
 	panic(fmt.Sprintf("Unhandled operation: %s(%T) / %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+}
+func floorDiv(aVal, bVal BVal) (BVal, error) {
+	switch a := aVal.(type) {
+	{{ cases "//" }}
+	}
+	panic(fmt.Sprintf("Unhandled operation: %s(%T) // %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func modulo(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
