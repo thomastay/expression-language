@@ -5,6 +5,8 @@ This package is a library implementing a very simple **expression language** wri
 'hello'
 ```
 
+_Note that this library is very new and is mostly educational_. For a more refined implementation, see AntonMedv's Expr library here: https://github.com/antonmedv/expr
+
 The expression language is just like what you see above. Just a one liner language which can evaluate numbers, strings, objects, and arrays. In particular, there are no:
 
 1. No loops
