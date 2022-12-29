@@ -40,6 +40,11 @@ var allowedCases = map[Case]CaseResult{
 		s:  `result := strings.Repeat(string(b), int(a))`,
 		tp: "BStr",
 	},
+	// Power
+	{"**", "BInt", "BInt"}:     {s: "result := intPow(a, b)"},
+	{"**", "BInt", "BFloat"}:   defaultExp,
+	{"**", "BFloat", "BInt"}:   defaultExp,
+	{"**", "BFloat", "BFloat"}: defaultExp,
 	// div
 	{"/", "BInt", "BInt"}:     defaultFloat("/"),
 	{"/", "BInt", "BFloat"}:   defaultFloat("/"),
@@ -100,6 +105,9 @@ func cases(op string) string {
 					}
 					if op == "cmp" {
 						// echo(result.s) // return is inside
+					} else if op == "**" && aType == "BInt" && bType == "BInt" {
+						// Special case this, since intPow can return a float or an int
+						echo("return result, nil")
 					} else {
 						echo("return %s(result), nil", result.tp)
 					}
@@ -176,6 +184,11 @@ func defaultFloat(op string) CaseResult {
 	}
 }
 
+var defaultExp = CaseResult{
+	s:  "result := math.Pow(float64(a), float64(b))",
+	tp: "BFloat",
+}
+
 func defaultCmp(tp string) CaseResult {
 	return CaseResult{
 		s: fmt.Sprintf(`aa, bb := %s(a), %s(b)
@@ -229,6 +242,12 @@ func floorDiv(aVal, bVal BVal) (BVal, error) {
 	{{ cases "//" }}
 	}
 	panic(fmt.Sprintf("Unhandled operation: %s(%T) // %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+}
+func pow(aVal, bVal BVal) (BVal, error) {
+	switch a := aVal.(type) {
+	{{ cases "**" }}
+	}
+	panic(fmt.Sprintf("Unhandled operation: %s(%T) ** %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func modulo(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {

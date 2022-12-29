@@ -1,6 +1,8 @@
 package vm
 
 import (
+	"math"
+
 	. "github.com/thomastay/expression_language/pkg/bytecode"
 )
 
@@ -59,4 +61,27 @@ func eq(aVal BVal, bVal BVal) bool {
 	default:
 		panic("Not impl")
 	}
+}
+
+// Note that 0^0 returns 1, mathematically this is undefined
+func intPow(a BInt, b BInt) BVal {
+	// Exponentiation by squaring for positive integers
+	// based on https://docs.rs/num-traits/latest/src/num_traits/pow.rs.html#189
+	if b < 0 {
+		return BFloat(math.Pow(float64(a), float64(b)))
+	}
+	if b == 0 {
+		return BInt(1)
+	}
+
+	base := a
+	for b > 1 {
+		b >>= 1
+		base = base * base
+		if b&1 == 1 {
+			// odd
+			a *= base
+		}
+	}
+	return a
 }

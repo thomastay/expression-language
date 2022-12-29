@@ -312,6 +312,54 @@ func floorDiv(aVal, bVal BVal) (BVal, error) {
 	}
 	panic(fmt.Sprintf("Unhandled operation: %s(%T) // %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
+func pow(aVal, bVal BVal) (BVal, error) {
+	switch a := aVal.(type) {
+	case BInt:
+		switch b := bVal.(type) {
+		case BInt:
+			result := intPow(a, b)
+			return result, nil
+		case BFloat:
+			result := math.Pow(float64(a), float64(b))
+			return BFloat(result), nil
+		case BStr:
+			return nil, errTypeMismatch("**", aVal, bVal)
+		case BObj:
+			return nil, errTypeMismatch("**", aVal, bVal)
+		case BFunc:
+			return nil, errTypeMismatch("**", aVal, bVal)
+		case BNull:
+			return nil, errTypeMismatch("**", aVal, bVal)
+		}
+	case BFloat:
+		switch b := bVal.(type) {
+		case BInt:
+			result := math.Pow(float64(a), float64(b))
+			return BFloat(result), nil
+		case BFloat:
+			result := math.Pow(float64(a), float64(b))
+			return BFloat(result), nil
+		case BStr:
+			return nil, errTypeMismatch("**", aVal, bVal)
+		case BObj:
+			return nil, errTypeMismatch("**", aVal, bVal)
+		case BFunc:
+			return nil, errTypeMismatch("**", aVal, bVal)
+		case BNull:
+			return nil, errTypeMismatch("**", aVal, bVal)
+		}
+	case BStr:
+		return nil, errTypeMismatch("**", aVal, bVal)
+	case BObj:
+		return nil, errTypeMismatch("**", aVal, bVal)
+	case BFunc:
+		return nil, errTypeMismatch("**", aVal, bVal)
+	case BNull:
+		return nil, errTypeMismatch("**", aVal, bVal)
+
+	}
+	panic(fmt.Sprintf("Unhandled operation: %s(%T) ** %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+}
 func modulo(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
 	case BInt:
