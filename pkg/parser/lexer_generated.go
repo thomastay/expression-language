@@ -282,7 +282,7 @@ groups[1] = np
 return
 }
 
-// and|not|or|\+=|-=|\*=|/=|>=|<=|==|!=|[%\(\*-\+\--/:<>-\?\[]
+// and|not|or|\+=|-=|\*=|/=|>=|<=|==|!=|//|[%\(\*-\+\--/:<>-\?\[]
 func matchOp(s string, p int, backrefs []string) (groups [2]int) {
 // and (Literal)
 l0 := func(s string, p int) int {
@@ -339,8 +339,13 @@ l10 := func(s string, p int) int {
 if p+2 <= len(s) && s[p:p+2] == "!=" { return p+2 }
 return -1
 }
-// [%\(\*-\+\--/:<>-\?\[] (CharClass)
+// // (Literal)
 l11 := func(s string, p int) int {
+if p+2 <= len(s) && s[p:p+2] == "//" { return p+2 }
+return -1
+}
+// [%\(\*-\+\--/:<>-\?\[] (CharClass)
+l12 := func(s string, p int) int {
 if len(s) <= p { return -1 }
 rn := s[p]
 switch {
@@ -355,8 +360,8 @@ case rn == '[': return p+1
 }
 return -1
 }
-// and|not|or|\+=|-=|\*=|/=|>=|<=|==|!=|[%\(\*-\+\--/:<>-\?\[] (Alternate)
-l12 := func(s string, p int) int {
+// and|not|or|\+=|-=|\*=|/=|>=|<=|==|!=|//|[%\(\*-\+\--/:<>-\?\[] (Alternate)
+l13 := func(s string, p int) int {
 if np := l0(s, p); np != -1 { return np }
 if np := l1(s, p); np != -1 { return np }
 if np := l2(s, p); np != -1 { return np }
@@ -369,9 +374,10 @@ if np := l8(s, p); np != -1 { return np }
 if np := l9(s, p); np != -1 { return np }
 if np := l10(s, p); np != -1 { return np }
 if np := l11(s, p); np != -1 { return np }
+if np := l12(s, p); np != -1 { return np }
 return -1
 }
-np := l12(s, p)
+np := l13(s, p)
 if np == -1 {
   return
 }
