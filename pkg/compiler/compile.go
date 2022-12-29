@@ -96,38 +96,9 @@ func Compile(expr parser.Expr) Compilation {
 				log.Panicf("Not implemented %v", node)
 			}
 		case *parser.EBinOp:
-			if isSimpleBinOp(node.Op.Value) {
+			if inst, ok := simpleBinaryOps[node.Op.Value]; ok {
 				compileRec(node.Left)
 				compileRec(node.Right)
-				var inst Instruction
-				switch node.Op.Value {
-				case "+":
-					inst = OpAdd
-				case "-":
-					inst = OpMinus
-				case "*":
-					inst = OpMul
-				case "/":
-					inst = OpDiv
-				case "//":
-					inst = OpFloorDiv
-				case "%":
-					inst = OpMod
-				case "<":
-					inst = OpLt
-				case ">":
-					inst = OpGt
-				case ">=":
-					inst = OpGe
-				case "<=":
-					inst = OpLe
-				case "==":
-					inst = OpEq
-				case "!=":
-					inst = OpNe
-				default:
-					panic("Not a simple binary op!")
-				}
 				c.Bytecode = append(c.Bytecode, Bytecode{Inst: inst})
 			} else {
 				switch node.Op.Value {
@@ -266,13 +237,19 @@ func Compile(expr parser.Expr) Compilation {
 	return c
 }
 
-func isSimpleBinOp(op string) bool {
-	switch op {
-	case "+", "-", "*", "/", "//", "%", "<", ">", ">=", "<=", "==", "!=":
-		return true
-	default:
-		return false
-	}
+var simpleBinaryOps = map[string]Instruction{
+	"+":  OpAdd,
+	"-":  OpMinus,
+	"*":  OpMul,
+	"/":  OpDiv,
+	"//": OpFloorDiv,
+	"%":  OpMod,
+	"<":  OpLt,
+	">":  OpGt,
+	">=": OpGe,
+	"<=": OpLe,
+	"==": OpEq,
+	"!=": OpNe,
 }
 
 // represents the
