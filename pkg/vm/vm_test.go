@@ -88,7 +88,8 @@ func TestValidStrings(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			vm := vm.New(vm.Params{})
 			seedVM(vm)
-			_, err := vm.EvalString(tt, nil)
+			val, err := vm.EvalString(tt, nil)
+			fmt.Println(tt, val)
 			if err != nil {
 				t.Error(err)
 			}
@@ -96,22 +97,28 @@ func TestValidStrings(t *testing.T) {
 	}
 }
 
+var invalidStrings = []string{
+	// Overflow
+	"1 + 101000000000000000 * 20000000000000000",
+	"((10 * 3.0) ? 3 : 1000000000000000000000000000000000000) * 5.0e1000000000",
+	// div 0
+	"1 / 0",
+	// strings
+	"'a' + 2",
+	"2 + 'a'",
+	"'a' + 2.0",
+	"2.0 + 'a'",
+	"'a' / 2",
+	"2 / 'a'",
+	"[1, 2, 3][5]",
+	"[foo(), bar, fooObj.bar][5]",
+	"[foo(), *2 * 3, fooObj.bar][5]",
+	"[foo(), (2, 3), fooObj.bar][5]",
+	"[1//2nasdijio2 * 5, (2, 3), 35]",
+}
+
 func TestInvalidStrings(t *testing.T) {
-	var tests = []string{
-		// Overflow
-		"1 + 101000000000000000 * 20000000000000000",
-		"((10 * 3.0) ? 3 : 1000000000000000000000000000000000000) * 5.0e1000000000",
-		// div 0
-		"1 / 0",
-		// strings
-		"'a' + 2",
-		"2 + 'a'",
-		"'a' + 2.0",
-		"2.0 + 'a'",
-		"'a' / 2",
-		"2 / 'a'",
-		"[1, 2, 3][5]",
-	}
+	var tests = invalidStrings
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("%s", tt)
@@ -282,7 +289,7 @@ var testingVMParams = vm.Params{
 
 // VM should never fail
 func FuzzVM(f *testing.F) {
-	testcases := validStrings
+	testcases := append(validStrings, invalidStrings...)
 	for _, tc := range testcases {
 		f.Add(tc)
 	}

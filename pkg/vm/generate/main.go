@@ -40,7 +40,7 @@ var allowedCases = map[Case]CaseResult{
 	{"*", "BStr", "BInt"}: {
 		s: `
 		var result string
-		if int(b) <= 0 {
+		if int(b) <= 0|| len(a) == 0 {
 			result = ""
 		} else {
 			memoryUsed := len(a) * int(b)
@@ -53,7 +53,7 @@ var allowedCases = map[Case]CaseResult{
 	{"*", "BInt", "BStr"}: {
 		s: `
 		var result string
-		if int(a) <= 0 {
+		if int(a) <= 0 || len(b) == 0 {
 			result = ""
 		} else {
 			memoryUsed := len(b) * int(a)
@@ -67,7 +67,7 @@ var allowedCases = map[Case]CaseResult{
 	{"*", "BArray", "BInt"}: {
 		s: `
 		var result []BVal
-		if int(b) > 0 {
+		if int(b) > 0 && len(a) > 0 {
 			memoryUsed := len(a) * int(b)
 			if memoryUsed >= memoryLimit {
 				return nil, errOOM
@@ -79,7 +79,7 @@ var allowedCases = map[Case]CaseResult{
 	{"*", "BInt", "BArray"}: {
 		s: `
 		var result []BVal
-		if int(a) > 0 {
+		if int(a) > 0 && len(b) > 0 {
 		memoryUsed := len(b) * int(a)
 		if memoryUsed >= memoryLimit {
 			return nil, errOOM

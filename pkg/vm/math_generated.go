@@ -172,7 +172,7 @@ func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 		case BStr:
 
 			var result string
-			if int(a) <= 0 {
+			if int(a) <= 0 || len(b) == 0 {
 				result = ""
 			} else {
 				memoryUsed := len(b) * int(a)
@@ -191,7 +191,7 @@ func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 		case BArray:
 
 			var result []BVal
-			if int(a) > 0 {
+			if int(a) > 0 && len(b) > 0 {
 				memoryUsed := len(b) * int(a)
 				if memoryUsed >= memoryLimit {
 					return nil, errOOM
@@ -224,7 +224,7 @@ func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 		case BInt:
 
 			var result string
-			if int(b) <= 0 {
+			if int(b) <= 0 || len(a) == 0 {
 				result = ""
 			} else {
 				memoryUsed := len(a) * int(b)
@@ -258,7 +258,7 @@ func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 		case BInt:
 
 			var result []BVal
-			if int(b) > 0 {
+			if int(b) > 0 && len(a) > 0 {
 				memoryUsed := len(a) * int(b)
 				if memoryUsed >= memoryLimit {
 					return nil, errOOM
