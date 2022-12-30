@@ -39,19 +39,29 @@ var allowedCases = map[Case]CaseResult{
 	{"*", "BFloat", "BFloat"}: defaultFloat("*"),
 	{"*", "BStr", "BInt"}: {
 		s: `
-		memoryUsed := len(a) * int(b)
-		if memoryUsed >= memoryLimit {
-			return nil, errOOM
-		}
-		result := strings.Repeat(string(a), int(b))`,
+		var result string
+		if int(b) <= 0 {
+			result = ""
+		} else {
+			memoryUsed := len(a) * int(b)
+			if memoryUsed >= memoryLimit {
+				return nil, errOOM
+			}
+			result = strings.Repeat(string(a), int(b))
+		}`,
 	},
 	{"*", "BInt", "BStr"}: {
 		s: `
-		memoryUsed := len(b) * int(a)
-		if memoryUsed >= memoryLimit {
-			return nil, errOOM
-		}
-		result := strings.Repeat(string(b), int(a))`,
+		var result string
+		if int(a) <= 0 {
+			result = ""
+		} else {
+			memoryUsed := len(b) * int(a)
+			if memoryUsed >= memoryLimit {
+				return nil, errOOM
+			}
+			result = strings.Repeat(string(b), int(a))
+		}`,
 		tp: "BStr",
 	},
 	{"*", "BArray", "BInt"}: {

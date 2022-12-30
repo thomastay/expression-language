@@ -171,11 +171,16 @@ func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 			return BFloat(result), nil
 		case BStr:
 
-			memoryUsed := len(b) * int(a)
-			if memoryUsed >= memoryLimit {
-				return nil, errOOM
+			var result string
+			if int(a) <= 0 {
+				result = ""
+			} else {
+				memoryUsed := len(b) * int(a)
+				if memoryUsed >= memoryLimit {
+					return nil, errOOM
+				}
+				result = strings.Repeat(string(b), int(a))
 			}
-			result := strings.Repeat(string(b), int(a))
 			return BStr(result), nil
 		case BObj:
 			return nil, errTypeMismatch("*", aVal, bVal)
@@ -215,11 +220,16 @@ func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 		switch b := bVal.(type) {
 		case BInt:
 
-			memoryUsed := len(a) * int(b)
-			if memoryUsed >= memoryLimit {
-				return nil, errOOM
+			var result string
+			if int(b) <= 0 {
+				result = ""
+			} else {
+				memoryUsed := len(a) * int(b)
+				if memoryUsed >= memoryLimit {
+					return nil, errOOM
+				}
+				result = strings.Repeat(string(a), int(b))
 			}
-			result := strings.Repeat(string(a), int(b))
 			return BStr(result), nil
 		case BFloat:
 			return nil, errTypeMismatch("*", aVal, bVal)
