@@ -33,7 +33,7 @@ As you can see above, you can _evaluate_ variables, but users just can't define 
 
 ```go
 type Circle struct {
-	radius int
+	radius int64
 	circumference string
 	area string
 }
@@ -41,13 +41,17 @@ func main() {
 	var circle Circle
 	err := json.Marshal(&circle, fileBytes)
 	m := vm.New()
-	m.AddInt("radius", circle.radius) // <-- Host environment provides the variable for use
+	// Host environment provides the variable for use
+	// BInt is the type that the interpreter uses
+	env := vm.VMEnv{
+		"radius": bytecode.BInt(circle.radius)
+	}
 
-	vmResult, err := m.EvalString(circle.circumference)
+	vmResult, err := m.EvalString(circle.circumference, env)
 	circumference := vmResult.Val
 	fmt.Println("circumference", circumference)
 
-	vmResult, err := m.EvalString(circle.area)
+	vmResult, err := m.EvalString(circle.area, env)
 	area := vmResult.Val
 	fmt.Println("area", area)
 }
