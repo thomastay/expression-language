@@ -66,6 +66,8 @@ var validStrings = []string{
 	"a % 2 ? 3 * a + 1 : a // 2",
 	// functions!
 	"foobar(123)",
+	"ba(123)",
+	"vv(123)",
 	// objects
 	"fooObj.bar * 10",
 	"fooObj.baz(30) * 10",
@@ -243,12 +245,29 @@ func seedVM(m vm.VMState) {
 		log.Println(x)
 		return bytecode.BNull{}
 	})
+	m.AddFunc("ba", func(x bytecode.BVal) (bytecode.BVal, error) {
+		log.Println(x)
+		xx := x.(bytecode.BInt)
+		return bytecode.BFloat(float64(xx) * 43.4), nil
+	})
+	m.AddFunc("vv",
+		func(x bytecode.BVal) {
+			log.Println(x)
+		})
 	fooObjVal := map[string]bytecode.BVal{
 		"bar": bytecode.BInt(10),
 		"baz": vm.WrapFn("baz", func(x bytecode.BVal) bytecode.BVal {
 			log.Println(x)
 			xx := x.(bytecode.BInt)
 			return bytecode.BFloat(float64(xx) * 43.4)
+		}),
+		"ba": vm.WrapFn("baz", func(x bytecode.BVal) (bytecode.BVal, error) {
+			log.Println(x)
+			xx := x.(bytecode.BInt)
+			return bytecode.BFloat(float64(xx) * 43.4), nil
+		}),
+		"vv": vm.WrapFn("baz", func(x bytecode.BVal) {
+			log.Println(x)
 		}),
 	}
 	m.AddObject("fooObj", fooObjVal)

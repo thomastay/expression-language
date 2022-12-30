@@ -44,6 +44,7 @@ func WrapFn(name string, ff any) BFunc {
 			panic("Function return value 2 does not implement Error")
 		}
 	}
+	var err error
 	f := func(args []BVal) (BVal, error) {
 		reflectArgs := make([]reflect.Value, len(args))
 		for i, arg := range args {
@@ -52,11 +53,12 @@ func WrapFn(name string, ff any) BFunc {
 		reflectVals := fn.Call(reflectArgs)
 		switch len(reflectVals) {
 		case 0:
-			return nil, nil
+			return BNull{}, nil
 		case 1:
 			return reflectVals[0].Interface().(BVal), nil
 		case 2:
-			return reflectVals[0].Interface().(BVal), reflectVals[1].Interface().(error)
+			err, _ = reflectVals[1].Interface().(error)
+			return reflectVals[0].Interface().(BVal), err
 		default:
 			panic("Should not reach this point, wrong number of returns")
 		}
