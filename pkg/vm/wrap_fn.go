@@ -13,7 +13,8 @@ var ErrInvalidNumParams = errors.New("Invalid number of arguments provided")
 var bValType = reflect.TypeOf((*BVal)(nil)).Elem()
 var errorType = reflect.TypeOf((*error)(nil)).Elem()
 
-func WrapFn(ff any) VMFuncWithArgs {
+// Wrap a function and its name
+func WrapFn(name string, ff any) BFunc {
 	fn := reflect.ValueOf(ff)
 	fnType := fn.Type()
 	if fnType.Kind() != reflect.Func {
@@ -60,5 +61,5 @@ func WrapFn(ff any) VMFuncWithArgs {
 			panic("Should not reach this point, wrong number of returns")
 		}
 	}
-	return VMFuncWithArgs{Fn: f, NumArgs: fnType.NumIn()}
+	return BFunc{Fn: f, NumArgs: fnType.NumIn(), Name: name}
 }

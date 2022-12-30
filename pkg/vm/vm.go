@@ -60,17 +60,7 @@ func (vm *VMState) AddObject(key string, obj BObj) {
 //	func (a bytecode.BVal) bytecode.BVal
 //	func (a bytecode.BVal) (bytecode.BVal, error)
 func (vm *VMState) AddFunc(name string, fn any) {
-	v := WrapFn(fn)
-	vm.env[name] = BFunc{
-		Fn:      v.Fn,
-		NumArgs: v.NumArgs,
-		Name:    name,
-	}
-}
-
-type VMFuncWithArgs struct {
-	Fn      VMFunc
-	NumArgs int
+	vm.env[name] = WrapFn(name, fn)
 }
 
 // Convenience method if you just want to evaluate a string. Concatenates all compile errors into one

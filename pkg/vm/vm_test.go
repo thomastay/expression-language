@@ -243,18 +243,13 @@ func seedVM(m vm.VMState) {
 		log.Println(x)
 		return bytecode.BNull{}
 	})
-	bazFn := vm.WrapFn(func(x bytecode.BVal) bytecode.BVal {
-		log.Println(x)
-		xx := x.(bytecode.BInt)
-		return bytecode.BFloat(float64(xx) * 43.4)
-	})
 	fooObjVal := map[string]bytecode.BVal{
 		"bar": bytecode.BInt(10),
-		"baz": bytecode.BFunc{
-			Fn:      bazFn.Fn,
-			NumArgs: bazFn.NumArgs,
-			Name:    "baz",
-		},
+		"baz": vm.WrapFn("baz", func(x bytecode.BVal) bytecode.BVal {
+			log.Println(x)
+			xx := x.(bytecode.BInt)
+			return bytecode.BFloat(float64(xx) * 43.4)
+		}),
 	}
 	m.AddObject("fooObj", fooObjVal)
 }
