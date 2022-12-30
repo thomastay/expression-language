@@ -86,7 +86,7 @@ func TestValidStrings(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			vm := vm.New(vm.Params{})
 			seedVM(vm)
-			_, err := vm.EvalString(tt)
+			_, err := vm.EvalString(tt, nil)
 			if err != nil {
 				t.Error(err)
 			}
@@ -116,7 +116,7 @@ func TestInvalidStrings(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			vm := vm.New(vm.Params{})
 			seedVM(vm)
-			_, err := vm.EvalString(tt)
+			_, err := vm.EvalString(tt, nil)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
 			}
@@ -134,7 +134,7 @@ func TestFizzBuzz(t *testing.T) {
 	}
 	for i := 0; i < 100; i++ {
 		m.AddInt("i", int64(i))
-		result, err := m.Eval(compilation)
+		result, err := m.Eval(compilation, nil)
 		if err != nil {
 			t.Error(err)
 		}
@@ -161,7 +161,7 @@ func TestCollatz(t *testing.T) {
 	}
 	for i := 1000; i > 1; {
 		m.AddInt("i", int64(i))
-		result, err := m.Eval(compilation)
+		result, err := m.Eval(compilation, nil)
 		if err != nil {
 			t.Error(err)
 		}
@@ -188,7 +188,7 @@ func BenchmarkCollatz(b *testing.B) {
 	for numRuns := 0; numRuns < b.N; numRuns++ {
 		for i := 100000; i > 1; {
 			m.AddInt("i", int64(i))
-			result, err := m.Eval(compilation)
+			result, err := m.Eval(compilation, nil)
 			if err != nil {
 				b.Error(err)
 			}
@@ -276,6 +276,6 @@ func FuzzVM(f *testing.F) {
 	vm := vm.New(testingVMParams)
 	seedVM(vm)
 	f.Fuzz(func(t *testing.T, orig string) {
-		vm.EvalString(orig)
+		vm.EvalString(orig, nil)
 	})
 }

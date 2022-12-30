@@ -59,7 +59,7 @@ func main() {
 	}
 	m.AddObject("fooObj", fooObjVal)
 	m.AddObject("emptyObj", nil)
-	result, err := m.Eval(comp)
+	result, err := m.Eval(comp, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

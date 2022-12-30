@@ -26,35 +26,37 @@ func New(params Params) VMState {
 		params.MaxMemory = defaultMaxMemory
 	}
 	vars := make(map[string]BVal)
-	return VMState{params: params, variables: vars}
+	return VMState{params: params, env: vars}
 }
+
+type VMEnv map[string]BVal
 
 type VMState struct {
 	// stack     Stack // we don't need a stack for now
-	variables map[string]BVal
-	params    Params
+	env    VMEnv
+	params Params
 }
 
 func (vm *VMState) AddInt(key string, val int64) {
-	vm.variables[key] = BInt(val)
+	vm.env[key] = BInt(val)
 }
 func (vm *VMState) AddFloat(key string, val float64) {
-	vm.variables[key] = BFloat(val)
+	vm.env[key] = BFloat(val)
 }
 func (vm *VMState) AddStr(key string, val string) {
-	vm.variables[key] = BStr(val)
+	vm.env[key] = BStr(val)
 }
 func (vm *VMState) AddObject(key string, obj BObj) {
 	if obj == nil {
 		// No nil objects in the VM
 		obj = make(map[string]BVal)
 	}
-	vm.variables[key] = obj
+	vm.env[key] = obj
 }
 
 // Adds a function to the VM. Users must specify the number of arguments the function takes.
 func (vm *VMState) AddFunc(name string, fnWithArgs VMFuncWithArgs) {
-	vm.variables[name] = BFunc{
+	vm.env[name] = BFunc{
 		Fn:      fnWithArgs.Fn,
 		NumArgs: fnWithArgs.NumArgs,
 		Name:    name,
@@ -67,7 +69,7 @@ type VMFuncWithArgs struct {
 }
 
 // Convenience method if you just want to evaluate a string. Concatenates all compile errors into one
-func (vm *VMState) EvalString(s string) (Result, error) {
+func (vm *VMState) EvalString(s string, env VMEnv) (Result, error) {
 	expr, err := parser.ParseString(s)
 	if err != nil {
 		return Result{}, err
@@ -80,14 +82,14 @@ func (vm *VMState) EvalString(s string) (Result, error) {
 		}
 		return Result{}, errors.New(errString)
 	}
-	return vm.Eval(comp)
+	return vm.Eval(comp, env)
 }
 
-func (vm *VMState) Eval(compilation compiler.Compilation) (Result, error) {
+func (vm *VMState) Eval(compilation compiler.Compilation, env VMEnv) (Result, error) {
 	executedInsts := 0
 	memoryUsed := 0
 	pc := 0
-	// stack := vm.stack
+	variables := mergeMaps(vm.env, env)
 	stack := make(Stack, 0, 64) // preallocate some space for items
 	codes := compilation.Bytecode
 InstLoop:
@@ -101,7 +103,7 @@ InstLoop:
 			stack.push(code.Val)
 		case OpLoad:
 			identName := code.Val.(BStr)
-			val, ok := vm.variables[string(identName)]
+			val, ok := variables[string(identName)]
 			if !ok {
 				return Result{}, fmt.Errorf("NameError: name '%s' is not defined", identName)
 			}
@@ -385,4 +387,19 @@ type Params struct {
 	// The maximum number of values that can be created in the VM
 	MaxMemory int
 	Debug     bool
+}
+
+// keys from a and b. b overrides. Does not modify either.
+func mergeMaps(a VMEnv, b VMEnv) VMEnv {
+	if b == nil {
+		return a
+	}
+	result := make(VMEnv, len(a)+len(b))
+	for k, v := range a {
+		result[k] = v
+	}
+	for k, v := range b {
+		result[k] = v
+	}
+	return result
 }
