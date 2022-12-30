@@ -99,6 +99,8 @@ func TestInvalidStrings(t *testing.T) {
 		// Note: can probably improve error message for this. It currently points to the * as the error,
 		// but the error is `not`
 		"not * 3",
+		// unary operator
+		"[1, 2, 3][-]",
 	}
 
 	for _, tt := range tests {

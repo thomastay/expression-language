@@ -153,6 +153,9 @@ func parsePrefix(lex *lexer.PeekingLexer, op *lexer.Token) (Expr, error) {
 			if err != nil {
 				return nil, err
 			}
+			if rhs == nil {
+				return nil, errors.New("Prefix operator must have an expression after")
+			}
 			lhs = &EUnOp{
 				Op:  op,
 				Val: rhs,
