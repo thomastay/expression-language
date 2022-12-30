@@ -100,7 +100,7 @@ InstLoop:
 			identName := code.Val.(BStr)
 			val, ok := variables[string(identName)]
 			if !ok {
-				return Result{}, fmt.Errorf("NameError: name '%s' is not defined", identName)
+				return Result{}, fmt.Errorf("NameError: name %s is not defined", identName)
 			}
 			stack = append(stack, val)
 		// ----------------Binary Operations------------------
