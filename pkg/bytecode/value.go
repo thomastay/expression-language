@@ -51,7 +51,7 @@ func (b BInt) String() string {
 	return strconv.FormatInt(int64(b), 10)
 }
 func (b BStr) String() string {
-	return string(b)
+	return "'" + string(b) + "'"
 }
 func (b BFunc) String() string {
 	return fmt.Sprintf("Function %s taking in %d args", b.Name, b.NumArgs)
