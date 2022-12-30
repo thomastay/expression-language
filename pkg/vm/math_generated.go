@@ -190,11 +190,14 @@ func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 			return nil, errTypeMismatch("*", aVal, bVal)
 		case BArray:
 
-			memoryUsed := len(b) * int(a)
-			if memoryUsed >= memoryLimit {
-				return nil, errOOM
+			var result []BVal
+			if int(a) > 0 {
+				memoryUsed := len(b) * int(a)
+				if memoryUsed >= memoryLimit {
+					return nil, errOOM
+				}
+				result = repeatArr([]BVal(b), int(a))
 			}
-			result := repeatArr([]BVal(b), int(a))
 			return BArray(result), nil
 		}
 	case BFloat:
@@ -254,11 +257,14 @@ func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 		switch b := bVal.(type) {
 		case BInt:
 
-			memoryUsed := len(a) * int(b)
-			if memoryUsed >= memoryLimit {
-				return nil, errOOM
+			var result []BVal
+			if int(b) > 0 {
+				memoryUsed := len(a) * int(b)
+				if memoryUsed >= memoryLimit {
+					return nil, errOOM
+				}
+				result = repeatArr([]BVal(a), int(b))
 			}
-			result := repeatArr([]BVal(a), int(b))
 			return BArray(result), nil
 		case BFloat:
 			return nil, errTypeMismatch("*", aVal, bVal)

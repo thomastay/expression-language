@@ -66,20 +66,26 @@ var allowedCases = map[Case]CaseResult{
 	},
 	{"*", "BArray", "BInt"}: {
 		s: `
-		memoryUsed := len(a) * int(b)
-		if memoryUsed >= memoryLimit {
-			return nil, errOOM
-		}
-		result := repeatArr([]BVal(a), int(b))`,
+		var result []BVal
+		if int(b) > 0 {
+			memoryUsed := len(a) * int(b)
+			if memoryUsed >= memoryLimit {
+				return nil, errOOM
+			}
+			result = repeatArr([]BVal(a), int(b))
+		}`,
 		tp: "BArray",
 	},
 	{"*", "BInt", "BArray"}: {
 		s: `
+		var result []BVal
+		if int(a) > 0 {
 		memoryUsed := len(b) * int(a)
 		if memoryUsed >= memoryLimit {
 			return nil, errOOM
 		}
-		result := repeatArr([]BVal(b), int(a))`,
+		result = repeatArr([]BVal(b), int(a))
+		}`,
 		tp: "BArray",
 	},
 	// Power
