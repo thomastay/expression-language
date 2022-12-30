@@ -14,6 +14,11 @@ var bValType = reflect.TypeOf((*BVal)(nil)).Elem()
 var errorType = reflect.TypeOf((*error)(nil)).Elem()
 
 // Wrap a function and its name
+// A function must have the following return types. Any number of parameters accepted, but no variadics for now.
+//
+//	func (a bytecode.BVal)
+//	func (a bytecode.BVal) bytecode.BVal
+//	func (a bytecode.BVal) (bytecode.BVal, error)
 func WrapFn(name string, ff any) BFunc {
 	fn := reflect.ValueOf(ff)
 	fnType := fn.Type()
@@ -64,4 +69,13 @@ func WrapFn(name string, ff any) BFunc {
 		}
 	}
 	return BFunc{Fn: f, NumArgs: fnType.NumIn(), Name: name}
+}
+
+// Clones an env
+func CloneEnv(env VMEnv) VMEnv {
+	result := make(VMEnv, len(env))
+	for k, v := range env {
+		result[k] = v
+	}
+	return result
 }

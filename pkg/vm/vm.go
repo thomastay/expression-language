@@ -25,42 +25,13 @@ func New(params Params) VMState {
 	if params.MaxMemory == 0 {
 		params.MaxMemory = defaultMaxMemory
 	}
-	vars := make(map[string]BVal)
-	return VMState{params: params, env: vars}
+	return VMState{params: params}
 }
 
 type VMEnv map[string]BVal
 
 type VMState struct {
-	// stack     Stack // we don't need a stack for now
-	env    VMEnv
 	params Params
-}
-
-func (vm *VMState) AddInt(key string, val int64) {
-	vm.env[key] = BInt(val)
-}
-func (vm *VMState) AddFloat(key string, val float64) {
-	vm.env[key] = BFloat(val)
-}
-func (vm *VMState) AddStr(key string, val string) {
-	vm.env[key] = BStr(val)
-}
-func (vm *VMState) AddObject(key string, obj BObj) {
-	if obj == nil {
-		// No nil objects in the VM
-		obj = make(map[string]BVal)
-	}
-	vm.env[key] = obj
-}
-
-// Adds a function to the VM. A function must be one of the following forms form (any number of parameters accepted, but no variadics for now.)
-//
-//	func (a bytecode.BVal)
-//	func (a bytecode.BVal) bytecode.BVal
-//	func (a bytecode.BVal) (bytecode.BVal, error)
-func (vm *VMState) AddFunc(name string, fn any) {
-	vm.env[name] = WrapFn(name, fn)
 }
 
 // Convenience method if you just want to evaluate a string. Concatenates all compile errors into one
@@ -84,7 +55,10 @@ func (vm *VMState) Eval(compilation compiler.Compilation, env VMEnv) (Result, er
 	executedInsts := 0
 	memoryUsed := 0
 	pc := 0
-	variables := mergeMaps(vm.env, env)
+	variables := env
+	if variables == nil {
+		variables = make(VMEnv)
+	}
 	stack := make(Stack, 0, 64) // preallocate some space for items
 	codes := compilation.Bytecode
 InstLoop:
@@ -382,19 +356,4 @@ type Params struct {
 	// The maximum number of values that can be created in the VM
 	MaxMemory int
 	Debug     bool
-}
-
-// keys from a and b. b overrides. Does not modify either.
-func mergeMaps(a VMEnv, b VMEnv) VMEnv {
-	if b == nil {
-		return a
-	}
-	result := make(VMEnv, len(a)+len(b))
-	for k, v := range a {
-		result[k] = v
-	}
-	for k, v := range b {
-		result[k] = v
-	}
-	return result
 }

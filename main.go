@@ -31,18 +31,6 @@ func main() {
 	}
 	m := vm.New(vm.Params{})
 	// seed the VM with some useful variables
-	m.AddInt("a", 43)
-	m.AddInt("b", 2)
-	m.AddInt("c", 15)
-	m.AddFloat("foo", 10.5)
-	m.AddStr("bar", "I am a string")
-	m.AddStr("fizzbuzz", "fizzbuzz")
-	m.AddStr("fizz", "fizz")
-	m.AddStr("buzz", "buzz")
-	m.AddFunc("foobar", func(x bytecode.BVal) bytecode.BVal {
-		log.Println(x)
-		return bytecode.BNull{}
-	})
 	fooObjVal := map[string]bytecode.BVal{
 		"bar": bytecode.BInt(10),
 		"baz": vm.WrapFn("baz", func(x bytecode.BVal) bytecode.BVal {
@@ -51,9 +39,32 @@ func main() {
 			return bytecode.BFloat(float64(xx) * 43.4)
 		}),
 	}
-	m.AddObject("fooObj", fooObjVal)
-	m.AddObject("emptyObj", nil)
-	result, err := m.Eval(comp, nil)
+	env := vm.VMEnv{
+		"a":        bytecode.BInt(43),
+		"b":        bytecode.BInt(2),
+		"c":        bytecode.BInt(15),
+		"foo":      bytecode.BFloat(10.5),
+		"s":        bytecode.BStr("I am a string!"),
+		"fizz":     bytecode.BStr("fizz"),
+		"buzz":     bytecode.BStr("buzz"),
+		"fizzbuzz": bytecode.BStr("fizzbuzz"),
+		"emptyObj": nil,
+		"fooObj":   bytecode.BObj(fooObjVal),
+		// functions
+		"foobar": vm.WrapFn("foobar", func(x bytecode.BVal) bytecode.BVal {
+			log.Println(x)
+			return bytecode.BNull{}
+		}),
+		"ba": vm.WrapFn("ba", func(x bytecode.BVal) (bytecode.BVal, error) {
+			log.Println(x)
+			xx := x.(bytecode.BInt)
+			return bytecode.BFloat(float64(xx) * 43.4), nil
+		}),
+		"vv": vm.WrapFn("vv", func(x bytecode.BVal) {
+			log.Println(x)
+		}),
+	}
+	result, err := m.Eval(comp, env)
 	if err != nil {
 		log.Fatal(err)
 	}

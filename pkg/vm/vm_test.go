@@ -87,8 +87,7 @@ func TestValidStrings(t *testing.T) {
 		testname := fmt.Sprintf("%s", tt)
 		t.Run(testname, func(t *testing.T) {
 			vm := vm.New(vm.Params{})
-			seedVM(vm)
-			val, err := vm.EvalString(tt, nil)
+			val, err := vm.EvalString(tt, vmSeed)
 			fmt.Println(tt, val)
 			if err != nil {
 				t.Error(err)
@@ -124,8 +123,7 @@ func TestInvalidStrings(t *testing.T) {
 		testname := fmt.Sprintf("%s", tt)
 		t.Run(testname, func(t *testing.T) {
 			vm := vm.New(vm.Params{})
-			seedVM(vm)
-			_, err := vm.EvalString(tt, nil)
+			_, err := vm.EvalString(tt, vmSeed)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
 			}
@@ -134,16 +132,16 @@ func TestInvalidStrings(t *testing.T) {
 }
 
 func TestFizzBuzz(t *testing.T) {
+	env := vm.CloneEnv(vmSeed)
 	m := vm.New(vm.Params{})
 	s := "i % 3 ? i % 5 ? i : 'buzz' : i % 5 ? fizz : 'fizzbuzz'"
-	m.AddStr("fizz", "fizz")
 	compilation := compiler.CompileString(s)
 	if len(compilation.Errors) > 0 {
 		t.Fatal("Found compile errors")
 	}
 	for i := 0; i < 100; i++ {
-		m.AddInt("i", int64(i))
-		result, err := m.Eval(compilation, nil)
+		env["i"] = bytecode.BInt(int64(i))
+		result, err := m.Eval(compilation, env)
 		if err != nil {
 			t.Error(err)
 		}
@@ -163,14 +161,15 @@ func TestFizzBuzz(t *testing.T) {
 
 func TestCollatz(t *testing.T) {
 	m := vm.New(vm.Params{})
+	env := vm.CloneEnv(vmSeed)
 	s := "i % 2 == 0 ? i//2 : 3*i + 1"
 	compilation := compiler.CompileString(s)
 	if len(compilation.Errors) > 0 {
 		t.Fatal("Found compile errors")
 	}
 	for i := 1000; i > 1; {
-		m.AddInt("i", int64(i))
-		result, err := m.Eval(compilation, nil)
+		env["i"] = bytecode.BInt(int64(i))
+		result, err := m.Eval(compilation, env)
 		if err != nil {
 			t.Error(err)
 		}
@@ -189,6 +188,7 @@ func TestCollatz(t *testing.T) {
 func BenchmarkCollatz(b *testing.B) {
 	// Just for fun
 	m := vm.New(vm.Params{})
+	env := vm.CloneEnv(vmSeed)
 	s := "i % 2 ? 3*i + 1 : i//2 "
 	compilation := compiler.CompileString(s)
 	if len(compilation.Errors) > 0 {
@@ -196,7 +196,7 @@ func BenchmarkCollatz(b *testing.B) {
 	}
 	for numRuns := 0; numRuns < b.N; numRuns++ {
 		for i := 100000; i > 1; {
-			m.AddInt("i", int64(i))
+			env["i"] = bytecode.BInt(int64(i))
 			result, err := m.Eval(compilation, nil)
 			if err != nil {
 				b.Error(err)
@@ -239,45 +239,37 @@ func collatz(i int) int {
 	return 3*i + 1
 }
 
-func seedVM(m vm.VMState) {
-	// seed the VM with some useful variables
-	m.AddInt("a", 43)
-	m.AddInt("b", 2)
-	m.AddFloat("foo", 10.5)
-	m.AddStr("bar", "I am a string")
-	m.AddStr("fizzbuzz", "fizzbuzz")
-	m.AddStr("fizz", "fizz")
-	m.AddStr("buzz", "buzz")
-	m.AddFunc("foobar", func(x bytecode.BVal) bytecode.BVal {
-		log.Println(x)
-		return bytecode.BNull{}
-	})
-	m.AddFunc("ba", func(x bytecode.BVal) (bytecode.BVal, error) {
-		log.Println(x)
-		xx := x.(bytecode.BInt)
-		return bytecode.BFloat(float64(xx) * 43.4), nil
-	})
-	m.AddFunc("vv",
-		func(x bytecode.BVal) {
-			log.Println(x)
-		})
-	fooObjVal := map[string]bytecode.BVal{
+var vmSeed = vm.VMEnv{
+	"a":        bytecode.BInt(43),
+	"b":        bytecode.BInt(2),
+	"c":        bytecode.BInt(15),
+	"foo":      bytecode.BFloat(10.5),
+	"s":        bytecode.BStr("I am a string!"),
+	"fizz":     bytecode.BStr("fizz"),
+	"buzz":     bytecode.BStr("buzz"),
+	"fizzbuzz": bytecode.BStr("fizzbuzz"),
+	"emptyObj": nil,
+	"fooObj": bytecode.BObj(map[string]bytecode.BVal{
 		"bar": bytecode.BInt(10),
 		"baz": vm.WrapFn("baz", func(x bytecode.BVal) bytecode.BVal {
 			log.Println(x)
 			xx := x.(bytecode.BInt)
 			return bytecode.BFloat(float64(xx) * 43.4)
 		}),
-		"ba": vm.WrapFn("baz", func(x bytecode.BVal) (bytecode.BVal, error) {
-			log.Println(x)
-			xx := x.(bytecode.BInt)
-			return bytecode.BFloat(float64(xx) * 43.4), nil
-		}),
-		"vv": vm.WrapFn("baz", func(x bytecode.BVal) {
-			log.Println(x)
-		}),
-	}
-	m.AddObject("fooObj", fooObjVal)
+	}),
+	// functions
+	"foobar": vm.WrapFn("foobar", func(x bytecode.BVal) bytecode.BVal {
+		log.Println(x)
+		return bytecode.BNull{}
+	}),
+	"ba": vm.WrapFn("ba", func(x bytecode.BVal) (bytecode.BVal, error) {
+		log.Println(x)
+		xx := x.(bytecode.BInt)
+		return bytecode.BFloat(float64(xx) * 43.4), nil
+	}),
+	"vv": vm.WrapFn("vv", func(x bytecode.BVal) {
+		log.Println(x)
+	}),
 }
 
 // ---------------------- Fuzzing ---------------------------------
@@ -294,8 +286,16 @@ func FuzzVM(f *testing.F) {
 		f.Add(tc)
 	}
 	vm := vm.New(testingVMParams)
-	seedVM(vm)
 	f.Fuzz(func(t *testing.T, orig string) {
-		vm.EvalString(orig, nil)
+		vm.EvalString(orig, vmSeed)
 	})
 }
+
+// func genRandomAST(seed int) parser.Expr {
+// 	nodeType := seed % parser.NumASTNodeTypes
+// 	switch nodeType {
+// 	case 0:
+// 		//
+// 	}
+
+// }
