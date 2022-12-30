@@ -5,6 +5,7 @@
 1. Arrays (DONE)
 1. Make declaring an external function easier (DONE)
 1. to string conversion in VM itself
+1. Make Boolean a type in the expression engine so we can print it properly
 
 # Features
 
