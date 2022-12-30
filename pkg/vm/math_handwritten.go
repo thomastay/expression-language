@@ -121,7 +121,7 @@ func repeatArr(arr []BVal, n int) []BVal {
 	result := make([]BVal, len(arr)*n)
 	for i := 0; i < n; i++ {
 		for j, val := range arr {
-			result[i*n+j] = val
+			result[i*len(arr)+j] = val
 		}
 	}
 	return result
