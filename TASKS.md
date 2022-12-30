@@ -3,6 +3,7 @@
 1. Floor division (DONE)
 1. exponentiation (DONE)
 1. Arrays (DONE)
+1. Make declaring an external function easier (DONE)
 1. to string conversion in VM itself
 
 # Features
