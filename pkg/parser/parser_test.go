@@ -42,6 +42,8 @@ func TestValidStrings(t *testing.T) {
 		// Indexing operator
 		"a[i]",
 		"a[5 * 2 * (4/3)]",
+		// Exponentiation is now allowed
+		"1 ** 2",
 		// Method calls on base
 		"foo.bar",
 		"foo.bar()",
@@ -55,14 +57,17 @@ func TestValidStrings(t *testing.T) {
 		// method calls on Strings
 		"'potato'.to_int",
 		// Arrays (not impl)
-		// "[1, 2, 3]",
+		"[]",
+		"[foo]",
+		"[1, 2, 3]",
 		// // We accept mixed arrays in the parser, can reject in sema
-		// "[1.1, 2.2, potato]",
+		"[1.1, 2.2, potato]",
+		"[1.1, 2.2, potato][1]",
 		// // Arrays have methods
-		// "[1.1, 2.2, potato].len",
+		"[1.1, 2.2, potato].len",
 		// // Arrays are expressions
-		// "[1.1, 2.2, potato] * 2",
-		// "3 * [1, (2, 3), 4][1]"
+		"[1.1, 2.2, potato] * 2",
+		"3 * [1, (2 ** 3  //4), 4][1]",
 		// Regressions
 		"not temp[i] ? 5 / -2 : 10 * f.foo",
 		"not foo ? 5 * 10 : potato",
@@ -82,8 +87,6 @@ func TestValidStrings(t *testing.T) {
 
 func TestInvalidStrings(t *testing.T) {
 	var tests = []string{
-		// Exponentiation is not allowed
-		"1 ** 2",
 		// Method call with number as ident
 		"foo.3",
 		// unmatched

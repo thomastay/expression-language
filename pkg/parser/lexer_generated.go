@@ -24,18 +24,20 @@ type lexerDefinitionImpl struct {}
 
 func (lexerDefinitionImpl) Symbols() map[string]lexer.TokenType {
 	return map[string]lexer.TokenType{
-      "BinInt": -22,
-      "Bool": -15,
+      "BinInt": -24,
+      "Bool": -17,
       "EOF": -1,
-      "EndExpr": -17,
-      "Float": -19,
-      "HexInt": -20,
-      "Ident": -18,
-      "Int": -23,
-      "OctInt": -21,
-      "Op": -16,
-      "SingleString": -13,
-      "whitespace": -14,
+      "EndExpr": -19,
+      "Float": -21,
+      "HexInt": -22,
+      "Ident": -20,
+      "Int": -25,
+      "OctInt": -23,
+      "Op": -18,
+      "SingleString": -15,
+      "SquareClose": -27,
+      "SquareOpen": -26,
+      "whitespace": -16,
 	}
 }
 
@@ -87,71 +89,83 @@ func (l *lexerImpl) Next() (lexer.Token, error) {
 	)
 	switch state.name {
 	case "Expr":if match := matchSingleString(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -13
-			groups = match[:]
-		} else if match := matchwhitespace(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -14
-			groups = match[:]
-		} else if match := matchBool(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -15
 			groups = match[:]
-		} else if match := matchOp(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchwhitespace(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -16
 			groups = match[:]
-		} else if match := matchEndExpr(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchBool(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -17
 			groups = match[:]
-		} else if match := matchIdent(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchOp(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -18
 			groups = match[:]
-		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchEndExpr(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -19
 			groups = match[:]
-		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchIdent(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -20
 			groups = match[:]
-		} else if match := matchOctInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -21
 			groups = match[:]
-		} else if match := matchBinInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -22
 			groups = match[:]
-		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchOctInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -23
+			groups = match[:]
+		} else if match := matchBinInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -24
+			groups = match[:]
+		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -25
+			groups = match[:]
+		} else if match := matchSquareOpen(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -26
+			groups = match[:]
+		} else if match := matchSquareClose(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -27
 			groups = match[:]
 		}
 	case "Root":if match := matchSingleString(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -13
-			groups = match[:]
-		} else if match := matchwhitespace(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
-			sym = -14
-			groups = match[:]
-		} else if match := matchBool(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -15
 			groups = match[:]
-		} else if match := matchOp(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchwhitespace(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -16
 			groups = match[:]
-		} else if match := matchEndExpr(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchBool(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -17
 			groups = match[:]
-		} else if match := matchIdent(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchOp(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -18
 			groups = match[:]
-		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchEndExpr(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -19
 			groups = match[:]
-		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchIdent(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -20
 			groups = match[:]
-		} else if match := matchOctInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchFloat(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -21
 			groups = match[:]
-		} else if match := matchBinInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchHexInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -22
 			groups = match[:]
-		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+		} else if match := matchOctInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
 			sym = -23
+			groups = match[:]
+		} else if match := matchBinInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -24
+			groups = match[:]
+		} else if match := matchInt(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -25
+			groups = match[:]
+		} else if match := matchSquareOpen(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -26
+			groups = match[:]
+		} else if match := matchSquareClose(l.s, l.p, l.states[len(l.states)-1].groups); match[1] != 0 {
+			sym = -27
 			groups = match[:]
 		}
 	}
@@ -282,7 +296,7 @@ groups[1] = np
 return
 }
 
-// and|not|or|\*\*|\+=|-=|\*=|/=|>=|<=|==|!=|//|[%\(\*-\+\--/:<>-\?\[]
+// and|not|or|\*\*|\+=|-=|\*=|/=|>=|<=|==|!=|//|[%\(\*-\+\--/:<>-\?]
 func matchOp(s string, p int, backrefs []string) (groups [2]int) {
 // and (Literal)
 l0 := func(s string, p int) int {
@@ -349,7 +363,7 @@ l12 := func(s string, p int) int {
 if p+2 <= len(s) && s[p:p+2] == "//" { return p+2 }
 return -1
 }
-// [%\(\*-\+\--/:<>-\?\[] (CharClass)
+// [%\(\*-\+\--/:<>-\?] (CharClass)
 l13 := func(s string, p int) int {
 if len(s) <= p { return -1 }
 rn := s[p]
@@ -361,11 +375,10 @@ case rn >= '-' && rn <= '/': return p+1
 case rn == ':': return p+1
 case rn == '<': return p+1
 case rn >= '>' && rn <= '?': return p+1
-case rn == '[': return p+1
 }
 return -1
 }
-// and|not|or|\*\*|\+=|-=|\*=|/=|>=|<=|==|!=|//|[%\(\*-\+\--/:<>-\?\[] (Alternate)
+// and|not|or|\*\*|\+=|-=|\*=|/=|>=|<=|==|!=|//|[%\(\*-\+\--/:<>-\?] (Alternate)
 l14 := func(s string, p int) int {
 if np := l0(s, p); np != -1 { return np }
 if np := l1(s, p); np != -1 { return np }
@@ -392,15 +405,13 @@ groups[1] = np
 return
 }
 
-// [\),\]]
+// [\),]
 func matchEndExpr(s string, p int, backrefs []string) (groups [2]int) {
-// [\),\]] (CharClass)
+// [\),] (CharClass)
 l0 := func(s string, p int) int {
 if len(s) <= p { return -1 }
 rn := s[p]
-switch rn {
-case ')',',',']': return p+1
-}
+if rn == ')' || rn == ',' { return p+1 }
 return -1
 }
 np := l0(s, p)
@@ -703,5 +714,23 @@ if np == -1 {
 }
 groups[0] = p
 groups[1] = np
+return
+}
+
+// \[
+func matchSquareOpen(s string, p int, backrefs []string) (groups [2]int) {
+if p < len(s) && s[p] == '[' {
+groups[0] = p
+groups[1] = p + 1
+}
+return
+}
+
+// \]
+func matchSquareClose(s string, p int, backrefs []string) (groups [2]int) {
+if p < len(s) && s[p] == ']' {
+groups[0] = p
+groups[1] = p + 1
+}
 return
 }

@@ -57,8 +57,14 @@ func parseExpr(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 	var err error
 	firstVal := lex.Peek()
 	switch firstVal.Type {
-	case TokEndExpr:
+	case TokEndExpr, TokSquareClose:
 		return nil, nil
+	case TokSquareOpen:
+		// Probably an array
+		lhs, err = parseArray(lex, firstVal)
+		if err != nil {
+			return lhs, err
+		}
 	case TokOp:
 		lhs, err = parsePrefix(lex, firstVal)
 		if err != nil {
@@ -78,11 +84,11 @@ Loop:
 	for {
 		op := lex.Peek()
 		switch op.Type {
-		case TokOp:
+		case TokOp, TokSquareOpen:
 			// do nothing, continue
 		case lexer.EOF:
 			break Loop
-		case TokEndExpr:
+		case TokEndExpr, TokSquareClose:
 			break Loop
 		default:
 			return nil, errors.Errorf("Unrecognized token %s", op)
@@ -158,6 +164,36 @@ func parsePrefix(lex *lexer.PeekingLexer, op *lexer.Token) (Expr, error) {
 	return lhs, err
 }
 
+func parseArray(lex *lexer.PeekingLexer, op *lexer.Token) (*EArray, error) {
+	var arr []Expr
+	lex.Next() // consume token
+	for {
+		param, err := parseExpr(lex, 0)
+		if err != nil {
+			return nil, err
+		}
+		if param != nil {
+			arr = append(arr, param)
+		}
+		op := lex.Peek()
+		switch op.Type {
+		case TokSquareClose:
+			lex.Next()
+			return (*EArray)(&arr), nil
+		case TokEndExpr:
+			switch op.Value {
+			case ",":
+				lex.Next()
+				continue
+			default:
+				return nil, errors.Errorf("Unrecognized end of expression in Array: %s", op)
+			}
+		default:
+			return nil, errors.Errorf("Unrecognized token in parsing param list: %s", op)
+		}
+	}
+}
+
 func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, lhsIdent *lexer.Token) (Expr, error) {
 	switch op.Value {
 	case "[":
@@ -168,10 +204,8 @@ func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, lhsIdent *
 		}
 		end := lex.Peek()
 		switch end.Type {
-		case TokEndExpr:
-			if end.Value != "]" {
-				return lhs, errors.New("Unmatched [")
-			}
+		case TokSquareClose:
+			// Do nothing
 		default:
 			return lhs, errors.New("Unmatched [")
 		}
@@ -361,3 +395,5 @@ var TokFloat = Lexer.Symbols()["Float"]
 var TokSingleString = Lexer.Symbols()["SingleString"]
 var TokIdent = Lexer.Symbols()["Ident"]
 var TokEndExpr = Lexer.Symbols()["EndExpr"]
+var TokSquareOpen = Lexer.Symbols()["SquareOpen"]
+var TokSquareClose = Lexer.Symbols()["SquareClose"]

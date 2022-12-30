@@ -40,13 +40,13 @@ var operators = [...]string{
 	`\(`,
 	`\?`,
 	`\.`,
-	`\[`,
+	// `\[`,
 }
 
 var endExpr = [...]string{
 	",",
 	`\)`,
-	`\]`,
+	// `\]`,
 }
 
 var operatorString = fmt.Sprintf("%s", strings.Join(operators[:], "|"))
@@ -69,6 +69,8 @@ var GenLexerDefinition = lexer.MustStateful(lexer.Rules{
 		{"OctInt", `0o[0-7_]+`, nil},
 		{"BinInt", `0b[01_]+`, nil},
 		{"Int", `0|[1-9][\d_]*`, nil},
+		{"SquareOpen", `\[`, nil},
+		{"SquareClose", `\]`, nil},
 		// {"ExprEnd", `}`, lexer.Pop()},
 	},
 	// "DoubleString": {

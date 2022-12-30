@@ -45,7 +45,7 @@ func (x *EFieldAccess) isExpr() {}
 func (x *EIdxAccess) isExpr()   {}
 func (x *ECond) isExpr()        {}
 func (x *ECall) isExpr()        {}
-func (x *ValueList) isExpr()    {}
+func (x *EArray) isExpr()       {}
 
 type EValue struct {
 	Val *lexer.Token
@@ -130,17 +130,15 @@ func (es ExprList) String() string {
 	return strings.Join(exprs, ", ")
 }
 
-type ValueList struct {
-	Vals []*lexer.Token // "[" ( @@ ( "," @@ )* )? "]"`
-}
+type EArray []Expr // "[" ( @@ ( "," @@ )* )? "]"`
 
-func (x *ValueList) String() string {
+func (x *EArray) String() string {
 	if x == nil {
 		return ""
 	}
-	exprs := make([]string, len(x.Vals))
-	for i, val := range x.Vals {
+	exprs := make([]string, len(*x))
+	for i, val := range *x {
 		exprs[i] = val.String()
 	}
-	return strings.Join(exprs, ", ")
+	return fmt.Sprintf("[%s]", strings.Join(exprs, ", "))
 }
