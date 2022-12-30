@@ -62,6 +62,9 @@ func parseExpr(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 	case TokSquareOpen:
 		// Probably an array
 		lhs, err = parseArray(lex, firstVal)
+		if lhs == nil {
+			return nil, errors.New("Array index operator must have an expression inside")
+		}
 		if err != nil {
 			return lhs, err
 		}
@@ -136,6 +139,9 @@ func parsePrefix(lex *lexer.PeekingLexer, op *lexer.Token) (Expr, error) {
 		if err != nil {
 			return nil, err
 		}
+		if lhs == nil {
+			return nil, errors.New("Prefix operator must have an expression after")
+		}
 		end := lex.Next()
 		switch end.Type {
 		case TokEndExpr:
@@ -205,6 +211,9 @@ func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, lhsIdent *
 		if err != nil {
 			return nil, err
 		}
+		if inner == nil {
+			return nil, errors.New("Array index operator must have an expression inside")
+		}
 		end := lex.Peek()
 		switch end.Type {
 		case TokSquareClose:
@@ -248,6 +257,9 @@ func parseInfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, rp int) (Exp
 		if err != nil {
 			return nil, err
 		}
+		if inner == nil {
+			return nil, errors.New("Ternary operator must have a then case")
+		}
 		end := lex.Peek()
 		switch end.Type {
 		case TokOp:
@@ -262,6 +274,9 @@ func parseInfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, rp int) (Exp
 		if err != nil {
 			return nil, err
 		}
+		if rhs == nil {
+			return nil, errors.New("Ternary operator must have an else case")
+		}
 		lhs = &ECond{
 			Cond:   lhs,
 			First:  inner,
@@ -271,6 +286,9 @@ func parseInfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, rp int) (Exp
 		rhs, err := parseExpr(lex, rp)
 		if err != nil {
 			return nil, err
+		}
+		if rhs == nil {
+			return nil, errors.New("Infix operator must have an expression in RHS")
 		}
 		lhs = &EBinOp{
 			Op:    op,

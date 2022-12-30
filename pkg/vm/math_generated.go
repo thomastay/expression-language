@@ -441,9 +441,15 @@ func modulo(aVal, bVal BVal) (BVal, error) {
 	case BInt:
 		switch b := bVal.(type) {
 		case BInt:
+			if b == 0 {
+				return nil, errDivByZero
+			}
 			result := BInt(a) % BInt(b)
 			return BInt(result), nil
 		case BFloat:
+			if b == 0 {
+				return nil, errDivByZero
+			}
 			result := math.Mod(float64(a), float64(b))
 			return BFloat(result), nil
 		case BStr:
@@ -460,9 +466,15 @@ func modulo(aVal, bVal BVal) (BVal, error) {
 	case BFloat:
 		switch b := bVal.(type) {
 		case BInt:
+			if b == 0 {
+				return nil, errDivByZero
+			}
 			result := math.Mod(float64(a), float64(b))
 			return BFloat(result), nil
 		case BFloat:
+			if b == 0 {
+				return nil, errDivByZero
+			}
 			result := math.Mod(float64(a), float64(b))
 			return BFloat(result), nil
 		case BStr:

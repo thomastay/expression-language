@@ -10,73 +10,75 @@ import (
 	"github.com/thomastay/expression_language/pkg/vm"
 )
 
+var validStrings = []string{
+	// Floats
+	"1.1",
+	"1.1e10",
+	// Ints
+	"1", // base 10
+	"0x10",
+	"0b10",
+	"0o70",
+	// Calculator
+	"1 * 10",
+	"1 + 10",
+	"1 - 100 - 3",
+	"1 / 10",
+	"100 / 10 * 3",
+	"((10 * 3.0) ? 3 : 10) * 5.0e10",
+	"((10 * 3.0) ? 3 : 10) * 5.0",
+	// unary operators
+	"+foo",
+	"-10",
+	"not 10",
+	// strings
+	"'a'",
+	"'a' * 2",
+	"'a' + 'b'",
+	// conditionals
+	"0.7 or 9",
+	// variables
+	"a * 30",
+	"buzz * 30",
+	"a % 3 ? fizz : buzz",
+	// Comparison ops
+	"10 < 30 ? 20 : 40",
+	"10 > 30 ? 20 : 40",
+	"10 <= 10 ? 20 : 40",
+	"10 >= 10 ? 20 : 40",
+	"10.0 < 30 ? 20 : 40",
+	"10 > 30.3 ? 20 : 40",
+	"10.3 <= 10 ? 20 : 40",
+	"10 >= 10.5 ? 20 : 40",
+	"'asd' < buzz ? fizz : 'bar'",
+	// comparing weird values
+	"1 == 4",
+	"2 == foo",
+	"3 != 'false'",
+	"4 == foobar(10)",
+	"true == false",
+	"true == foo",
+	"true != 'false'",
+	"true == foobar(10)",
+	// Fizzbuzz!
+	"a % 3 ? a % 5 ? a : 'buzz' : a % 5 ? fizz : fizzbuzz",
+	// Collatz
+	"a % 2 ? 3 * a + 1 : a // 2",
+	// functions!
+	"foobar(123)",
+	// objects
+	"fooObj.bar * 10",
+	"fooObj.baz(30) * 10",
+	// Arrays
+	"[1, 2, 3]",
+	"[]",
+	"[1, 2, 3] + [4, 5, 6]",
+	"[1, 2, 3] * 3",
+	"[1, 2, 3][0]",
+}
+
 func TestValidStrings(t *testing.T) {
-	var tests = []string{
-		// Floats
-		"1.1",
-		"1.1e10",
-		// Ints
-		"1", // base 10
-		"0x10",
-		"0b10",
-		"0o70",
-		// Calculator
-		"1 * 10",
-		"1 + 10",
-		"1 - 100 - 3",
-		"1 / 10",
-		"100 / 10 * 3",
-		"((10 * 3.0) ? 3 : 10) * 5.0e10",
-		"((10 * 3.0) ? 3 : 10) * 5.0",
-		// unary operators
-		"+foo",
-		"-10",
-		"not 10",
-		// strings
-		"'a'",
-		"'a' * 2",
-		"'a' + 'b'",
-		// conditionals
-		"0.7 or 9",
-		// variables
-		"a * 30",
-		"buzz * 30",
-		"a % 3 ? fizz : buzz",
-		// Comparison ops
-		"10 < 30 ? 20 : 40",
-		"10 > 30 ? 20 : 40",
-		"10 <= 10 ? 20 : 40",
-		"10 >= 10 ? 20 : 40",
-		"10.0 < 30 ? 20 : 40",
-		"10 > 30.3 ? 20 : 40",
-		"10.3 <= 10 ? 20 : 40",
-		"10 >= 10.5 ? 20 : 40",
-		"'asd' < buzz ? fizz : 'bar'",
-		// comparing weird values
-		"1 == 4",
-		"2 == foo",
-		"3 != 'false'",
-		"4 == foobar(10)",
-		"true == false",
-		"true == foo",
-		"true != 'false'",
-		"true == foobar(10)",
-		// Fizzbuzz!
-		"a % 3 ? a % 5 ? a : 'buzz' : a % 5 ? fizz : fizzbuzz",
-		// Collatz
-		"a % 2 ? 3 * a + 1 : a // 2",
-		// functions!
-		"foobar(123)",
-		// objects
-		"fooObj.bar * 10",
-		"fooObj.baz(30) * 10",
-		// Arrays
-		"[1, 2, 3]",
-		"[]",
-		"[1, 2, 3] + [4, 5, 6]",
-		"[1, 2, 3] * 3",
-		"[1, 2, 3][0]",
-	}
+	var tests = validStrings
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("%s", tt)
@@ -255,4 +257,19 @@ func seedVM(m vm.VMState) {
 		},
 	}
 	m.AddObject("fooObj", fooObjVal)
+}
+
+// ---------------------- Fuzzing ---------------------------------
+
+// VM should never fail
+func FuzzVM(f *testing.F) {
+	testcases := validStrings
+	for _, tc := range testcases {
+		f.Add(tc)
+	}
+	vm := vm.New(vm.Params{})
+	seedVM(vm)
+	f.Fuzz(func(t *testing.T, orig string) {
+		vm.EvalString(orig)
+	})
 }

@@ -32,8 +32,9 @@ func Compile(expr parser.Expr) Compilation {
 	var compileRec func(parser.Expr)
 	compileRec = func(expr parser.Expr) {
 		if expr == nil {
-			log.Println("Expressions shouldn't be nil.")
-			return
+			panic("No nil expressions!")
+			// log.Println("Expressions shouldn't be nil.")
+			// return
 		}
 		switch node := expr.(type) {
 		case *parser.EValue:

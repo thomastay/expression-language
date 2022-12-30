@@ -109,7 +109,7 @@ func cases(op string) string {
 					}
 				} else {
 					hasAnyCase = true
-					if op == "/" || op == "//" {
+					if op == "%" || op == "/" || op == "//" {
 						// div by zero
 						echo(`if b == 0 { return nil, errDivByZero }`)
 					}
