@@ -39,12 +39,12 @@ func main() {
 	m.AddStr("fizzbuzz", "fizzbuzz")
 	m.AddStr("fizz", "fizz")
 	m.AddStr("buzz", "buzz")
-	m.AddFunc("foobar", vm.Wrap1(func(x bytecode.BVal) bytecode.BVal {
+	m.AddFunc("foobar", func(x bytecode.BVal) bytecode.BVal {
 		log.Println(x)
 		return bytecode.BNull{}
-	}))
+	})
 	// TODO make wrap1 return a BFunc
-	bazFn := vm.Wrap1(func(x bytecode.BVal) bytecode.BVal {
+	bazFn := vm.WrapFn(func(x bytecode.BVal) bytecode.BVal {
 		log.Println(x)
 		xx := x.(bytecode.BInt)
 		return bytecode.BFloat(float64(xx) * 43.4)

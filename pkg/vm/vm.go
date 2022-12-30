@@ -54,11 +54,16 @@ func (vm *VMState) AddObject(key string, obj BObj) {
 	vm.env[key] = obj
 }
 
-// Adds a function to the VM. Users must specify the number of arguments the function takes.
-func (vm *VMState) AddFunc(name string, fnWithArgs VMFuncWithArgs) {
+// Adds a function to the VM. A function must be one of the following forms form (any number of parameters accepted, but no variadics for now.)
+//
+//	func (a bytecode.BVal)
+//	func (a bytecode.BVal) bytecode.BVal
+//	func (a bytecode.BVal) (bytecode.BVal, error)
+func (vm *VMState) AddFunc(name string, fn any) {
+	v := WrapFn(fn)
 	vm.env[name] = BFunc{
-		Fn:      fnWithArgs.Fn,
-		NumArgs: fnWithArgs.NumArgs,
+		Fn:      v.Fn,
+		NumArgs: v.NumArgs,
 		Name:    name,
 	}
 }
