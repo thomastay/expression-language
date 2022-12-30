@@ -17,27 +17,28 @@ func _() {
 	_ = x[OpFloorDiv-6]
 	_ = x[OpAnd-7]
 	_ = x[OpMod-8]
-	_ = x[OpLt-9]
-	_ = x[OpGt-10]
-	_ = x[OpGe-11]
-	_ = x[OpLe-12]
-	_ = x[OpEq-13]
-	_ = x[OpNe-14]
-	_ = x[OpUnaryNot-15]
-	_ = x[OpUnaryPlus-16]
-	_ = x[OpUnaryMinus-17]
-	_ = x[OpReturn-18]
-	_ = x[OpCall-19]
-	_ = x[OpLoadAttr-20]
-	_ = x[OpBr-21]
-	_ = x[OpBrIf-22]
-	_ = x[OpBrIfOrPop-23]
-	_ = x[OpBrIfFalseOrPop-24]
+	_ = x[OpPow-9]
+	_ = x[OpLt-10]
+	_ = x[OpGt-11]
+	_ = x[OpGe-12]
+	_ = x[OpLe-13]
+	_ = x[OpEq-14]
+	_ = x[OpNe-15]
+	_ = x[OpUnaryNot-16]
+	_ = x[OpUnaryPlus-17]
+	_ = x[OpUnaryMinus-18]
+	_ = x[OpReturn-19]
+	_ = x[OpCall-20]
+	_ = x[OpLoadAttr-21]
+	_ = x[OpBr-22]
+	_ = x[OpBrIf-23]
+	_ = x[OpBrIfOrPop-24]
+	_ = x[OpBrIfFalseOrPop-25]
 }
 
-const _Instruction_name = "OpConstOpLoadOpAddOpMinusOpMulOpDivOpFloorDivOpAndOpModOpLtOpGtOpGeOpLeOpEqOpNeOpUnaryNotOpUnaryPlusOpUnaryMinusOpReturnOpCallOpLoadAttrOpBrOpBrIfOpBrIfOrPopOpBrIfFalseOrPop"
+const _Instruction_name = "OpConstOpLoadOpAddOpMinusOpMulOpDivOpFloorDivOpAndOpModOpPowOpLtOpGtOpGeOpLeOpEqOpNeOpUnaryNotOpUnaryPlusOpUnaryMinusOpReturnOpCallOpLoadAttrOpBrOpBrIfOpBrIfOrPopOpBrIfFalseOrPop"
 
-var _Instruction_index = [...]uint8{0, 7, 13, 18, 25, 30, 35, 45, 50, 55, 59, 63, 67, 71, 75, 79, 89, 100, 112, 120, 126, 136, 140, 146, 157, 173}
+var _Instruction_index = [...]uint8{0, 7, 13, 18, 25, 30, 35, 45, 50, 55, 60, 64, 68, 72, 76, 80, 84, 94, 105, 117, 125, 131, 141, 145, 151, 162, 178}
 
 func (i Instruction) String() string {
 	if i < 0 || i >= Instruction(len(_Instruction_index)-1) {

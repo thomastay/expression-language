@@ -150,6 +150,14 @@ InstLoop:
 				return Result{}, err
 			}
 			stack.push(result)
+		case OpPow:
+			b := stack.pop()
+			a := stack.pop()
+			result, err := pow(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			stack.push(result)
 		case OpLt:
 			b := stack.pop()
 			a := stack.pop()

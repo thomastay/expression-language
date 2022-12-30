@@ -41,7 +41,9 @@ var allowedCases = map[Case]CaseResult{
 		tp: "BStr",
 	},
 	// Power
-	{"**", "BInt", "BInt"}:     {s: "result := intPow(a, b)"},
+	{"**", "BInt", "BInt"}:     {
+		s: `result, ok := intPow(a, b)
+			if !ok { return nil, errOverflow }`},
 	{"**", "BInt", "BFloat"}:   defaultExp,
 	{"**", "BFloat", "BInt"}:   defaultExp,
 	{"**", "BFloat", "BFloat"}: defaultExp,

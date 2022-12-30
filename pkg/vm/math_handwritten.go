@@ -3,6 +3,7 @@ package vm
 import (
 	"math"
 
+	"github.com/johncgriffin/overflow"
 	. "github.com/thomastay/expression_language/pkg/bytecode"
 )
 
@@ -64,24 +65,54 @@ func eq(aVal BVal, bVal BVal) bool {
 }
 
 // Note that 0^0 returns 1, mathematically this is undefined
-func intPow(a BInt, b BInt) BVal {
+func intPow(baseVal BInt, exp BInt) (BVal, bool) {
 	// Exponentiation by squaring for positive integers
-	// based on https://docs.rs/num-traits/latest/src/num_traits/pow.rs.html#189
-	if b < 0 {
-		return BFloat(math.Pow(float64(a), float64(b)))
+	// Taken from https://docs.rs/num-traits/latest/src/num_traits/pow.rs.html#189
+	if exp < 0 {
+		return BFloat(math.Pow(float64(baseVal), float64(exp))), true
 	}
-	if b == 0 {
-		return BInt(1)
+	if exp == 0 {
+		return BInt(1), true
+	}
+	base := int64(baseVal) // for simplicity
+	var ok bool
+
+	// Fast path powers of two (most common exp)
+	for exp&1 == 0 {
+		base, ok = overflow.Mul64(base, base)
+		if !ok {
+			return nil, false
+		}
+		exp >>= 1
 	}
 
-	base := a
-	for b > 1 {
-		b >>= 1
-		base = base * base
-		if b&1 == 1 {
-			// odd
-			a *= base
+	if exp == 1 {
+		return BInt(base), true
+	}
+
+	// Based on the identity (start with y := 1)
+	// y * x^n = | (yx) (x^2)^(n-1/2) if n is odd
+	//           | y (x^2)^(n/2)      if n is even
+	// In the code below, base is `y` and acc is `x`
+	// Note that we assume that exp is now an odd number, since we shifted until odd above.
+	// So we can immediately apply the first transformation.
+	// base := yx (which equals base)
+	// x = x ** 2
+	acc := base
+	for exp > 1 {
+		exp >>= 1
+		// acc **= 2
+		acc, ok = overflow.Mul64(acc, acc)
+		if !ok {
+			return nil, false
+		}
+		if exp&1 == 1 {
+			// base *= acc
+			base, ok = overflow.Mul64(base, acc)
+			if !ok {
+				return nil, false
+			}
 		}
 	}
-	return a
+	return BInt(base), true
 }

@@ -230,6 +230,7 @@ var simpleBinaryOps = map[string]Instruction{
 	"/":  OpDiv,
 	"//": OpFloorDiv,
 	"%":  OpMod,
+	"**": OpPow,
 	"<":  OpLt,
 	">":  OpGt,
 	">=": OpGe,

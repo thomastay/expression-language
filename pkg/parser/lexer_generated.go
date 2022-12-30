@@ -282,7 +282,7 @@ groups[1] = np
 return
 }
 
-// and|not|or|\+=|-=|\*=|/=|>=|<=|==|!=|//|[%\(\*-\+\--/:<>-\?\[]
+// and|not|or|\*\*|\+=|-=|\*=|/=|>=|<=|==|!=|//|[%\(\*-\+\--/:<>-\?\[]
 func matchOp(s string, p int, backrefs []string) (groups [2]int) {
 // and (Literal)
 l0 := func(s string, p int) int {
@@ -299,53 +299,58 @@ l2 := func(s string, p int) int {
 if p+2 <= len(s) && s[p:p+2] == "or" { return p+2 }
 return -1
 }
-// \+= (Literal)
+// \*\* (Literal)
 l3 := func(s string, p int) int {
+if p+2 <= len(s) && s[p:p+2] == "**" { return p+2 }
+return -1
+}
+// \+= (Literal)
+l4 := func(s string, p int) int {
 if p+2 <= len(s) && s[p:p+2] == "+=" { return p+2 }
 return -1
 }
 // -= (Literal)
-l4 := func(s string, p int) int {
+l5 := func(s string, p int) int {
 if p+2 <= len(s) && s[p:p+2] == "-=" { return p+2 }
 return -1
 }
 // \*= (Literal)
-l5 := func(s string, p int) int {
+l6 := func(s string, p int) int {
 if p+2 <= len(s) && s[p:p+2] == "*=" { return p+2 }
 return -1
 }
 // /= (Literal)
-l6 := func(s string, p int) int {
+l7 := func(s string, p int) int {
 if p+2 <= len(s) && s[p:p+2] == "/=" { return p+2 }
 return -1
 }
 // >= (Literal)
-l7 := func(s string, p int) int {
+l8 := func(s string, p int) int {
 if p+2 <= len(s) && s[p:p+2] == ">=" { return p+2 }
 return -1
 }
 // <= (Literal)
-l8 := func(s string, p int) int {
+l9 := func(s string, p int) int {
 if p+2 <= len(s) && s[p:p+2] == "<=" { return p+2 }
 return -1
 }
 // == (Literal)
-l9 := func(s string, p int) int {
+l10 := func(s string, p int) int {
 if p+2 <= len(s) && s[p:p+2] == "==" { return p+2 }
 return -1
 }
 // != (Literal)
-l10 := func(s string, p int) int {
+l11 := func(s string, p int) int {
 if p+2 <= len(s) && s[p:p+2] == "!=" { return p+2 }
 return -1
 }
 // // (Literal)
-l11 := func(s string, p int) int {
+l12 := func(s string, p int) int {
 if p+2 <= len(s) && s[p:p+2] == "//" { return p+2 }
 return -1
 }
 // [%\(\*-\+\--/:<>-\?\[] (CharClass)
-l12 := func(s string, p int) int {
+l13 := func(s string, p int) int {
 if len(s) <= p { return -1 }
 rn := s[p]
 switch {
@@ -360,8 +365,8 @@ case rn == '[': return p+1
 }
 return -1
 }
-// and|not|or|\+=|-=|\*=|/=|>=|<=|==|!=|//|[%\(\*-\+\--/:<>-\?\[] (Alternate)
-l13 := func(s string, p int) int {
+// and|not|or|\*\*|\+=|-=|\*=|/=|>=|<=|==|!=|//|[%\(\*-\+\--/:<>-\?\[] (Alternate)
+l14 := func(s string, p int) int {
 if np := l0(s, p); np != -1 { return np }
 if np := l1(s, p); np != -1 { return np }
 if np := l2(s, p); np != -1 { return np }
@@ -375,9 +380,10 @@ if np := l9(s, p); np != -1 { return np }
 if np := l10(s, p); np != -1 { return np }
 if np := l11(s, p); np != -1 { return np }
 if np := l12(s, p); np != -1 { return np }
+if np := l13(s, p); np != -1 { return np }
 return -1
 }
-np := l13(s, p)
+np := l14(s, p)
 if np == -1 {
   return
 }

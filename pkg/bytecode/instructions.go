@@ -19,6 +19,7 @@ const (
 	OpFloorDiv
 	OpAnd
 	OpMod
+	OpPow
 	OpLt
 	OpGt
 	OpGe

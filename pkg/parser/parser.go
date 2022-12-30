@@ -316,14 +316,15 @@ type InfixBP struct {
 	l, r int
 }
 
-// Based on https://docs.python.org/3/reference/expressions.html
+// Based on https://docs.python.org/3/reference/expressions.html#operator-precedence
 var infixBP = map[string]InfixBP{
+	"**":  {18, 17}, // Right assoc
 	"*":   {13, 14},
 	"/":   {13, 14},
 	"//":  {13, 14},
 	"%":   {13, 14},
 	"+":   {11, 12},
-	"-":   {11, 12},
+	"-":   {12, 11},
 	">":   {9, 10},
 	"<=":  {9, 10},
 	"<":   {9, 10},
@@ -343,11 +344,11 @@ var prefixBP = map[string]int{
 
 var postFixBP = map[string]int{
 	// This is a Call operator on a base class
-	".": 17,
+	".": 19,
 	// This is the indexing operator
-	"[": 17,
+	"[": 19,
 	// This is a Call operator on a function
-	"(": 17,
+	"(": 19,
 }
 
 var TokOp = Lexer.Symbols()["Op"]

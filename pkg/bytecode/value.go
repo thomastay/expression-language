@@ -118,7 +118,7 @@ func (b BObj) Typename() string {
 func (b Bytecode) String() string {
 	switch b.Inst {
 	// No value
-	case OpAdd, OpMul, OpDiv, OpAnd, OpMod, OpLt, OpGt, OpGe, OpLe, OpMinus, OpNe, OpEq, OpUnaryMinus, OpUnaryPlus, OpUnaryNot, OpLoadAttr:
+	case OpAdd, OpMul, OpDiv, OpAnd, OpMod, OpLt, OpGt, OpGe, OpLe, OpMinus, OpNe, OpEq, OpUnaryMinus, OpUnaryPlus, OpUnaryNot, OpLoadAttr, OpPow, OpFloorDiv:
 		return b.Inst.String()
 	default:
 		if b.Val == nil {

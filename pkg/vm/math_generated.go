@@ -317,7 +317,10 @@ func pow(aVal, bVal BVal) (BVal, error) {
 	case BInt:
 		switch b := bVal.(type) {
 		case BInt:
-			result := intPow(a, b)
+			result, ok := intPow(a, b)
+			if !ok {
+				return nil, errOverflow
+			}
 			return result, nil
 		case BFloat:
 			result := math.Pow(float64(a), float64(b))

@@ -18,6 +18,7 @@ var operators = [...]string{
 	"not",
 	// 2 chars
 	"or",
+	`\*\*`,
 	`\+=`,
 	`\-=`,
 	`\*=`,
