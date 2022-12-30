@@ -16,7 +16,7 @@ import (
 )
 
 var defaultMaxInstructions = 1000
-var defaultMaxMemory = 1048576 // 2 ** 20
+var defaultMaxMemory = 32768 // 2 ** 15
 
 func New(params Params) VMState {
 	if params.MaxInstructions == 0 {
@@ -126,7 +126,7 @@ InstLoop:
 		case OpMul:
 			b := stack.pop()
 			a := stack.pop()
-			result, err := mul(a, b)
+			result, err := mul(a, b, vm.params.MaxMemory-memoryUsed)
 			if err != nil {
 				return Result{}, err
 			}
@@ -321,7 +321,7 @@ InstLoop:
 			n := code.IntVal
 			memoryUsed += n
 			if memoryUsed > vm.params.MaxMemory {
-				return Result{}, errors.New("Out of Memory")
+				return Result{}, errOOM
 			}
 			vals := make([]BVal, n)
 			for i := 0; i < n; i++ {

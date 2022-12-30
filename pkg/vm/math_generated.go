@@ -156,7 +156,7 @@ func sub(aVal, bVal BVal) (BVal, error) {
 	}
 	panic(fmt.Sprintf("Unhandled operation: %s(%s) - %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
-func mul(aVal, bVal BVal) (BVal, error) {
+func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {
@@ -170,6 +170,11 @@ func mul(aVal, bVal BVal) (BVal, error) {
 			result := float64(a) * float64(b)
 			return BFloat(result), nil
 		case BStr:
+
+			memoryUsed := len(b) * int(a)
+			if memoryUsed >= memoryLimit {
+				return nil, errOOM
+			}
 			result := strings.Repeat(string(b), int(a))
 			return BStr(result), nil
 		case BObj:
@@ -179,6 +184,11 @@ func mul(aVal, bVal BVal) (BVal, error) {
 		case BNull:
 			return nil, errTypeMismatch("*", aVal, bVal)
 		case BArray:
+
+			memoryUsed := len(b) * int(a)
+			if memoryUsed >= memoryLimit {
+				return nil, errOOM
+			}
 			result := repeatArr([]BVal(b), int(a))
 			return BArray(result), nil
 		}
@@ -204,6 +214,11 @@ func mul(aVal, bVal BVal) (BVal, error) {
 	case BStr:
 		switch b := bVal.(type) {
 		case BInt:
+
+			memoryUsed := len(a) * int(b)
+			if memoryUsed >= memoryLimit {
+				return nil, errOOM
+			}
 			result := strings.Repeat(string(a), int(b))
 			return BStr(result), nil
 		case BFloat:
@@ -228,6 +243,11 @@ func mul(aVal, bVal BVal) (BVal, error) {
 	case BArray:
 		switch b := bVal.(type) {
 		case BInt:
+
+			memoryUsed := len(a) * int(b)
+			if memoryUsed >= memoryLimit {
+				return nil, errOOM
+			}
 			result := repeatArr([]BVal(a), int(b))
 			return BArray(result), nil
 		case BFloat:

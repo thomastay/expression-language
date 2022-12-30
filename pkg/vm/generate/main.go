@@ -38,18 +38,38 @@ var allowedCases = map[Case]CaseResult{
 	{"*", "BFloat", "BInt"}:   defaultFloat("*"),
 	{"*", "BFloat", "BFloat"}: defaultFloat("*"),
 	{"*", "BStr", "BInt"}: {
-		s: `result := strings.Repeat(string(a), int(b))`,
+		s: `
+		memoryUsed := len(a) * int(b)
+		if memoryUsed >= memoryLimit {
+			return nil, errOOM
+		}
+		result := strings.Repeat(string(a), int(b))`,
 	},
 	{"*", "BInt", "BStr"}: {
-		s:  `result := strings.Repeat(string(b), int(a))`,
+		s: `
+		memoryUsed := len(b) * int(a)
+		if memoryUsed >= memoryLimit {
+			return nil, errOOM
+		}
+		result := strings.Repeat(string(b), int(a))`,
 		tp: "BStr",
 	},
 	{"*", "BArray", "BInt"}: {
-		s:  `result := repeatArr([]BVal(a), int(b))`,
+		s: `
+		memoryUsed := len(a) * int(b)
+		if memoryUsed >= memoryLimit {
+			return nil, errOOM
+		}
+		result := repeatArr([]BVal(a), int(b))`,
 		tp: "BArray",
 	},
 	{"*", "BInt", "BArray"}: {
-		s:  `result := repeatArr([]BVal(b), int(a))`,
+		s: `
+		memoryUsed := len(b) * int(a)
+		if memoryUsed >= memoryLimit {
+			return nil, errOOM
+		}
+		result := repeatArr([]BVal(b), int(a))`,
 		tp: "BArray",
 	},
 	// Power
@@ -240,7 +260,7 @@ func sub(aVal, bVal BVal) (BVal, error) {
 	}
 	panic(fmt.Sprintf("Unhandled operation: %s(%s) - %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
-func mul(aVal, bVal BVal) (BVal, error) {
+func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 	switch a := aVal.(type) {
 	{{ cases "*" }}
 	}
