@@ -69,6 +69,7 @@ var validStrings = []string{
 	// objects
 	"fooObj.bar * 10",
 	"fooObj.baz(30) * 10",
+	"fooObj.baz(40)",
 	// Arrays
 	"[1, 2, 3]",
 	"[]",
@@ -179,7 +180,7 @@ func TestCollatz(t *testing.T) {
 func BenchmarkCollatz(b *testing.B) {
 	// Just for fun
 	m := vm.New(vm.Params{})
-	s := "i % 2 ? 3*i + 1 : i/2 "
+	s := "i % 2 ? 3*i + 1 : i//2 "
 	compilation := compiler.CompileString(s)
 	if len(compilation.Errors) > 0 {
 		b.Fatal("Found compile errors")
@@ -261,13 +262,18 @@ func seedVM(m vm.VMState) {
 
 // ---------------------- Fuzzing ---------------------------------
 
+var testingVMParams = vm.Params{
+	MaxMemory:       32768,
+	MaxInstructions: 10000,
+}
+
 // VM should never fail
 func FuzzVM(f *testing.F) {
 	testcases := validStrings
 	for _, tc := range testcases {
 		f.Add(tc)
 	}
-	vm := vm.New(vm.Params{})
+	vm := vm.New(testingVMParams)
 	seedVM(vm)
 	f.Fuzz(func(t *testing.T, orig string) {
 		vm.EvalString(orig)

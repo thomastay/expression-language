@@ -16,7 +16,7 @@ import (
 )
 
 var defaultMaxInstructions = 1000
-var defaultMaxMemory = 32768 // 2 ** 15
+var defaultMaxMemory = 1048576 // 2 ** 20
 
 func New(params Params) VMState {
 	if params.MaxInstructions == 0 {
