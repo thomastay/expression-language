@@ -215,6 +215,25 @@ func Compile(expr parser.Expr) Compilation {
 				},
 				Bytecode{Inst: OpLoadAttr},
 			)
+		// ------------------- Arrays ------------------------------
+		case *parser.EArray:
+			// For simplicity, we're just going to dump them all on the stack in reverse order and evaluate them for now
+			// Future optimization may make it such that integers are not dumped on stack
+			n := len(*node)
+			for i := n - 1; i >= 0; i-- {
+				expr := (*node)[i]
+				compileRec(expr)
+			}
+			c.Bytecode = append(c.Bytecode,
+				Bytecode{
+					Inst:   OpNewArray,
+					IntVal: n,
+				},
+			)
+		case *parser.EIdxAccess:
+			compileRec(node.Base)
+			compileRec(node.Index)
+			c.Bytecode = append(c.Bytecode, Bytecode{Inst: OpLoadSubscript})
 		default:
 			log.Panicf("Not implemented %v", node)
 		}

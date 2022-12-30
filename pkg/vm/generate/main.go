@@ -19,6 +19,10 @@ var allowedCases = map[Case]CaseResult{
 	{"+", "BFloat", "BInt"}:   defaultFloat("+"),
 	{"+", "BFloat", "BFloat"}: defaultFloat("+"),
 	{"+", "BStr", "BStr"}:     defaultOp("+", "BStr"),
+	{"+", "BArray", "BArray"}: {
+		s:  "result := append([]BVal(a), []BVal(b)...)",
+		tp: "BArray",
+	},
 	// Sub
 	{"-", "BInt", "BInt"}: {
 		s: `result, ok := overflow.Sub64(int64(a), int64(b))
@@ -40,8 +44,16 @@ var allowedCases = map[Case]CaseResult{
 		s:  `result := strings.Repeat(string(b), int(a))`,
 		tp: "BStr",
 	},
+	{"*", "BArray", "BInt"}: {
+		s:  `result := repeatArr([]BVal(a), int(b))`,
+		tp: "BArray",
+	},
+	{"*", "BInt", "BArray"}: {
+		s:  `result := repeatArr([]BVal(b), int(a))`,
+		tp: "BArray",
+	},
 	// Power
-	{"**", "BInt", "BInt"}:     {
+	{"**", "BInt", "BInt"}: {
 		s: `result, ok := intPow(a, b)
 			if !ok { return nil, errOverflow }`},
 	{"**", "BInt", "BFloat"}:   defaultExp,
@@ -159,6 +171,7 @@ var types = []string{
 	"BObj",
 	"BFunc",
 	"BNull",
+	"BArray",
 }
 
 type Case struct {
@@ -219,43 +232,43 @@ func add(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
 	{{ cases "+" }}
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) + %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation between %s and %s: %s + %s", aVal.Typename(), bVal.Typename(), aVal, bVal))
 }
 func sub(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
 	{{ cases "-" }}
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) - %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) - %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func mul(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
 	{{ cases "*" }}
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) * %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) * %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func div(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
 	{{ cases "/" }}
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) / %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) / %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func floorDiv(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
 	{{ cases "//" }}
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) // %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) // %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func pow(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
 	{{ cases "**" }}
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) ** %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) ** %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func modulo(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
 	{{ cases "%" }}
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) %% %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) %% %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 
 // Returns -1 if a < b, 0 if a == b, 1 if a > b
@@ -264,6 +277,6 @@ func cmp(aVal, bVal BVal, op string) (int, error) {
 	switch a := aVal.(type) {
 	{{ cases "cmp" }}
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) %s %s(%T)", aVal, aVal.Typename(), op, bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) %s %s(%s)", aVal, aVal.Typename(), op, bVal, bVal.Typename()))
 }
 `

@@ -25,12 +25,14 @@ func (b BInt) isBVal()   {}
 func (b BStr) isBVal()   {}
 func (b BFunc) isBVal()  {}
 func (b BObj) isBVal()   {}
+func (b BArray) isBVal() {}
 
 type BNull struct{}
 type BFloat float64
 type BInt int64
 type BStr string
 type BObj map[string]BVal
+type BArray []BVal
 
 type VMFunc func(args []BVal) (BVal, error)
 type BFunc struct {
@@ -58,11 +60,21 @@ func (b BObj) String() string {
 	// TODO nicer formatter which does newlines and maybe strings.Join?
 	s := "{ "
 	var arr []string
-	for k, v := range (map[string]BVal)(b) {
+	for k, v := range map[string]BVal(b) {
 		arr = append(arr, fmt.Sprintf("'%s': %s", k, v))
 	}
 	s += strings.Join(arr, ", ")
 	s += "}"
+	return s
+}
+func (b BArray) String() string {
+	s := "["
+	var arr []string
+	for _, x := range []BVal(b) {
+		arr = append(arr, fmt.Sprintf("%s", x))
+	}
+	s += strings.Join(arr, ", ")
+	s += "]"
 	return s
 }
 
@@ -91,6 +103,9 @@ func (b BFunc) IsTruthy() bool {
 func (b BObj) IsTruthy() bool {
 	return len(b) > 0
 }
+func (b BArray) IsTruthy() bool {
+	return len(b) > 0
+}
 
 func (b BNull) Typename() string {
 	// NULL IS NOT AN OBJECT NULL IS NOT AN OBJECT NULL IS NOT AN OBJECT
@@ -113,6 +128,9 @@ func (b BFunc) Typename() string {
 }
 func (b BObj) Typename() string {
 	return "object"
+}
+func (b BArray) Typename() string {
+	return "array"
 }
 
 func (b Bytecode) String() string {

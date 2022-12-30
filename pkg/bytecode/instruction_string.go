@@ -27,18 +27,20 @@ func _() {
 	_ = x[OpUnaryNot-16]
 	_ = x[OpUnaryPlus-17]
 	_ = x[OpUnaryMinus-18]
-	_ = x[OpReturn-19]
-	_ = x[OpCall-20]
-	_ = x[OpLoadAttr-21]
+	_ = x[OpLoadAttr-19]
+	_ = x[OpReturn-20]
+	_ = x[OpCall-21]
 	_ = x[OpBr-22]
 	_ = x[OpBrIf-23]
 	_ = x[OpBrIfOrPop-24]
 	_ = x[OpBrIfFalseOrPop-25]
+	_ = x[OpNewArray-26]
+	_ = x[OpLoadSubscript-27]
 }
 
-const _Instruction_name = "OpConstOpLoadOpAddOpMinusOpMulOpDivOpFloorDivOpAndOpModOpPowOpLtOpGtOpGeOpLeOpEqOpNeOpUnaryNotOpUnaryPlusOpUnaryMinusOpReturnOpCallOpLoadAttrOpBrOpBrIfOpBrIfOrPopOpBrIfFalseOrPop"
+const _Instruction_name = "OpConstOpLoadOpAddOpMinusOpMulOpDivOpFloorDivOpAndOpModOpPowOpLtOpGtOpGeOpLeOpEqOpNeOpUnaryNotOpUnaryPlusOpUnaryMinusOpLoadAttrOpReturnOpCallOpBrOpBrIfOpBrIfOrPopOpBrIfFalseOrPopOpNewArrayOpLoadSubscript"
 
-var _Instruction_index = [...]uint8{0, 7, 13, 18, 25, 30, 35, 45, 50, 55, 60, 64, 68, 72, 76, 80, 84, 94, 105, 117, 125, 131, 141, 145, 151, 162, 178}
+var _Instruction_index = [...]uint8{0, 7, 13, 18, 25, 30, 35, 45, 50, 55, 60, 64, 68, 72, 76, 80, 84, 94, 105, 117, 127, 135, 141, 145, 151, 162, 178, 188, 203}
 
 func (i Instruction) String() string {
 	if i < 0 || i >= Instruction(len(_Instruction_index)-1) {

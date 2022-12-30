@@ -29,12 +29,12 @@ const (
 	OpUnaryNot
 	OpUnaryPlus
 	OpUnaryMinus
+	// A binary operator, loads base.field
+	OpLoadAttr
 	// Return from a stack frame. Currently there arent any, so this just halts the VM
 	OpReturn
 	// Call a function
 	OpCall
-	// A binary operator, loads base.field
-	OpLoadAttr
 	// Unconditional branch
 	OpBr
 	// Conditional branch if top of stack is truthy. Also consume top of stack.
@@ -43,4 +43,8 @@ const (
 	OpBrIfOrPop
 	// Conditional branch if top of stack is falsey. If so, doesn't consume, else it does.
 	OpBrIfFalseOrPop
+	// Create a new array from stack elements
+	OpNewArray
+	// Access index of an array
+	OpLoadSubscript
 )

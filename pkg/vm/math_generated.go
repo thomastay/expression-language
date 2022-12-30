@@ -31,6 +31,8 @@ func add(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("+", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("+", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("+", aVal, bVal)
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -48,6 +50,8 @@ func add(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("+", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("+", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("+", aVal, bVal)
 		}
 	case BStr:
 		switch b := bVal.(type) {
@@ -64,6 +68,8 @@ func add(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("+", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("+", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("+", aVal, bVal)
 		}
 	case BObj:
 		return nil, errTypeMismatch("+", aVal, bVal)
@@ -71,9 +77,27 @@ func add(aVal, bVal BVal) (BVal, error) {
 		return nil, errTypeMismatch("+", aVal, bVal)
 	case BNull:
 		return nil, errTypeMismatch("+", aVal, bVal)
+	case BArray:
+		switch b := bVal.(type) {
+		case BInt:
+			return nil, errTypeMismatch("+", aVal, bVal)
+		case BFloat:
+			return nil, errTypeMismatch("+", aVal, bVal)
+		case BStr:
+			return nil, errTypeMismatch("+", aVal, bVal)
+		case BObj:
+			return nil, errTypeMismatch("+", aVal, bVal)
+		case BFunc:
+			return nil, errTypeMismatch("+", aVal, bVal)
+		case BNull:
+			return nil, errTypeMismatch("+", aVal, bVal)
+		case BArray:
+			result := append([]BVal(a), []BVal(b)...)
+			return BArray(result), nil
+		}
 
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) + %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation between %s and %s: %s + %s", aVal.Typename(), bVal.Typename(), aVal, bVal))
 }
 func sub(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
@@ -96,6 +120,8 @@ func sub(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("-", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("-", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("-", aVal, bVal)
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -113,6 +139,8 @@ func sub(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("-", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("-", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("-", aVal, bVal)
 		}
 	case BStr:
 		return nil, errTypeMismatch("-", aVal, bVal)
@@ -122,9 +150,11 @@ func sub(aVal, bVal BVal) (BVal, error) {
 		return nil, errTypeMismatch("-", aVal, bVal)
 	case BNull:
 		return nil, errTypeMismatch("-", aVal, bVal)
+	case BArray:
+		return nil, errTypeMismatch("-", aVal, bVal)
 
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) - %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) - %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func mul(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
@@ -148,6 +178,9 @@ func mul(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("*", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("*", aVal, bVal)
+		case BArray:
+			result := repeatArr([]BVal(b), int(a))
+			return BArray(result), nil
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -165,6 +198,8 @@ func mul(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("*", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("*", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("*", aVal, bVal)
 		}
 	case BStr:
 		switch b := bVal.(type) {
@@ -181,6 +216,8 @@ func mul(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("*", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("*", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("*", aVal, bVal)
 		}
 	case BObj:
 		return nil, errTypeMismatch("*", aVal, bVal)
@@ -188,9 +225,27 @@ func mul(aVal, bVal BVal) (BVal, error) {
 		return nil, errTypeMismatch("*", aVal, bVal)
 	case BNull:
 		return nil, errTypeMismatch("*", aVal, bVal)
+	case BArray:
+		switch b := bVal.(type) {
+		case BInt:
+			result := repeatArr([]BVal(a), int(b))
+			return BArray(result), nil
+		case BFloat:
+			return nil, errTypeMismatch("*", aVal, bVal)
+		case BStr:
+			return nil, errTypeMismatch("*", aVal, bVal)
+		case BObj:
+			return nil, errTypeMismatch("*", aVal, bVal)
+		case BFunc:
+			return nil, errTypeMismatch("*", aVal, bVal)
+		case BNull:
+			return nil, errTypeMismatch("*", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("*", aVal, bVal)
+		}
 
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) * %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) * %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func div(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
@@ -216,6 +271,8 @@ func div(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("/", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("/", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("/", aVal, bVal)
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -239,6 +296,8 @@ func div(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("/", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("/", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("/", aVal, bVal)
 		}
 	case BStr:
 		return nil, errTypeMismatch("/", aVal, bVal)
@@ -248,9 +307,11 @@ func div(aVal, bVal BVal) (BVal, error) {
 		return nil, errTypeMismatch("/", aVal, bVal)
 	case BNull:
 		return nil, errTypeMismatch("/", aVal, bVal)
+	case BArray:
+		return nil, errTypeMismatch("/", aVal, bVal)
 
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) / %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) / %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func floorDiv(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
@@ -276,6 +337,8 @@ func floorDiv(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("//", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("//", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("//", aVal, bVal)
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -299,6 +362,8 @@ func floorDiv(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("//", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("//", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("//", aVal, bVal)
 		}
 	case BStr:
 		return nil, errTypeMismatch("//", aVal, bVal)
@@ -308,9 +373,11 @@ func floorDiv(aVal, bVal BVal) (BVal, error) {
 		return nil, errTypeMismatch("//", aVal, bVal)
 	case BNull:
 		return nil, errTypeMismatch("//", aVal, bVal)
+	case BArray:
+		return nil, errTypeMismatch("//", aVal, bVal)
 
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) // %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) // %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func pow(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
@@ -333,6 +400,8 @@ func pow(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("**", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("**", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("**", aVal, bVal)
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -350,6 +419,8 @@ func pow(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("**", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("**", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("**", aVal, bVal)
 		}
 	case BStr:
 		return nil, errTypeMismatch("**", aVal, bVal)
@@ -359,9 +430,11 @@ func pow(aVal, bVal BVal) (BVal, error) {
 		return nil, errTypeMismatch("**", aVal, bVal)
 	case BNull:
 		return nil, errTypeMismatch("**", aVal, bVal)
+	case BArray:
+		return nil, errTypeMismatch("**", aVal, bVal)
 
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) ** %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) ** %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func modulo(aVal, bVal BVal) (BVal, error) {
 	switch a := aVal.(type) {
@@ -381,6 +454,8 @@ func modulo(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("%", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("%", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("%", aVal, bVal)
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -398,6 +473,8 @@ func modulo(aVal, bVal BVal) (BVal, error) {
 			return nil, errTypeMismatch("%", aVal, bVal)
 		case BNull:
 			return nil, errTypeMismatch("%", aVal, bVal)
+		case BArray:
+			return nil, errTypeMismatch("%", aVal, bVal)
 		}
 	case BStr:
 		return nil, errTypeMismatch("%", aVal, bVal)
@@ -407,9 +484,11 @@ func modulo(aVal, bVal BVal) (BVal, error) {
 		return nil, errTypeMismatch("%", aVal, bVal)
 	case BNull:
 		return nil, errTypeMismatch("%", aVal, bVal)
+	case BArray:
+		return nil, errTypeMismatch("%", aVal, bVal)
 
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) %% %s(%T)", aVal, aVal.Typename(), bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) %% %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 
 // Returns -1 if a < b, 0 if a == b, 1 if a > b
@@ -442,6 +521,8 @@ func cmp(aVal, bVal BVal, op string) (int, error) {
 			return 0, errTypeMismatch("cmp", aVal, bVal)
 		case BNull:
 			return 0, errTypeMismatch("cmp", aVal, bVal)
+		case BArray:
+			return 0, errTypeMismatch("cmp", aVal, bVal)
 		}
 	case BFloat:
 		switch b := bVal.(type) {
@@ -469,6 +550,8 @@ func cmp(aVal, bVal BVal, op string) (int, error) {
 			return 0, errTypeMismatch("cmp", aVal, bVal)
 		case BNull:
 			return 0, errTypeMismatch("cmp", aVal, bVal)
+		case BArray:
+			return 0, errTypeMismatch("cmp", aVal, bVal)
 		}
 	case BStr:
 		switch b := bVal.(type) {
@@ -490,6 +573,8 @@ func cmp(aVal, bVal BVal, op string) (int, error) {
 			return 0, errTypeMismatch("cmp", aVal, bVal)
 		case BNull:
 			return 0, errTypeMismatch("cmp", aVal, bVal)
+		case BArray:
+			return 0, errTypeMismatch("cmp", aVal, bVal)
 		}
 	case BObj:
 		return 0, errTypeMismatch("cmp", aVal, bVal)
@@ -497,7 +582,9 @@ func cmp(aVal, bVal BVal, op string) (int, error) {
 		return 0, errTypeMismatch("cmp", aVal, bVal)
 	case BNull:
 		return 0, errTypeMismatch("cmp", aVal, bVal)
+	case BArray:
+		return 0, errTypeMismatch("cmp", aVal, bVal)
 
 	}
-	panic(fmt.Sprintf("Unhandled operation: %s(%T) %s %s(%T)", aVal, aVal.Typename(), op, bVal, bVal.Typename()))
+	panic(fmt.Sprintf("Unhandled operation: %s(%s) %s %s(%s)", aVal, aVal.Typename(), op, bVal, bVal.Typename()))
 }

@@ -70,6 +70,12 @@ func TestValidStrings(t *testing.T) {
 		// objects
 		"fooObj.bar * 10",
 		"fooObj.baz(30) * 10",
+		// Arrays
+		"[1, 2, 3]",
+		"[]",
+		"[1, 2, 3] + [4, 5, 6]",
+		"[1, 2, 3] * 3",
+		"[1, 2, 3][0]",
 	}
 
 	for _, tt := range tests {
@@ -99,6 +105,7 @@ func TestInvalidStrings(t *testing.T) {
 		"2.0 + 'a'",
 		"'a' / 2",
 		"2 / 'a'",
+		"[1, 2, 3][5]",
 	}
 
 	for _, tt := range tests {

@@ -16,10 +16,14 @@ import (
 )
 
 var defaultMaxInstructions = 1000
+var defaultMaxMemory = 1048576 // 2 ** 20
 
 func New(params Params) VMState {
 	if params.MaxInstructions == 0 {
 		params.MaxInstructions = defaultMaxInstructions
+	}
+	if params.MaxMemory == 0 {
+		params.MaxMemory = defaultMaxMemory
 	}
 	vars := make(map[string]BVal)
 	return VMState{params: params, variables: vars}
@@ -81,6 +85,7 @@ func (vm *VMState) EvalString(s string) (Result, error) {
 
 func (vm *VMState) Eval(compilation compiler.Compilation) (Result, error) {
 	executedInsts := 0
+	memoryUsed := 0
 	pc := 0
 	// stack := vm.stack
 	stack := make(Stack, 0, 64) // preallocate some space for items
@@ -311,8 +316,35 @@ InstLoop:
 				return Result{}, err
 			}
 			stack.push(result)
+		// ----------------Array Operations------------------
+		case OpNewArray:
+			n := code.IntVal
+			memoryUsed += n
+			if memoryUsed > vm.params.MaxMemory {
+				return Result{}, errors.New("Out of Memory")
+			}
+			vals := make([]BVal, n)
+			for i := 0; i < n; i++ {
+				vals[i] = stack.pop()
+			}
+			stack.push(BArray(vals))
+		case OpLoadSubscript:
+			b := stack.pop()
+			a := stack.pop()
+			arr, ok := a.(BArray)
+			if !ok {
+				return Result{}, fmt.Errorf("TypeError: %s object is not subscriptable", a.Typename())
+			}
+			idx, ok := b.(BInt)
+			if !ok {
+				return Result{}, fmt.Errorf("List index must be an integer, found %s", b.Typename())
+			}
+			if idx < 0 || int(idx) >= len(arr) {
+				return Result{}, fmt.Errorf("Array index %d out of bounds (len %d)", idx, len(arr))
+			}
+			stack.push(arr[idx])
 		default:
-			return Result{}, errors.New("not impl")
+			return Result{}, errors.New("Opcode not impl")
 		}
 		pc++
 	}
@@ -350,5 +382,7 @@ type Result struct {
 // Configuring the VM
 type Params struct {
 	MaxInstructions int
-	Debug           bool
+	// The maximum number of values that can be created in the VM
+	MaxMemory int
+	Debug     bool
 }
