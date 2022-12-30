@@ -59,6 +59,21 @@ func eq(aVal BVal, bVal BVal) bool {
 		// Go doesn't have a fast way of checking function pointers, so we cheat
 		// and just check the names
 		return a.Name == bfn.Name
+	case BArray:
+		// compare element by element
+		arr, ok := bVal.(BArray)
+		if !ok {
+			return false
+		}
+		if len(a) != len(arr) {
+			return false
+		}
+		for i, val := range arr {
+			if !eq(val, a[i]) {
+				return false
+			}
+		}
+		return true
 	default:
 		panic("Not impl")
 	}
