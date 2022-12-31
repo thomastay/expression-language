@@ -63,8 +63,8 @@ func (vm *VMState) Eval(compilation compiler.Compilation, env VMEnv) (Result, er
 	stack := make(Stack, 0, 64) // preallocate some space for items
 	codes := compilation.Bytecode
 	if vm.params.Debug {
-		fmt.Println("Constant table")
-		fmt.Println(compilation.Constants)
+		fmt.Println("Constant table:")
+		fmt.Println("  ", compilation.Constants)
 	}
 InstLoop:
 	for pc < codes.Len() && executedInsts < vm.params.MaxInstructions {
