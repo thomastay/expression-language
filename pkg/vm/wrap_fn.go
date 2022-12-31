@@ -60,15 +60,22 @@ func WrapFn(name string, ff any) BFunc {
 		case 0:
 			return BNull{}, nil
 		case 1:
-			return reflectVals[0].Interface().(BVal), nil
+			return toBVal(reflectVals[0]), nil
 		case 2:
 			err, _ = reflectVals[1].Interface().(error)
-			return reflectVals[0].Interface().(BVal), err
+			return toBVal(reflectVals[0]), err
 		default:
 			panic("Should not reach this point, wrong number of returns")
 		}
 	}
 	return BFunc{Fn: f, NumArgs: fnType.NumIn(), Name: name}
+}
+
+func toBVal(val reflect.Value) BVal {
+	if val.IsNil() {
+		return BNull{}
+	}
+	return val.Interface().(BVal)
 }
 
 // Clones an env

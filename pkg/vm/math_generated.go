@@ -11,6 +11,8 @@ import (
 )
 
 func add(aVal, bVal BVal) (BVal, error) {
+	aVal = castBoolToInt(aVal)
+	bVal = castBoolToInt(bVal)
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {
@@ -100,6 +102,8 @@ func add(aVal, bVal BVal) (BVal, error) {
 	panic(fmt.Sprintf("Unhandled operation between %s and %s: %s + %s", aVal.Typename(), bVal.Typename(), aVal, bVal))
 }
 func sub(aVal, bVal BVal) (BVal, error) {
+	aVal = castBoolToInt(aVal)
+	bVal = castBoolToInt(bVal)
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {
@@ -157,6 +161,8 @@ func sub(aVal, bVal BVal) (BVal, error) {
 	panic(fmt.Sprintf("Unhandled operation: %s(%s) - %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
+	aVal = castBoolToInt(aVal)
+	bVal = castBoolToInt(bVal)
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {
@@ -170,13 +176,12 @@ func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 			result := float64(a) * float64(b)
 			return BFloat(result), nil
 		case BStr:
-
 			var result string
 			if int(a) <= 0 || len(b) == 0 {
 				result = ""
 			} else {
-				memoryUsed := len(b) * int(a)
-				if memoryUsed >= memoryLimit {
+				memoryUsed, ok := overflow.Mul(len(b), int(a))
+				if !ok || memoryUsed >= memoryLimit {
 					return nil, errOOM
 				}
 				result = strings.Repeat(string(b), int(a))
@@ -189,11 +194,10 @@ func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 		case BNull:
 			return nil, errTypeMismatch("*", aVal, bVal)
 		case BArray:
-
 			var result []BVal
 			if int(a) > 0 && len(b) > 0 {
-				memoryUsed := len(b) * int(a)
-				if memoryUsed >= memoryLimit {
+				memoryUsed, ok := overflow.Mul(len(b), int(a))
+				if !ok || memoryUsed >= memoryLimit {
 					return nil, errOOM
 				}
 				result = repeatArr([]BVal(b), int(a))
@@ -222,13 +226,12 @@ func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 	case BStr:
 		switch b := bVal.(type) {
 		case BInt:
-
 			var result string
 			if int(b) <= 0 || len(a) == 0 {
 				result = ""
 			} else {
-				memoryUsed := len(a) * int(b)
-				if memoryUsed >= memoryLimit {
+				memoryUsed, ok := overflow.Mul(len(a), int(b))
+				if !ok || memoryUsed >= memoryLimit {
 					return nil, errOOM
 				}
 				result = strings.Repeat(string(a), int(b))
@@ -256,11 +259,10 @@ func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 	case BArray:
 		switch b := bVal.(type) {
 		case BInt:
-
 			var result []BVal
 			if int(b) > 0 && len(a) > 0 {
-				memoryUsed := len(a) * int(b)
-				if memoryUsed >= memoryLimit {
+				memoryUsed, ok := overflow.Mul(len(a), int(b))
+				if !ok || memoryUsed >= memoryLimit {
 					return nil, errOOM
 				}
 				result = repeatArr([]BVal(a), int(b))
@@ -284,6 +286,8 @@ func mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
 	panic(fmt.Sprintf("Unhandled operation: %s(%s) * %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func div(aVal, bVal BVal) (BVal, error) {
+	aVal = castBoolToInt(aVal)
+	bVal = castBoolToInt(bVal)
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {
@@ -350,6 +354,8 @@ func div(aVal, bVal BVal) (BVal, error) {
 	panic(fmt.Sprintf("Unhandled operation: %s(%s) / %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func floorDiv(aVal, bVal BVal) (BVal, error) {
+	aVal = castBoolToInt(aVal)
+	bVal = castBoolToInt(bVal)
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {
@@ -416,6 +422,8 @@ func floorDiv(aVal, bVal BVal) (BVal, error) {
 	panic(fmt.Sprintf("Unhandled operation: %s(%s) // %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func pow(aVal, bVal BVal) (BVal, error) {
+	aVal = castBoolToInt(aVal)
+	bVal = castBoolToInt(bVal)
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {
@@ -473,6 +481,8 @@ func pow(aVal, bVal BVal) (BVal, error) {
 	panic(fmt.Sprintf("Unhandled operation: %s(%s) ** %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func modulo(aVal, bVal BVal) (BVal, error) {
+	aVal = castBoolToInt(aVal)
+	bVal = castBoolToInt(bVal)
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {
@@ -542,6 +552,8 @@ func modulo(aVal, bVal BVal) (BVal, error) {
 // Returns -1 if a < b, 0 if a == b, 1 if a > b
 // op is only used for debugging
 func cmp(aVal, bVal BVal, op string) (int, error) {
+	aVal = castBoolToInt(aVal)
+	bVal = castBoolToInt(bVal)
 	switch a := aVal.(type) {
 	case BInt:
 		switch b := bVal.(type) {

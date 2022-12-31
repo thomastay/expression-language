@@ -134,6 +134,7 @@ InstLoop:
 				return Result{}, err
 			}
 			stack.push(result)
+		// ----------------Compare Operations------------------
 		case OpLt:
 			b := stack.pop()
 			a := stack.pop()
@@ -141,11 +142,11 @@ InstLoop:
 			if err != nil {
 				return Result{}, err
 			}
-			result := 0
+			result := false
 			if ord == -1 {
-				result = 1
+				result = true
 			}
-			stack.push(BInt(result))
+			stack.push(BBool(result))
 		case OpGt:
 			b := stack.pop()
 			a := stack.pop()
@@ -153,11 +154,11 @@ InstLoop:
 			if err != nil {
 				return Result{}, err
 			}
-			result := 0
+			result := false
 			if ord == 1 {
-				result = 1
+				result = true
 			}
-			stack.push(BInt(result))
+			stack.push(BBool(result))
 		case OpLe:
 			b := stack.pop()
 			a := stack.pop()
@@ -165,11 +166,11 @@ InstLoop:
 			if err != nil {
 				return Result{}, err
 			}
-			result := 0
+			result := false
 			if ord != 1 {
-				result = 1
+				result = true
 			}
-			stack.push(BInt(result))
+			stack.push(BBool(result))
 		case OpGe:
 			b := stack.pop()
 			a := stack.pop()
@@ -177,29 +178,29 @@ InstLoop:
 			if err != nil {
 				return Result{}, err
 			}
-			result := 0
+			result := false
 			if ord != -1 {
-				result = 1
+				result = true
 			}
-			stack.push(BInt(result))
+			stack.push(BBool(result))
 		case OpEq:
 			b := stack.pop()
 			a := stack.pop()
 			equal := eq(a, b)
-			result := 0
+			result := false
 			if equal {
-				result = 1
+				result = true
 			}
-			stack.push(BInt(result))
+			stack.push(BBool(result))
 		case OpNe:
 			b := stack.pop()
 			a := stack.pop()
 			equal := eq(a, b)
-			result := 0
+			result := false
 			if !equal {
-				result = 1
+				result = true
 			}
-			stack.push(BInt(result))
+			stack.push(BBool(result))
 		case OpLoadAttr:
 			// Base is loaded before field, so field pops first
 			field := stack.pop()
@@ -220,6 +221,10 @@ InstLoop:
 			switch a.(type) {
 			case BInt, BFloat:
 				// do nothing
+			case BBool:
+				stack.pop()
+				a = castBoolToInt(a)
+				stack.push(a)
 			default:
 				return Result{}, fmt.Errorf("TypeError: bad operand type for unary +: %s", a.Typename())
 			}
@@ -229,17 +234,19 @@ InstLoop:
 				stack.push(BInt(-int64(a)))
 			case BFloat:
 				stack.push(BInt(-int64(a)))
+			case BBool:
+				stack.push(BInt(-boolToInt(a)))
 			default:
 				return Result{}, fmt.Errorf("TypeError: bad operand type for unary -: %s", a.Typename())
 			}
 		case OpUnaryNot:
 			a := stack.pop()
 			neg := !a.IsTruthy()
-			result := 0
+			result := false
 			if neg {
-				result = 1
+				result = true
 			}
-			stack.push(BInt(result))
+			stack.push(BBool(result))
 		// ----------------Conditional Operations------------------
 		case OpBr:
 			pc = int(code.IntVal)
@@ -271,12 +278,12 @@ InstLoop:
 			name := stack.pop()
 			bFn, ok := name.(BFunc)
 			if !ok {
-				return Result{}, fmt.Errorf("Stack value %s is not a function", name)
+				return Result{}, fmt.Errorf("InterpError: Stack value %s is not a function", name)
 			}
 			// load params
 			numParams := code.IntVal
 			if numParams != bFn.NumArgs {
-				return Result{}, fmt.Errorf("Fn %s passed wrong number of args, expected %d, got %d", bFn.Name, bFn.NumArgs, numParams)
+				return Result{}, fmt.Errorf("RuntimeError: function %s passed wrong number of args, expected %d, got %d", bFn.Name, bFn.NumArgs, numParams)
 			}
 			params := make([]BVal, numParams)
 			for i := 0; i < numParams; i++ {
@@ -284,7 +291,7 @@ InstLoop:
 			}
 			result, err := bFn.Fn(params)
 			if err != nil {
-				return Result{}, err
+				return Result{}, fmt.Errorf("RuntimeError: %w", err)
 			}
 			stack.push(result)
 		// ----------------Array Operations------------------
@@ -306,6 +313,7 @@ InstLoop:
 			if !ok {
 				return Result{}, fmt.Errorf("TypeError: %s object is not subscriptable", a.Typename())
 			}
+			b = castBoolToInt(b)
 			idx, ok := b.(BInt)
 			if !ok {
 				return Result{}, fmt.Errorf("List index must be an integer, found %s", b.Typename())

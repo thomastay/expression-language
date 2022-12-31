@@ -8,7 +8,7 @@ import (
 )
 
 // Cache some common errors
-var errNotEnoughStackValues = errors.New("VMError: Not enough values on stack")
+// var errNotEnoughStackValues = errors.New("VMError: Not enough values on stack")
 var errOverflow = errors.New("ArithmeticError: Overflow")
 var errDivByZero = errors.New("ArithmeticError: Divided by zero")
 var errOOM = errors.New("Out of Memory")

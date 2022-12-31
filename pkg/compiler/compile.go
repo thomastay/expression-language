@@ -85,13 +85,13 @@ func Compile(expr parser.Expr) Compilation {
 				})
 			case parser.TokBool:
 				val := node.Val.Value
-				iVal := 0
+				bVal := false
 				if val == "true" {
-					iVal = 1
+					bVal = true
 				}
 				c.Bytecode = append(c.Bytecode, Bytecode{
 					Inst: OpConst,
-					Val:  BInt(iVal),
+					Val:  BBool(bVal),
 				})
 			default:
 				log.Panicf("Not implemented %v", node)

@@ -60,14 +60,16 @@ func parseExpr(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 	case TokEndExpr, TokSquareClose:
 		return nil, nil
 	case TokSquareOpen:
-		// Probably an array
-		lhs, err = parseArray(lex, firstVal)
-		if lhs == nil {
-			return nil, errors.New("Array index operator must have an expression inside")
-		}
+		// Probably an array. Note: we assign it a different name to be able to
+		// check for nil (since typed nils are NOT nil)
+		arr, err := parseArray(lex, firstVal)
 		if err != nil {
 			return lhs, err
 		}
+		if arr == nil {
+			return nil, errors.New("Array index operator must have an expression inside")
+		}
+		lhs = arr
 	case TokOp:
 		lhs, err = parsePrefix(lex, firstVal)
 		if err != nil {

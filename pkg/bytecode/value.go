@@ -22,6 +22,7 @@ type BVal interface {
 func (b BNull) isBVal()  {}
 func (b BFloat) isBVal() {}
 func (b BInt) isBVal()   {}
+func (b BBool) isBVal()  {}
 func (b BStr) isBVal()   {}
 func (b BFunc) isBVal()  {}
 func (b BObj) isBVal()   {}
@@ -30,6 +31,7 @@ func (b BArray) isBVal() {}
 type BNull struct{}
 type BFloat float64
 type BInt int64
+type BBool bool
 type BStr string
 type BObj map[string]BVal
 type BArray []BVal
@@ -49,6 +51,9 @@ func (b BFloat) String() string {
 }
 func (b BInt) String() string {
 	return strconv.FormatInt(int64(b), 10)
+}
+func (b BBool) String() string {
+	return strconv.FormatBool(bool(b))
 }
 func (b BStr) String() string {
 	return "'" + string(b) + "'"
@@ -71,7 +76,7 @@ func (b BArray) String() string {
 	s := "["
 	var arr []string
 	for _, x := range []BVal(b) {
-		arr = append(arr, fmt.Sprintf("%s", x))
+		arr = append(arr, x.String())
 	}
 	s += strings.Join(arr, ", ")
 	s += "]"
@@ -89,10 +94,13 @@ func (b BNull) IsTruthy() bool {
 	return false
 }
 func (b BFloat) IsTruthy() bool {
-	return int64(b) != 0
+	return float64(b) != 0 && !math.IsNaN(float64(b))
 }
 func (b BInt) IsTruthy() bool {
-	return float64(b) != 0 && !math.IsNaN(float64(b))
+	return int64(b) != 0
+}
+func (b BBool) IsTruthy() bool {
+	return bool(b)
 }
 func (b BStr) IsTruthy() bool {
 	return len(string(b)) > 0
@@ -119,6 +127,9 @@ func (b BFloat) Typename() string {
 }
 func (b BInt) Typename() string {
 	return "int"
+}
+func (b BBool) Typename() string {
+	return "bool"
 }
 func (b BStr) Typename() string {
 	return "string"
