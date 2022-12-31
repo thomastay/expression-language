@@ -62,6 +62,10 @@ func (vm *VMState) Eval(compilation compiler.Compilation, env VMEnv) (Result, er
 	}
 	stack := make(Stack, 0, 64) // preallocate some space for items
 	codes := compilation.Bytecode
+	if vm.params.Debug {
+		fmt.Println("Constant table")
+		fmt.Println(compilation.Constants)
+	}
 InstLoop:
 	for pc < codes.Len() && executedInsts < vm.params.MaxInstructions {
 		executedInsts++
@@ -71,9 +75,12 @@ InstLoop:
 		case OpReturn:
 			break InstLoop
 		case OpConst:
-			stack.push(codes.ValData[pc])
+			pos := codes.IntData[pc]
+			// lookup from constant table
+			stack.push(compilation.Constants[pos])
 		case OpLoad:
-			identName := codes.ValData[pc].(BStr)
+			pos := codes.IntData[pc]
+			identName := compilation.Constants[pos].(BStr)
 			val, ok := variables[string(identName)]
 			if !ok {
 				return Result{}, fmt.Errorf("NameError: name %s is not defined", identName)

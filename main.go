@@ -29,7 +29,7 @@ func init() {
 func main() {
 	shouldSeed := flag.Bool("seed", true, "Seed the VM")
 	flag.Parse()
-	m := vm.New(vm.Params{})
+	m := vm.New(vm.Params{Debug: true})
 	var env vm.VMEnv
 	if *shouldSeed {
 		env = seedEnv

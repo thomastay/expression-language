@@ -13,19 +13,16 @@ import (
 //	type Bytecode struct {
 //		Inst   Instruction
 //		IntVal int // Fast path jump indices since it's used much more than actual constants
-//		Val    BVal
 //	}
 type ByteCodes struct {
 	Insts []Instruction
-	// Used for jump indices and things that don't really need a full BVal interface and all that heap nonsense
+	// Used as indices into the constant table as well as jump indices
 	IntData []int
-	ValData []BVal
 }
 
 func (bs *ByteCodes) Push(b Bytecode) {
 	bs.Insts = append(bs.Insts, b.Inst)
 	bs.IntData = append(bs.IntData, b.IntVal)
-	bs.ValData = append(bs.ValData, b.Val)
 }
 
 func (bs *ByteCodes) Len() int {
@@ -34,8 +31,7 @@ func (bs *ByteCodes) Len() int {
 
 type Bytecode struct {
 	Inst   Instruction
-	IntVal int // Fast path jump indices since it's used much more than actual constants
-	Val    BVal
+	IntVal int
 }
 type BVal interface {
 	fmt.Stringer
@@ -175,9 +171,6 @@ func (b Bytecode) String() string {
 	case OpAdd, OpMul, OpDiv, OpAnd, OpMod, OpLt, OpGt, OpGe, OpLe, OpMinus, OpNe, OpEq, OpUnaryMinus, OpUnaryPlus, OpUnaryNot, OpLoadAttr, OpPow, OpFloorDiv:
 		return b.Inst.String()
 	default:
-		if b.Val == nil {
-			return fmt.Sprintf("%s %d", b.Inst, b.IntVal)
-		}
-		return fmt.Sprintf("%s %s", b.Inst, b.Val)
+		return fmt.Sprintf("%s %d", b.Inst, b.IntVal)
 	}
 }

@@ -7,7 +7,7 @@
 1. to string conversion in VM itself
 1. Make Boolean a type in the expression engine so we can print it properly (DONE)
 1. Split bytecode struct into pieces (do a SOA optimization) (DONE)
-1. Move values to a constant table and make Load instructions read from this table
+1. Move values to a constant table and make Load instructions read from this table (DONE)
 
 # Features
 

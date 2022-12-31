@@ -29,6 +29,10 @@ func CompileString(s string) Compilation {
 // because this package will attempt a best effort compile
 func Compile(expr parser.Expr) Compilation {
 	c := Compilation{}
+	seen := newSeenConstants()
+	// ?: why doesn't this defer work?
+	// defer func() { c.Constants = seen.constants }()
+
 	var compileRec func(parser.Expr)
 	compileRec = func(expr parser.Expr) {
 		if expr == nil {
@@ -50,9 +54,10 @@ func Compile(expr parser.Expr) Compilation {
 					})
 					return
 				}
+				pos := seen.AddInt(val)
 				c.Bytecode.Push(Bytecode{
-					Inst: OpConst,
-					Val:  BInt(val),
+					Inst:   OpConst,
+					IntVal: pos,
 				})
 			case parser.TokFloat:
 				tok := node.Val
@@ -65,33 +70,36 @@ func Compile(expr parser.Expr) Compilation {
 					})
 					return
 				}
+				pos := seen.AddFloat(val)
 				c.Bytecode.Push(Bytecode{
-					Inst: OpConst,
-					Val:  BFloat(val),
+					Inst:   OpConst,
+					IntVal: pos,
 				})
 			case parser.TokSingleString:
 				val := node.Val.Value
 				val = val[1 : len(val)-1]
+				pos := seen.AddStr(val)
 				c.Bytecode.Push(Bytecode{
-					Inst: OpConst,
-					Val:  BStr(val),
+					Inst:   OpConst,
+					IntVal: pos,
 				})
 			// Parse and load identifier
 			case parser.TokIdent:
 				val := node.Val.Value
+				pos := seen.AddStr(val)
 				c.Bytecode.Push(Bytecode{
-					Inst: OpLoad,
-					Val:  BStr(val),
+					Inst:   OpLoad,
+					IntVal: pos,
 				})
 			case parser.TokBool:
 				val := node.Val.Value
-				bVal := false
+				pos := 0
 				if val == "true" {
-					bVal = true
+					pos = 1
 				}
 				c.Bytecode.Push(Bytecode{
-					Inst: OpConst,
-					Val:  BBool(bVal),
+					Inst:   OpConst,
+					IntVal: pos,
 				})
 			default:
 				log.Panicf("Not implemented %v", node)
@@ -184,19 +192,22 @@ func Compile(expr parser.Expr) Compilation {
 				param := node.Exprs[i]
 				compileRec(param)
 			}
+			val := node.Method.Value
 			if node.Base != nil {
 				compileRec(node.Base)
+				pos := seen.AddStr(val)
 				c.Bytecode.Push(Bytecode{
-					Inst: OpConst,
-					Val:  BStr(node.Method.Value),
+					Inst:   OpConst,
+					IntVal: pos,
 				})
 				c.Bytecode.Push(Bytecode{
 					Inst: OpLoadAttr,
 				})
 			} else {
+				pos := seen.AddStr(val)
 				c.Bytecode.Push(Bytecode{
-					Inst: OpLoad,
-					Val:  BStr(node.Method.Value),
+					Inst:   OpLoad,
+					IntVal: pos,
 				},
 				)
 			}
@@ -209,10 +220,12 @@ func Compile(expr parser.Expr) Compilation {
 		case *parser.EFieldAccess:
 			// Load Base, then Field
 			compileRec(node.Base)
+			val := node.Field.Value
+			pos := seen.AddStr(val)
 			c.Bytecode.Push(
 				Bytecode{
-					Inst: OpConst,
-					Val:  BStr(node.Field.Value),
+					Inst:   OpConst,
+					IntVal: pos,
 				},
 			)
 			c.Bytecode.Push(
@@ -242,6 +255,7 @@ func Compile(expr parser.Expr) Compilation {
 		}
 	}
 	compileRec(expr)
+	c.Constants = seen.constants
 	return c
 }
 
@@ -269,8 +283,64 @@ var unaryOps = map[string]Instruction{
 
 // represents the
 type Compilation struct {
-	Bytecode ByteCodes
-	Errors   []CompileError
+	Bytecode  ByteCodes
+	Constants []BVal
+	Errors    []CompileError
+}
+
+// Helper class to aid in constructing the constant table
+type seenConstants struct {
+	constants   []BVal
+	seenInts    map[int64]int
+	seenFloats  map[float64]int
+	seenStrings map[string]int
+}
+
+func newSeenConstants() seenConstants {
+	seen := seenConstants{}
+	seen.seenInts = make(map[int64]int)
+	seen.seenFloats = make(map[float64]int)
+	seen.seenStrings = make(map[string]int)
+
+	// We initialize common constants here. true and false are always 1 and 0 respectively
+	// Also initialize 1, 2, 3
+	seen.constants = append(seen.constants,
+		BBool(false), BBool(true),
+		BInt(1), BInt(2), BInt(3),
+	)
+	seen.seenInts[1] = 2 // position 2 cos 0 and 1 are bools
+	seen.seenInts[2] = 3
+	seen.seenInts[3] = 4
+
+	return seen
+}
+
+func (seen *seenConstants) AddInt(x int64) int {
+	if pos, ok := seen.seenInts[x]; ok {
+		return pos
+	}
+	pos := len(seen.constants)
+	seen.constants = append(seen.constants, BInt(x))
+	seen.seenInts[x] = pos
+	return pos
+}
+func (seen *seenConstants) AddFloat(x float64) int {
+	if pos, ok := seen.seenFloats[x]; ok {
+		return pos
+	}
+	pos := len(seen.constants)
+	seen.constants = append(seen.constants, BFloat(x))
+	seen.seenFloats[x] = pos
+	return pos
+}
+func (seen *seenConstants) AddStr(x string) int {
+	if pos, ok := seen.seenStrings[x]; ok {
+		return pos
+	}
+	pos := len(seen.constants)
+	seen.constants = append(seen.constants, BStr(x))
+	seen.seenStrings[x] = pos
+	return pos
 }
 
 type CompileError struct {
