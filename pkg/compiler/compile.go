@@ -94,9 +94,9 @@ func Compile(expr Expr) Compilation {
 				})
 			case parser.TokBool:
 				val := node.Val.Value
-				pos := 0
+				pos := falseConstPos
 				if val == "true" {
-					pos = 1
+					pos = trueConstPos
 				}
 				c.Bytecode.Push(Bytecode{
 					Inst: OpConst,
@@ -296,6 +296,11 @@ type seenConstants struct {
 	seenFloats  map[float64]int
 	seenStrings map[string]int
 }
+
+const (
+	falseConstPos = 0
+	trueConstPos  = 1
+)
 
 func newSeenConstants() seenConstants {
 	seen := seenConstants{}

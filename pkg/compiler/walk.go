@@ -5,73 +5,42 @@ import (
 )
 
 // Walks the tree
-func Walk(expr Expr, visit Visitor) error {
+func walk(expr Expr, visit visitor) []CompileError {
+	var compileErrors []CompileError
+	walkAndAdd := func(e Expr) {
+		errs := walk(e, visit)
+		compileErrors = append(compileErrors, errs...)
+	}
 	switch node := expr.(type) {
 	case *EValue, *EUnOp:
-		err := Walk(node, visit)
-		if err != nil {
-			return err
-		}
+		walkAndAdd(node)
 	case *EBinOp:
-		err := Walk(node.Left, visit)
-		if err != nil {
-			return err
-		}
-		err = Walk(node.Right, visit)
-		if err != nil {
-			return err
-		}
+		walkAndAdd(node.Left)
+		walkAndAdd(node.Right)
 	case *EFieldAccess:
-		err := Walk(node.Base, visit)
-		if err != nil {
-			return err
-		}
+		walkAndAdd(node.Base)
 	case *EIdxAccess:
-		err := Walk(node.Base, visit)
-		if err != nil {
-			return err
-		}
-		err = Walk(node.Index, visit)
-		if err != nil {
-			return err
-		}
+		walkAndAdd(node.Base)
+		walkAndAdd(node.Index)
 	case *ECond:
-		err := Walk(node.Cond, visit)
-		if err != nil {
-			return err
-		}
-		err = Walk(node.First, visit)
-		if err != nil {
-			return err
-		}
-		err = Walk(node.Second, visit)
-		if err != nil {
-			return err
-		}
+		walkAndAdd(node.Cond)
+		walkAndAdd(node.First)
+		walkAndAdd(node.Second)
 	case *ECall:
-		err := Walk(node.Base, visit)
-		if err != nil {
-			return err
-		}
+		walkAndAdd(node.Base)
 		for _, expr := range node.Exprs {
-			err = Walk(expr, visit)
-			if err != nil {
-				return err
-			}
+			walkAndAdd(expr)
 		}
 	case *EArray:
-		var err error
-		if err != nil {
-			return err
-		}
 		for _, expr := range []Expr(*node) {
-			err = Walk(expr, visit)
-			if err != nil {
-				return err
-			}
+			walkAndAdd(expr)
 		}
 	}
-	return visit(expr)
+	errs := visit(expr)
+	compileErrors = append(compileErrors, errs...)
+	return errs
 }
 
-type Visitor func(expr Expr) error
+type visitor func(expr Expr) walkError
+
+type walkError []CompileError
