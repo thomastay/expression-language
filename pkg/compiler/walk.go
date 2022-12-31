@@ -4,7 +4,7 @@ import (
 	. "github.com/thomastay/expression_language/pkg/ast"
 )
 
-// Walks the tree
+// Walks the tree in a post order traversal
 func walk(expr Expr, visit visitor) walkError {
 	var compileErrors []CompileError
 	walkAndAdd := func(e Expr) {
