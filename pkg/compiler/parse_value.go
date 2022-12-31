@@ -72,7 +72,7 @@ func ParseValue(ptrToExpr *Expr) walkError {
 	case *ECall:
 	case *EArray:
 	default:
-		panic("AST type is not impl")
+		log.Panicf("AST type %T is not impl", expr)
 	}
 
 	return errs

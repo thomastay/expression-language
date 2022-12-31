@@ -28,13 +28,15 @@ func walk(ptrToExpr *Expr, visit visitor) walkError {
 		walkAndAdd(&node.First)
 		walkAndAdd(&node.Second)
 	case *ECall:
-		walkAndAdd(&node.Base)
-		for _, expr := range node.Exprs {
-			walkAndAdd(&expr)
+		if node.Base != nil {
+			walkAndAdd(&node.Base)
+		}
+		for i := range node.Exprs {
+			walkAndAdd(&node.Exprs[i])
 		}
 	case *EArray:
-		for _, expr := range *node {
-			walkAndAdd(&expr)
+		for i := range *node {
+			walkAndAdd(&(*node)[i])
 		}
 	}
 	errs := visit(ptrToExpr)

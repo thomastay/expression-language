@@ -50,8 +50,6 @@ func (c *Compilation) compileToBytecode(expr Expr) {
 	compileRec = func(expr Expr) {
 		if expr == nil {
 			panic("No nil expressions!")
-			// log.Println("Expressions shouldn't be nil.")
-			// return
 		}
 		switch node := expr.(type) {
 		case *EValue:
@@ -81,7 +79,7 @@ func (c *Compilation) compileToBytecode(expr Expr) {
 			val := string(*node)
 			pos := seen.AddStr(val)
 			c.Bytecode.Push(Bytecode{
-				Inst: OpConst,
+				Inst: OpLoad,
 				Val:  pos,
 			})
 		case *EBool:
