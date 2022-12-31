@@ -82,10 +82,6 @@ BenchmarkCollatzRegular-4        3935415               331.4 ns/op             0
 Before SOA splitting:
 
 ```
-goos: windows
-goarch: amd64
-pkg: github.com/thomastay/expression_language/pkg/vm
-cpu: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
 BenchmarkCollatz-4                 10000            108641 ns/op          132618 B/op        321 allocs/op
 BenchmarkCollatzRegular-4        3774889               320.3 ns/op             0 B/op          0 allocs/op
 ```
@@ -93,10 +89,13 @@ BenchmarkCollatzRegular-4        3774889               320.3 ns/op             0
 After constant table
 
 ```
-goos: windows
-goarch: amd64
-pkg: github.com/thomastay/expression_language/pkg/vm
-cpu: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
 BenchmarkCollatz-4                 10000            113586 ns/op          132618 B/op        321 allocs/op
 BenchmarkCollatzRegular-4        3688999               351.4 ns/op             0 B/op          0 allocs/op
+```
+
+After reduction to uint8
+
+```
+BenchmarkCollatz-4                 10000            109552 ns/op          132618 B/op        321 allocs/op
+BenchmarkCollatzRegular-4        3923805               321.6 ns/op             0 B/op          0 allocs/op
 ```
