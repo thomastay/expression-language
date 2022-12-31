@@ -68,6 +68,8 @@ See `vm_test.go`
 
 Roughly ~300-500x slower than native compiled code
 
+Before:
+
 ```
 goos: windows
 goarch: amd64
@@ -75,4 +77,15 @@ pkg: github.com/thomastay/expression_language/pkg/vm
 cpu: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
 BenchmarkCollatz-4                  7858            163786 ns/op          132617 B/op        321 allocs/op
 BenchmarkCollatzRegular-4        3935415               331.4 ns/op             0 B/op          0 allocs/op
+```
+
+Before SOA splitting:
+
+```
+goos: windows
+goarch: amd64
+pkg: github.com/thomastay/expression_language/pkg/vm
+cpu: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
+BenchmarkCollatz-4                 10000            108641 ns/op          132618 B/op        321 allocs/op
+BenchmarkCollatzRegular-4        3774889               320.3 ns/op             0 B/op          0 allocs/op
 ```
