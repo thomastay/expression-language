@@ -11,7 +11,7 @@ import (
 
 // Returns true if a == b
 // Unlike cmp, this function cannot return an error and must always compare values
-func eq(aVal BVal, bVal BVal) bool {
+func Eq(aVal BVal, bVal BVal) bool {
 	aVal = castBoolToInt(aVal)
 	bVal = castBoolToInt(bVal)
 	// For want of a MATCH, the happiness was lost...
@@ -75,7 +75,7 @@ func eq(aVal BVal, bVal BVal) bool {
 			if !ok {
 				return false
 			}
-			if !eq(v, v2) {
+			if !Eq(v, v2) {
 				return false
 			}
 		}
@@ -90,7 +90,7 @@ func eq(aVal BVal, bVal BVal) bool {
 			return false
 		}
 		for i, val := range arr {
-			if !eq(val, a[i]) {
+			if !Eq(val, a[i]) {
 				return false
 			}
 		}

@@ -186,7 +186,7 @@ InstLoop:
 		case OpEq:
 			b := stack.pop()
 			a := stack.pop()
-			equal := eq(a, b)
+			equal := Eq(a, b)
 			result := false
 			if equal {
 				result = true
@@ -195,7 +195,7 @@ InstLoop:
 		case OpNe:
 			b := stack.pop()
 			a := stack.pop()
-			equal := eq(a, b)
+			equal := Eq(a, b)
 			result := false
 			if !equal {
 				result = true
