@@ -29,11 +29,12 @@ func GenRandomAST(seed uint32, maxDepth uint) Expr {
 
 func genRandomASTRec(rand *Rand, depthLeft uint) Expr {
 	seed := rand.randU32()
-	nAstNodesGenTypes := uint32(numASTNodeTypes - 2)
+	nAstNodesGenTypes := uint32(numASTNodeTypes)
 	if depthLeft == 0 {
 		// reset to EValue
 		seed = seed / nAstNodesGenTypes * nAstNodesGenTypes
 	}
+	maxArraySize := 5
 	value := seed
 	nodeType := seed % nAstNodesGenTypes
 	switch nodeType {
@@ -87,7 +88,7 @@ func genRandomASTRec(rand *Rand, depthLeft uint) Expr {
 	case 1:
 		// EUnOp
 		value /= nAstNodesGenTypes
-		opStr := binaryOps[value%uint32(len(unaryOps))]
+		opStr := unaryOps[value%uint32(len(unaryOps))]
 		return &EUnOp{
 			Op: &lexer.Token{
 				Type:  TokOp,
@@ -128,12 +129,24 @@ func genRandomASTRec(rand *Rand, depthLeft uint) Expr {
 			First:  genRandomASTRec(rand, depthLeft-1),
 			Second: genRandomASTRec(rand, depthLeft-1),
 		}
-		// case 6:
-		// 	return &ECall{
-		// 		bb:   genRandomASTRec(rand, seed + 1),
-		// 		First:  genRandomASTRec(rand, seed + 2),
-		// 		Second: genRandomASTRec(rand, seed + 3),
-		// 	}
+	case 6:
+		return &ECall{
+			Base: genRandomASTRec(rand, depthLeft-1),
+			Method: &lexer.Token{
+				Type:  TokIdent,
+				Value: seedToIdent(seed),
+			},
+			Exprs: []Expr{
+				genRandomASTRec(rand, depthLeft-1),
+			},
+		}
+	case 7:
+		arrLen := rand.randU32() % uint32(maxArraySize)
+		arr := make([]Expr, arrLen)
+		for i := 0; i < int(arrLen); i++ {
+			arr[i] = genRandomASTRec(rand, depthLeft-1)
+		}
+		return (*EArray)(&arr)
 	}
 	panic("Not impl")
 }
@@ -162,14 +175,30 @@ var binaryOps = []string{
 	"or",
 }
 
+var identsSeeded = []string{
+	"a",
+	"b",
+	"c",
+	"d",
+	"e",
+	"f",
+	"foo",
+	"s",
+	"fizz",
+	"buzz",
+	"fizzbuzz",
+	"emptyObj",
+	"fooObj",
+	"bar",
+	"baz",
+	"foobar",
+	"z",
+	"ba",
+	"vv",
+	"null",
+}
+
 func seedToIdent(seed uint32) string {
-	// s := ""
-	// for seed > 1 {
-	// 	x := seed%26 + 97
-	// 	s += string(rune(x))
-	// 	seed >>= 5
-	// }
-	x := seed%26 + 97
-	s := string(rune(x))
-	return s
+	// No point in creating an ident that doesn't exist, doesn't give useful info since VM stops immediately
+	return identsSeeded[seed%uint32(len(identsSeeded))]
 }

@@ -136,6 +136,8 @@ var validStrings = []string{
 	"[1, 2, 3] + [4, 5, 6]",
 	"[1, 2, 3] * 3",
 	"[1, 2, 3][0]",
+	// regressions
+	"fooObj != 1",
 }
 
 func TestValidStrings(t *testing.T) {
@@ -172,6 +174,7 @@ var invalidStrings = []string{
 	"[foo(), *2 * 3, fooObj.bar][5]",
 	"[foo(), (2, 3), fooObj.bar][5]",
 	"[1//2nasdijio2 * 5, (2, 3), 35]",
+	"emptyObj + 2",
 }
 
 func TestInvalidStrings(t *testing.T) {
@@ -311,7 +314,8 @@ var vmSeed = vm.VMEnv{
 	"fizz":     bytecode.BStr("fizz"),
 	"buzz":     bytecode.BStr("buzz"),
 	"fizzbuzz": bytecode.BStr("fizzbuzz"),
-	"emptyObj": nil,
+	"emptyObj": make(bytecode.BObj),
+	"null":     bytecode.BNull{},
 	"fooObj": bytecode.BObj(map[string]bytecode.BVal{
 		"bar": bytecode.BInt(10),
 		"baz": vm.WrapFn("baz", func(x bytecode.BVal) (bytecode.BVal, error) {
@@ -373,32 +377,42 @@ func FuzzVM(f *testing.F) {
 }
 
 func FuzzVMRandAST(f *testing.F) {
+	maxDepth := 20
 	vm := vm.New(testingVMParams)
+	// Don't make the test corpus too bug, Go runs it as part of every Go unit
+	// test run
 	for i := 0; i < 100; i++ {
-		for j := 0; j < 20; j++ {
+		for j := 0; j < 10; j++ {
 			f.Add(uint32(i), uint(j))
 		}
 	}
 	f.Fuzz(func(t *testing.T, seed uint32, depth uint) {
-		depth = depth % 20
+		if depth >= uint(maxDepth) {
+			return
+		}
 		ast := parser.GenRandomAST(seed, depth)
 		s := ast.String()
 		vm.EvalString(s, vmSeed)
 	})
 }
 
-func TestExhaustiveRandAST(t *testing.T) {
+func TestRandAST(t *testing.T) {
+	type Pair struct {
+		seed  uint32
+		depth uint
+	}
 	vm := vm.New(testingVMParams)
-	for i := 0; i < 100; i++ {
-		for j := 10; j < 20; j++ {
-			t.Run(fmt.Sprintf("%d %d", i, j), (func(t *testing.T) {
-				seed := uint32(i)
-				depth := uint(j)
-				depth = depth % 20
-				ast := parser.GenRandomAST(seed, depth)
-				s := ast.String()
-				vm.EvalString(s, vmSeed)
-			}))
-		}
+	knownRegressions := []Pair{
+		{1, 20}, // at 29, becomes too big.
+	}
+	for _, regression := range knownRegressions {
+		t.Run(fmt.Sprintf("%d", regression), (func(t *testing.T) {
+			seed := regression.seed
+			depth := regression.depth
+			ast := parser.GenRandomAST(seed, depth)
+			s := ast.String()
+			// fmt.Println(s)
+			vm.EvalString(s, vmSeed)
+		}))
 	}
 }

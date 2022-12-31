@@ -122,7 +122,7 @@ var seedEnv = vm.VMEnv{
 	"fizz":     bytecode.BStr("fizz"),
 	"buzz":     bytecode.BStr("buzz"),
 	"fizzbuzz": bytecode.BStr("fizzbuzz"),
-	"emptyObj": nil,
+	"emptyObj": make(bytecode.BObj),
 	"fooObj":   bytecode.BObj(fooObjVal),
 	// functions
 	"foobar": vm.WrapFn("foobar", func(x bytecode.BVal) bytecode.BVal {
