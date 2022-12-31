@@ -5,7 +5,6 @@ import (
 	. "github.com/thomastay/expression_language/pkg/bytecode"
 )
 
-// Implements Visitor type
 // Constant folding pass does two things:
 //  1. If node is a binary op with two constants, it replaces them
 //  1. If node is binary op with one EValue, it rotates the constant to the LHS

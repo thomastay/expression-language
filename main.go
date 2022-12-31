@@ -77,10 +77,12 @@ func runOnString(s string, m vm.VMState, env vm.VMEnv) (bytecode.BVal, error) {
 		return nil, fmt.Errorf("Parse Error")
 	}
 	fmt.Println("Expression:", expr.String())
-	comp := compiler.Compile(expr)
+	comp := compiler.Compile(expr, compiler.Params{
+		Debug: true,
+	})
 	if len(comp.Errors) > 0 {
 		for _, compErr := range comp.Errors {
-			log.Println(compErr)
+			fmt.Println("Compiler Error:", compErr)
 		}
 		return nil, fmt.Errorf("Compile Error")
 	}

@@ -41,7 +41,7 @@ func (vm *VMState) EvalString(s string, env VMEnv) (Result, error) {
 	if err != nil {
 		return Result{}, err
 	}
-	comp := compiler.Compile(expr)
+	comp := compiler.Compile(expr, compiler.Params{})
 	if len(comp.Errors) > 0 {
 		var errString string
 		for _, c := range comp.Errors {

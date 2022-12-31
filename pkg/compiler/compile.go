@@ -3,6 +3,7 @@
 package compiler
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/alecthomas/participle/v2/lexer"
@@ -20,14 +21,14 @@ func CompileString(s string) Compilation {
 			Errors: []CompileError{{Err: err}},
 		}
 	}
-	return Compile(expr)
+	return Compile(expr, Params{})
 }
 
 // Compiles the parse tree down to bytecode, represented by the Compilation object
 // Note that a compilation may have errors. Users are expected to check the Compilation.Errors
 // object to report them. Note that a Compilation may have errors but still be ok to interpret
 // because this package will attempt a best effort compile
-func Compile(expr Expr) Compilation {
+func Compile(expr Expr, params Params) Compilation {
 	// This function merely orchestrates the steps, then compileToBytecode does the actual compiling
 	// Stage 1: Parsing of values and reporting overflow errors or simple errors
 	c := Compilation{}
@@ -42,7 +43,9 @@ func Compile(expr Expr) Compilation {
 	if len(c.Errors) > 0 {
 		return c
 	}
-	// fmt.Println("Expression (after opt):", expr.String())
+	if params.Debug {
+		fmt.Println("Expression after const fold:", expr.String())
+	}
 
 	c.compileToBytecode(expr)
 	return c
@@ -355,4 +358,8 @@ func (c CompileError) Error() string {
 
 func (c CompileError) IsErr() bool {
 	return c.Err != nil
+}
+
+type Params struct {
+	Debug bool
 }
