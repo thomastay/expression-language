@@ -17,6 +17,8 @@
    Fold +, -, \*, %, /, //
    Possibly write a walk() and visit() interface like in the Expr library
    Also fold conditionals if the conditional is a constant
+1. Add constant array parsing where we identify if each element of an array is a fixed constant.
+   Need to think through the details of this.
 1. Jump chaining (a peephole optimization)
 1. Implement local variables
 1. Implement SSA based IR

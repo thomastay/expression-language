@@ -29,12 +29,20 @@ func CompileString(s string) Compilation {
 // because this package will attempt a best effort compile
 func Compile(expr Expr) Compilation {
 	// This function merely orchestrates the steps, then compileToBytecode does the actual compiling
-
+	// Stage 1: Parsing of values and reporting overflow errors or simple errors
 	c := Compilation{}
 	c.Errors = walk(&expr, ParseValue)
 	if len(c.Errors) > 0 {
 		return c
 	}
+
+	// Stage 2: Optimization
+	errs := walk(&expr, ConstFold)
+	c.Errors = append(c.Errors, []CompileError(errs)...)
+	if len(c.Errors) > 0 {
+		return c
+	}
+	// fmt.Println("Expression (after opt):", expr.String())
 
 	c.compileToBytecode(expr)
 	return c
