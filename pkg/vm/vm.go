@@ -13,6 +13,7 @@ import (
 	. "github.com/thomastay/expression_language/pkg/bytecode"
 	"github.com/thomastay/expression_language/pkg/compiler"
 	"github.com/thomastay/expression_language/pkg/parser"
+	"github.com/thomastay/expression_language/pkg/runtime"
 )
 
 var defaultMaxInstructions = 1000
@@ -81,7 +82,7 @@ InstLoop:
 		case OpAdd:
 			b := stack.pop()
 			a := stack.pop()
-			result, err := add(a, b)
+			result, err := runtime.Add(a, b)
 			if err != nil {
 				return Result{}, err
 			}
@@ -89,7 +90,7 @@ InstLoop:
 		case OpMinus:
 			b := stack.pop()
 			a := stack.pop()
-			result, err := sub(a, b)
+			result, err := runtime.Sub(a, b)
 			if err != nil {
 				return Result{}, err
 			}
@@ -97,7 +98,7 @@ InstLoop:
 		case OpMul:
 			b := stack.pop()
 			a := stack.pop()
-			result, err := mul(a, b, vm.params.MaxMemory-memoryUsed)
+			result, err := runtime.Mul(a, b, vm.params.MaxMemory-memoryUsed)
 			if err != nil {
 				return Result{}, err
 			}
@@ -105,7 +106,7 @@ InstLoop:
 		case OpDiv:
 			b := stack.pop()
 			a := stack.pop()
-			result, err := div(a, b)
+			result, err := runtime.Div(a, b)
 			if err != nil {
 				return Result{}, err
 			}
@@ -113,7 +114,7 @@ InstLoop:
 		case OpFloorDiv:
 			b := stack.pop()
 			a := stack.pop()
-			result, err := floorDiv(a, b)
+			result, err := runtime.FloorDiv(a, b)
 			if err != nil {
 				return Result{}, err
 			}
@@ -121,7 +122,7 @@ InstLoop:
 		case OpMod:
 			b := stack.pop()
 			a := stack.pop()
-			result, err := modulo(a, b)
+			result, err := runtime.Modulo(a, b)
 			if err != nil {
 				return Result{}, err
 			}
@@ -129,7 +130,7 @@ InstLoop:
 		case OpPow:
 			b := stack.pop()
 			a := stack.pop()
-			result, err := pow(a, b)
+			result, err := runtime.Pow(a, b)
 			if err != nil {
 				return Result{}, err
 			}
@@ -138,7 +139,7 @@ InstLoop:
 		case OpLt:
 			b := stack.pop()
 			a := stack.pop()
-			ord, err := cmp(a, b, "<")
+			ord, err := runtime.Cmp(a, b, "<")
 			if err != nil {
 				return Result{}, err
 			}
@@ -150,7 +151,7 @@ InstLoop:
 		case OpGt:
 			b := stack.pop()
 			a := stack.pop()
-			ord, err := cmp(a, b, ">")
+			ord, err := runtime.Cmp(a, b, ">")
 			if err != nil {
 				return Result{}, err
 			}
@@ -162,7 +163,7 @@ InstLoop:
 		case OpLe:
 			b := stack.pop()
 			a := stack.pop()
-			ord, err := cmp(a, b, "<=")
+			ord, err := runtime.Cmp(a, b, "<=")
 			if err != nil {
 				return Result{}, err
 			}
@@ -174,7 +175,7 @@ InstLoop:
 		case OpGe:
 			b := stack.pop()
 			a := stack.pop()
-			ord, err := cmp(a, b, ">=")
+			ord, err := runtime.Cmp(a, b, ">=")
 			if err != nil {
 				return Result{}, err
 			}
@@ -186,7 +187,7 @@ InstLoop:
 		case OpEq:
 			b := stack.pop()
 			a := stack.pop()
-			equal := Eq(a, b)
+			equal := runtime.Eq(a, b)
 			result := false
 			if equal {
 				result = true
@@ -195,7 +196,7 @@ InstLoop:
 		case OpNe:
 			b := stack.pop()
 			a := stack.pop()
-			equal := Eq(a, b)
+			equal := runtime.Eq(a, b)
 			result := false
 			if !equal {
 				result = true
@@ -223,7 +224,7 @@ InstLoop:
 				// do nothing
 			case BBool:
 				stack.pop()
-				a = castBoolToInt(a)
+				a = runtime.CastBoolToInt(a)
 				stack.push(a)
 			default:
 				return Result{}, fmt.Errorf("TypeError: bad operand type for unary +: %s", a.Typename())
@@ -235,7 +236,7 @@ InstLoop:
 			case BFloat:
 				stack.push(BInt(-int64(a)))
 			case BBool:
-				stack.push(BInt(-boolToInt(a)))
+				stack.push(BInt(-runtime.BoolToInt(a)))
 			default:
 				return Result{}, fmt.Errorf("TypeError: bad operand type for unary -: %s", a.Typename())
 			}
@@ -299,7 +300,7 @@ InstLoop:
 			n := code.IntVal
 			memoryUsed += n
 			if memoryUsed > vm.params.MaxMemory {
-				return Result{}, errOOM
+				return Result{}, runtime.ErrOOM
 			}
 			vals := make([]BVal, n)
 			for i := 0; i < n; i++ {
@@ -313,7 +314,7 @@ InstLoop:
 			if !ok {
 				return Result{}, fmt.Errorf("TypeError: %s object is not subscriptable", a.Typename())
 			}
-			b = castBoolToInt(b)
+			b = runtime.CastBoolToInt(b)
 			idx, ok := b.(BInt)
 			if !ok {
 				return Result{}, fmt.Errorf("List index must be an integer, found %s", b.Typename())

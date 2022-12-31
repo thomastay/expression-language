@@ -8,6 +8,7 @@ import (
 	"github.com/thomastay/expression_language/pkg/bytecode"
 	"github.com/thomastay/expression_language/pkg/compiler"
 	"github.com/thomastay/expression_language/pkg/parser"
+	"github.com/thomastay/expression_language/pkg/runtime"
 	"github.com/thomastay/expression_language/pkg/vm"
 )
 
@@ -293,7 +294,7 @@ func TestValidStringsWithOutput(t *testing.T) {
 				t.Error(err)
 			}
 			val := result.Val
-			if !vm.Eq(tt.expected, val) {
+			if !runtime.Eq(tt.expected, val) {
 				t.Errorf("Expected %s, got %s", tt.expected, val)
 			}
 		})

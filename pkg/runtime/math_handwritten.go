@@ -1,4 +1,4 @@
-package vm
+package runtime
 
 import (
 	"math"
@@ -12,8 +12,8 @@ import (
 // Returns true if a == b
 // Unlike cmp, this function cannot return an error and must always compare values
 func Eq(aVal BVal, bVal BVal) bool {
-	aVal = castBoolToInt(aVal)
-	bVal = castBoolToInt(bVal)
+	aVal = CastBoolToInt(aVal)
+	bVal = CastBoolToInt(bVal)
 	// For want of a MATCH, the happiness was lost...
 	switch a := aVal.(type) {
 	case BInt:
@@ -164,7 +164,7 @@ func repeatArr(arr []BVal, n int) []BVal {
 }
 
 // Keep these two as leafs, easier for compiler to Inline
-func boolToInt(b BBool) BInt {
+func BoolToInt(b BBool) BInt {
 	if b {
 		return 1
 	}
@@ -172,7 +172,7 @@ func boolToInt(b BBool) BInt {
 }
 
 // Keep these two as leafs, easier for compiler to Inline
-func castBoolToInt(val BVal) BVal {
+func CastBoolToInt(val BVal) BVal {
 	v, ok := val.(BBool)
 	if !ok {
 		// fast path
