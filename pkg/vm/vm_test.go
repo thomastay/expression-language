@@ -271,10 +271,11 @@ func TestValidStrings(t *testing.T) {
 		testname := fmt.Sprintf("%s", tt)
 		t.Run(testname, func(t *testing.T) {
 			vm := vm.New(vm.Params{})
-			result, err := vm.EvalString(tt, vmSeed)
-			val := result.Val
-			fmt.Printf("{ \"%s\", %T(%s) },\n", tt, val, val)
-			// , ([^']*)' --> , $1"
+			_, err := vm.EvalString(tt, vmSeed)
+			// result, err := vm.EvalString(tt, vmSeed)
+			// val := result.Val
+			// fmt.Printf("{ \"%s\", %T(%s) },\n", tt, val, val)
+			// Convert the above with: , ([^']*)' --> , $1"
 			if err != nil {
 				t.Error(err)
 			}
