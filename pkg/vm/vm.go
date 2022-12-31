@@ -95,9 +95,30 @@ InstLoop:
 				return Result{}, err
 			}
 			stack.push(result)
+		case OpAddImm:
+			// Add immediately to a without popping from stack (fuse two inst into one)
+			a := stack.pop()
+			pos := codes.IntData[pc]
+			// lookup from constant table
+			b := compilation.Constants[pos]
+			result, err := runtime.Add(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			stack.push(result)
 		case OpMinus:
 			b := stack.pop()
 			a := stack.pop()
+			result, err := runtime.Sub(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			stack.push(result)
+		case OpMinusImm:
+			a := stack.pop()
+			pos := codes.IntData[pc]
+			// lookup from constant table
+			b := compilation.Constants[pos]
 			result, err := runtime.Sub(a, b)
 			if err != nil {
 				return Result{}, err
@@ -111,6 +132,16 @@ InstLoop:
 				return Result{}, err
 			}
 			stack.push(result)
+		case OpMulImm:
+			a := stack.pop()
+			pos := codes.IntData[pc]
+			// lookup from constant table
+			b := compilation.Constants[pos]
+			result, err := runtime.Mul(a, b, vm.params.MaxMemory-memoryUsed)
+			if err != nil {
+				return Result{}, err
+			}
+			stack.push(result)
 		case OpDiv:
 			b := stack.pop()
 			a := stack.pop()
@@ -119,9 +150,29 @@ InstLoop:
 				return Result{}, err
 			}
 			stack.push(result)
+		case OpDivImm:
+			a := stack.pop()
+			pos := codes.IntData[pc]
+			// lookup from constant table
+			b := compilation.Constants[pos]
+			result, err := runtime.Div(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			stack.push(result)
 		case OpFloorDiv:
 			b := stack.pop()
 			a := stack.pop()
+			result, err := runtime.FloorDiv(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			stack.push(result)
+		case OpFloorDivImm:
+			a := stack.pop()
+			pos := codes.IntData[pc]
+			// lookup from constant table
+			b := compilation.Constants[pos]
 			result, err := runtime.FloorDiv(a, b)
 			if err != nil {
 				return Result{}, err

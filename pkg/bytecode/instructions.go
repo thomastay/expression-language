@@ -29,6 +29,13 @@ const (
 	OpUnaryNot
 	OpUnaryPlus
 	OpUnaryMinus
+	// "Immediate" version of  the binary operators for constants
+	// These operators perform the action immediately, without pushing it onto the stack
+	OpAddImm
+	OpMinusImm
+	OpMulImm
+	OpDivImm
+	OpFloorDivImm
 	// A binary operator, loads base.field
 	OpLoadAttr
 	// Return from a stack frame. Currently there arent any, so this just halts the VM
