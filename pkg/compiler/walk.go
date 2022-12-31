@@ -38,7 +38,7 @@ func walk(expr Expr, visit visitor) walkError {
 	}
 	errs := visit(expr)
 	compileErrors = append(compileErrors, errs...)
-	return errs
+	return compileErrors
 }
 
 type visitor func(expr Expr) walkError
