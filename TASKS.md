@@ -8,11 +8,10 @@
 1. Make Boolean a type in the expression engine so we can print it properly (DONE)
 1. Split bytecode struct into pieces (do a SOA optimization) (DONE)
 1. Move values to a constant table and make Load instructions read from this table (DONE)
+1. Add Immediate instructions for cases where one side is a constant
 
 # Features
 
-1. Split bytecode struct into pieces (do a SOA optimization) (DONE)
-   As part of this, also move values to a constant table and make Load instructions read from this table
 1. Constant folding (on AST level)
    Split vm math module into a runtime module so compiler can use it as well
    Fold +, -, \*, %, /, //
