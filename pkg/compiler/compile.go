@@ -56,8 +56,8 @@ func Compile(expr parser.Expr) Compilation {
 				}
 				pos := seen.AddInt(val)
 				c.Bytecode.Push(Bytecode{
-					Inst:   OpConst,
-					IntVal: pos,
+					Inst: OpConst,
+					Val:  pos,
 				})
 			case parser.TokFloat:
 				tok := node.Val
@@ -72,24 +72,24 @@ func Compile(expr parser.Expr) Compilation {
 				}
 				pos := seen.AddFloat(val)
 				c.Bytecode.Push(Bytecode{
-					Inst:   OpConst,
-					IntVal: pos,
+					Inst: OpConst,
+					Val:  pos,
 				})
 			case parser.TokSingleString:
 				val := node.Val.Value
 				val = val[1 : len(val)-1]
 				pos := seen.AddStr(val)
 				c.Bytecode.Push(Bytecode{
-					Inst:   OpConst,
-					IntVal: pos,
+					Inst: OpConst,
+					Val:  pos,
 				})
 			// Parse and load identifier
 			case parser.TokIdent:
 				val := node.Val.Value
 				pos := seen.AddStr(val)
 				c.Bytecode.Push(Bytecode{
-					Inst:   OpLoad,
-					IntVal: pos,
+					Inst: OpLoad,
+					Val:  pos,
 				})
 			case parser.TokBool:
 				val := node.Val.Value
@@ -98,8 +98,8 @@ func Compile(expr parser.Expr) Compilation {
 					pos = 1
 				}
 				c.Bytecode.Push(Bytecode{
-					Inst:   OpConst,
-					IntVal: pos,
+					Inst: OpConst,
+					Val:  pos,
 				})
 			default:
 				log.Panicf("Not implemented %v", node)
@@ -197,8 +197,8 @@ func Compile(expr parser.Expr) Compilation {
 				compileRec(node.Base)
 				pos := seen.AddStr(val)
 				c.Bytecode.Push(Bytecode{
-					Inst:   OpConst,
-					IntVal: pos,
+					Inst: OpConst,
+					Val:  pos,
 				})
 				c.Bytecode.Push(Bytecode{
 					Inst: OpLoadAttr,
@@ -206,15 +206,15 @@ func Compile(expr parser.Expr) Compilation {
 			} else {
 				pos := seen.AddStr(val)
 				c.Bytecode.Push(Bytecode{
-					Inst:   OpLoad,
-					IntVal: pos,
+					Inst: OpLoad,
+					Val:  pos,
 				},
 				)
 			}
 			c.Bytecode.Push(
 				Bytecode{
-					Inst:   OpCall,
-					IntVal: numParams,
+					Inst: OpCall,
+					Val:  numParams,
 				},
 			)
 		case *parser.EFieldAccess:
@@ -224,8 +224,8 @@ func Compile(expr parser.Expr) Compilation {
 			pos := seen.AddStr(val)
 			c.Bytecode.Push(
 				Bytecode{
-					Inst:   OpConst,
-					IntVal: pos,
+					Inst: OpConst,
+					Val:  pos,
 				},
 			)
 			c.Bytecode.Push(
@@ -242,8 +242,8 @@ func Compile(expr parser.Expr) Compilation {
 			}
 			c.Bytecode.Push(
 				Bytecode{
-					Inst:   OpNewArray,
-					IntVal: n,
+					Inst: OpNewArray,
+					Val:  n,
 				},
 			)
 		case *parser.EIdxAccess:

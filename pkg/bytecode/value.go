@@ -8,12 +8,6 @@ import (
 )
 
 // SOA optimized version of an Array of bytecode.
-// Think of this as an array of:
-//
-//	type Bytecode struct {
-//		Inst   Instruction
-//		IntVal int // Fast path jump indices since it's used much more than actual constants
-//	}
 type ByteCodes struct {
 	Insts []Instruction
 	// Used as indices into the constant table as well as jump indices
@@ -22,7 +16,7 @@ type ByteCodes struct {
 
 func (bs *ByteCodes) Push(b Bytecode) {
 	bs.Insts = append(bs.Insts, b.Inst)
-	bs.IntData = append(bs.IntData, b.IntVal)
+	bs.IntData = append(bs.IntData, b.Val)
 }
 
 func (bs *ByteCodes) Len() int {
@@ -30,8 +24,8 @@ func (bs *ByteCodes) Len() int {
 }
 
 type Bytecode struct {
-	Inst   Instruction
-	IntVal int
+	Inst Instruction
+	Val  int
 }
 type BVal interface {
 	fmt.Stringer
@@ -171,6 +165,6 @@ func (b Bytecode) String() string {
 	case OpAdd, OpMul, OpDiv, OpAnd, OpMod, OpLt, OpGt, OpGe, OpLe, OpMinus, OpNe, OpEq, OpUnaryMinus, OpUnaryPlus, OpUnaryNot, OpLoadAttr, OpPow, OpFloorDiv:
 		return b.Inst.String()
 	default:
-		return fmt.Sprintf("%s %d", b.Inst, b.IntVal)
+		return fmt.Sprintf("%s %d", b.Inst, b.Val)
 	}
 }
