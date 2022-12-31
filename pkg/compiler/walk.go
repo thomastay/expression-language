@@ -32,7 +32,7 @@ func walk(expr Expr, visit visitor) walkError {
 			walkAndAdd(expr)
 		}
 	case *EArray:
-		for _, expr := range []Expr(*node) {
+		for _, expr := range *node {
 			walkAndAdd(expr)
 		}
 	}
