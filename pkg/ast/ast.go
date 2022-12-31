@@ -50,14 +50,14 @@ func (x *EArray) isExpr()       {}
 
 //  Handy switch statement for your use
 //	switch node := expr.(type) {
-//	case *parser.EValue,
-//	case *parser.EUnOp:
-//	case *parser.EBinOp:
-//	case *parser.EFieldAccess:
-//	case *parser.EIdxAccess:
-//	case *parser.ECond:
-//	case *parser.ECall:
-//	case *parser.EArray:
+//	case *EValue,
+//	case *EUnOp:
+//	case *EBinOp:
+//	case *EFieldAccess:
+//	case *EIdxAccess:
+//	case *ECond:
+//	case *ECall:
+//	case *EArray:
 //	default:
 //		panic("AST type is not impl")
 //	}
