@@ -5,7 +5,7 @@ import (
 )
 
 // Walks the tree
-func walk(expr Expr, visit visitor) []CompileError {
+func walk(expr Expr, visit visitor) walkError {
 	var compileErrors []CompileError
 	walkAndAdd := func(e Expr) {
 		errs := walk(e, visit)
