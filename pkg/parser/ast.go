@@ -48,6 +48,20 @@ func (x *ECond) isExpr()        {}
 func (x *ECall) isExpr()        {}
 func (x *EArray) isExpr()       {}
 
+//  Handy switch statement for your use
+//	switch node := expr.(type) {
+//	case *parser.EValue,
+//	case *parser.EUnOp:
+//	case *parser.EBinOp:
+//	case *parser.EFieldAccess:
+//	case *parser.EIdxAccess:
+//	case *parser.ECond:
+//	case *parser.ECall:
+//	case *parser.EArray:
+//	default:
+//		panic("AST type is not impl")
+//	}
+
 type EValue struct {
 	Val *lexer.Token
 }
