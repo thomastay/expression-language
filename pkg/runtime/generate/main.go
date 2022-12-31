@@ -204,7 +204,7 @@ var mulIntStrTemplateStr = `var result string
 		} else {
 			memoryUsed, ok := overflow.Mul(len({{.StrName}}), int({{.IntName}}))
 			if !ok || memoryUsed >= memoryLimit {
-				return nil, errOOM
+				return nil, ErrOOM
 			}
 			result = strings.Repeat(string({{.StrName}}), int({{.IntName}}))
 		}`
@@ -212,7 +212,7 @@ var mulIntArrTemplateStr = `var result []BVal
 		if int({{.IntName}}) > 0 && len({{.StrName}}) > 0 {
 			memoryUsed, ok := overflow.Mul(len({{.StrName}}), int({{.IntName}}))
 			if !ok || memoryUsed >= memoryLimit {
-				return nil, errOOM
+				return nil, ErrOOM
 			}
 			result = repeatArr([]BVal({{.StrName}}), int({{.IntName}}))
 		}`
@@ -279,56 +279,56 @@ import (
 )
 
 func Add(aVal, bVal BVal) (BVal, error) {
-	aVal = castBoolToInt(aVal)
-	bVal = castBoolToInt(bVal)
+	aVal = CastBoolToInt(aVal)
+	bVal = CastBoolToInt(bVal)
 	switch a := aVal.(type) {
 	{{ cases "+" }}
 	}
 	panic(fmt.Sprintf("Unhandled operation between %s and %s: %s + %s", aVal.Typename(), bVal.Typename(), aVal, bVal))
 }
 func Sub(aVal, bVal BVal) (BVal, error) {
-	aVal = castBoolToInt(aVal)
-	bVal = castBoolToInt(bVal)
+	aVal = CastBoolToInt(aVal)
+	bVal = CastBoolToInt(bVal)
 	switch a := aVal.(type) {
 	{{ cases "-" }}
 	}
 	panic(fmt.Sprintf("Unhandled operation: %s(%s) - %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func Mul(aVal, bVal BVal, memoryLimit int) (BVal, error) {
-	aVal = castBoolToInt(aVal)
-	bVal = castBoolToInt(bVal)
+	aVal = CastBoolToInt(aVal)
+	bVal = CastBoolToInt(bVal)
 	switch a := aVal.(type) {
 	{{ cases "*" }}
 	}
 	panic(fmt.Sprintf("Unhandled operation: %s(%s) * %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func Div(aVal, bVal BVal) (BVal, error) {
-	aVal = castBoolToInt(aVal)
-	bVal = castBoolToInt(bVal)
+	aVal = CastBoolToInt(aVal)
+	bVal = CastBoolToInt(bVal)
 	switch a := aVal.(type) {
 	{{ cases "/" }}
 	}
 	panic(fmt.Sprintf("Unhandled operation: %s(%s) / %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func FloorDiv(aVal, bVal BVal) (BVal, error) {
-	aVal = castBoolToInt(aVal)
-	bVal = castBoolToInt(bVal)
+	aVal = CastBoolToInt(aVal)
+	bVal = CastBoolToInt(bVal)
 	switch a := aVal.(type) {
 	{{ cases "//" }}
 	}
 	panic(fmt.Sprintf("Unhandled operation: %s(%s) // %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func Pow(aVal, bVal BVal) (BVal, error) {
-	aVal = castBoolToInt(aVal)
-	bVal = castBoolToInt(bVal)
+	aVal = CastBoolToInt(aVal)
+	bVal = CastBoolToInt(bVal)
 	switch a := aVal.(type) {
 	{{ cases "**" }}
 	}
 	panic(fmt.Sprintf("Unhandled operation: %s(%s) ** %s(%s)", aVal, aVal.Typename(), bVal, bVal.Typename()))
 }
 func Modulo(aVal, bVal BVal) (BVal, error) {
-	aVal = castBoolToInt(aVal)
-	bVal = castBoolToInt(bVal)
+	aVal = CastBoolToInt(aVal)
+	bVal = CastBoolToInt(bVal)
 	switch a := aVal.(type) {
 	{{ cases "%" }}
 	}
@@ -338,8 +338,8 @@ func Modulo(aVal, bVal BVal) (BVal, error) {
 // Returns -1 if a < b, 0 if a == b, 1 if a > b
 // op is only used for debugging
 func Cmp(aVal, bVal BVal, op string) (int, error) {
-	aVal = castBoolToInt(aVal)
-	bVal = castBoolToInt(bVal)
+	aVal = CastBoolToInt(aVal)
+	bVal = CastBoolToInt(bVal)
 	switch a := aVal.(type) {
 	{{ cases "cmp" }}
 	}

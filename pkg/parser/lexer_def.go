@@ -6,9 +6,9 @@ import (
 	"github.com/alecthomas/participle/v2/lexer"
 )
 
-//go:generate go run ../../cmd/dump_lex/main.go
+//go:generate go run ./generate/main.go
 
-// This file is not used in the parser build but is used by cmd/dump_lex/main.go to generate the lexer.json file
+// This file is not used in the parser build but is used by ./generate/main.go to generate the lexer.json file
 
 var operators = [...]string{
 	// Sort in descending length order
