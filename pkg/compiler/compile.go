@@ -4,7 +4,6 @@ package compiler
 
 import (
 	"log"
-	"strconv"
 
 	"github.com/alecthomas/participle/v2/lexer"
 	. "github.com/thomastay/expression_language/pkg/ast"
@@ -24,12 +23,25 @@ func CompileString(s string) Compilation {
 	return Compile(expr)
 }
 
-// Compiles the parse tree down to IR, represented by the Compilation object
+// Compiles the parse tree down to bytecode, represented by the Compilation object
 // Note that a compilation may have errors. Users are expected to check the Compilation.Errors
 // object to report them. Note that a Compilation may have errors but still be ok to interpret
 // because this package will attempt a best effort compile
 func Compile(expr Expr) Compilation {
+	// This function merely orchestrates the steps, then compileToBytecode does the actual compiling
+
 	c := Compilation{}
+	c.Errors = walk(&expr, ParseValue)
+	if len(c.Errors) > 0 {
+		return c
+	}
+
+	c.compileToBytecode(expr)
+	return c
+}
+
+// This function does the actual compiling to bytecode
+func (c *Compilation) compileToBytecode(expr Expr) {
 	seen := newSeenConstants()
 	// ?: why doesn't this defer work?
 	// defer func() { c.Constants = seen.constants }()
@@ -43,68 +55,45 @@ func Compile(expr Expr) Compilation {
 		}
 		switch node := expr.(type) {
 		case *EValue:
-			switch node.Val.Type {
-			case parser.TokInt, parser.TokHexInt, parser.TokOctInt, parser.TokBinInt:
-				tok := node.Val
-				val, err := strconv.ParseInt(tok.Value, 0, 64)
-				if err != nil {
-					c.Errors = append(c.Errors, CompileError{
-						Err:   err,
-						Start: tok,
-						End:   tok,
-					})
-					return
-				}
-				pos := seen.AddInt(val)
-				c.Bytecode.Push(Bytecode{
-					Inst: OpConst,
-					Val:  pos,
-				})
-			case parser.TokFloat:
-				tok := node.Val
-				val, err := strconv.ParseFloat(tok.Value, 64)
-				if err != nil {
-					c.Errors = append(c.Errors, CompileError{
-						Err:   err,
-						Start: tok,
-						End:   tok,
-					})
-					return
-				}
-				pos := seen.AddFloat(val)
-				c.Bytecode.Push(Bytecode{
-					Inst: OpConst,
-					Val:  pos,
-				})
-			case parser.TokSingleString:
-				val := node.Val.Value
-				val = val[1 : len(val)-1]
-				pos := seen.AddStr(val)
-				c.Bytecode.Push(Bytecode{
-					Inst: OpConst,
-					Val:  pos,
-				})
-			// Parse and load identifier
-			case parser.TokIdent:
-				val := node.Val.Value
-				pos := seen.AddStr(val)
-				c.Bytecode.Push(Bytecode{
-					Inst: OpLoad,
-					Val:  pos,
-				})
-			case parser.TokBool:
-				val := node.Val.Value
-				pos := falseConstPos
-				if val == "true" {
-					pos = trueConstPos
-				}
-				c.Bytecode.Push(Bytecode{
-					Inst: OpConst,
-					Val:  pos,
-				})
-			default:
-				log.Panicf("Not implemented %v", node)
+			panic("No more EValues at this point")
+		case *EInt:
+			val := int64(*node)
+			pos := seen.AddInt(val)
+			c.Bytecode.Push(Bytecode{
+				Inst: OpConst,
+				Val:  pos,
+			})
+		case *EFloat:
+			val := float64(*node)
+			pos := seen.AddFloat(val)
+			c.Bytecode.Push(Bytecode{
+				Inst: OpConst,
+				Val:  pos,
+			})
+		case *EStr:
+			val := string(*node)
+			pos := seen.AddStr(val)
+			c.Bytecode.Push(Bytecode{
+				Inst: OpConst,
+				Val:  pos,
+			})
+		case *EIdent:
+			val := string(*node)
+			pos := seen.AddStr(val)
+			c.Bytecode.Push(Bytecode{
+				Inst: OpConst,
+				Val:  pos,
+			})
+		case *EBool:
+			val := bool(*node)
+			pos := falseConstPos
+			if val {
+				pos = trueConstPos
 			}
+			c.Bytecode.Push(Bytecode{
+				Inst: OpConst,
+				Val:  pos,
+			})
 		case *EBinOp:
 			if inst, ok := simpleBinaryOps[node.Op.Value]; ok {
 				compileRec(node.Left)
@@ -257,7 +246,6 @@ func Compile(expr Expr) Compilation {
 	}
 	compileRec(expr)
 	c.Constants = seen.constants
-	return c
 }
 
 var simpleBinaryOps = map[string]Instruction{
@@ -282,7 +270,7 @@ var unaryOps = map[string]Instruction{
 	"not": OpUnaryNot,
 }
 
-// represents the
+// represents the result of compiling an AST
 type Compilation struct {
 	Bytecode  ByteCodes
 	Constants []BVal

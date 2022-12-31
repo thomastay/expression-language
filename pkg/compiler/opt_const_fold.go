@@ -7,7 +7,7 @@ import (
 // Implements Visitor type
 // Constant folding pass does two things:
 //  1. If node is a binary op with two constants, it replaces them
-//  1. If node is binary op with one constant, it rotates the constant to the LHS
+//  1. If node is binary op with one EValue, it rotates the constant to the LHS
 //     ^^ this trick is to enable constant pushdown, which will be implemented next
 //     ^^ Note: this is the opposite order from usual assembly ADDI, where constant is on the right.
 //     This is because we have to do less tree rotations this way. We can always swap it back before
