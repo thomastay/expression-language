@@ -63,16 +63,17 @@ func (vm *VMState) Eval(compilation compiler.Compilation, env VMEnv) (Result, er
 	stack := make(Stack, 0, 64) // preallocate some space for items
 	codes := compilation.Bytecode
 InstLoop:
-	for pc < len(codes) && executedInsts < vm.params.MaxInstructions {
+	for pc < codes.Len() && executedInsts < vm.params.MaxInstructions {
 		executedInsts++
-		code := codes[pc]
-		switch code.Inst {
+		inst := codes.Insts[pc]
+
+		switch inst {
 		case OpReturn:
 			break InstLoop
 		case OpConst:
-			stack.push(code.Val)
+			stack.push(codes.ValData[pc])
 		case OpLoad:
-			identName := code.Val.(BStr)
+			identName := codes.ValData[pc].(BStr)
 			val, ok := variables[string(identName)]
 			if !ok {
 				return Result{}, fmt.Errorf("NameError: name %s is not defined", identName)
@@ -250,18 +251,18 @@ InstLoop:
 			stack.push(BBool(result))
 		// ----------------Conditional Operations------------------
 		case OpBr:
-			pc = int(code.IntVal)
+			pc = codes.IntData[pc]
 			continue InstLoop
 		case OpBrIf:
 			a := stack.pop()
 			if a.IsTruthy() {
-				pc = int(code.IntVal)
+				pc = codes.IntData[pc]
 				continue InstLoop
 			} // else fallthrough
 		case OpBrIfOrPop:
 			a := stack.peek()
 			if a.IsTruthy() {
-				pc = int(code.IntVal)
+				pc = codes.IntData[pc]
 				continue InstLoop
 			} else {
 				stack.pop()
@@ -269,7 +270,7 @@ InstLoop:
 		case OpBrIfFalseOrPop:
 			a := stack.peek()
 			if !a.IsTruthy() {
-				pc = int(code.IntVal)
+				pc = int(codes.IntData[pc])
 				continue InstLoop
 			} else {
 				stack.pop()
@@ -282,7 +283,7 @@ InstLoop:
 				return Result{}, fmt.Errorf("InterpError: Stack value %s is not a function", name)
 			}
 			// load params
-			numParams := code.IntVal
+			numParams := codes.IntData[pc]
 			if numParams != bFn.NumArgs {
 				return Result{}, fmt.Errorf("RuntimeError: function %s passed wrong number of args, expected %d, got %d", bFn.Name, bFn.NumArgs, numParams)
 			}
@@ -297,7 +298,7 @@ InstLoop:
 			stack.push(result)
 		// ----------------Array Operations------------------
 		case OpNewArray:
-			n := code.IntVal
+			n := codes.IntData[pc]
 			memoryUsed += n
 			if memoryUsed > vm.params.MaxMemory {
 				return Result{}, runtime.ErrOOM

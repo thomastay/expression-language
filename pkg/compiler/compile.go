@@ -50,7 +50,7 @@ func Compile(expr parser.Expr) Compilation {
 					})
 					return
 				}
-				c.Bytecode = append(c.Bytecode, Bytecode{
+				c.Bytecode.Push(Bytecode{
 					Inst: OpConst,
 					Val:  BInt(val),
 				})
@@ -65,21 +65,21 @@ func Compile(expr parser.Expr) Compilation {
 					})
 					return
 				}
-				c.Bytecode = append(c.Bytecode, Bytecode{
+				c.Bytecode.Push(Bytecode{
 					Inst: OpConst,
 					Val:  BFloat(val),
 				})
 			case parser.TokSingleString:
 				val := node.Val.Value
 				val = val[1 : len(val)-1]
-				c.Bytecode = append(c.Bytecode, Bytecode{
+				c.Bytecode.Push(Bytecode{
 					Inst: OpConst,
 					Val:  BStr(val),
 				})
 			// Parse and load identifier
 			case parser.TokIdent:
 				val := node.Val.Value
-				c.Bytecode = append(c.Bytecode, Bytecode{
+				c.Bytecode.Push(Bytecode{
 					Inst: OpLoad,
 					Val:  BStr(val),
 				})
@@ -89,7 +89,7 @@ func Compile(expr parser.Expr) Compilation {
 				if val == "true" {
 					bVal = true
 				}
-				c.Bytecode = append(c.Bytecode, Bytecode{
+				c.Bytecode.Push(Bytecode{
 					Inst: OpConst,
 					Val:  BBool(bVal),
 				})
@@ -100,7 +100,7 @@ func Compile(expr parser.Expr) Compilation {
 			if inst, ok := simpleBinaryOps[node.Op.Value]; ok {
 				compileRec(node.Left)
 				compileRec(node.Right)
-				c.Bytecode = append(c.Bytecode, Bytecode{Inst: inst})
+				c.Bytecode.Push(Bytecode{Inst: inst})
 			} else {
 				switch node.Op.Value {
 				case "and":
@@ -110,13 +110,13 @@ func Compile(expr parser.Expr) Compilation {
 					// | 2   |    Second Expr
 					// | 3   ---> ...
 					compileRec(node.Left)
-					c.Bytecode = append(c.Bytecode, Bytecode{
+					c.Bytecode.Push(Bytecode{
 						Inst: OpBrIfFalseOrPop,
 						// patch the val later on
 					})
-					jumpIdx := len(c.Bytecode) - 1
+					jumpIdx := c.Bytecode.Len() - 1
 					compileRec(node.Right)
-					c.Bytecode[jumpIdx].IntVal = len(c.Bytecode)
+					c.Bytecode.IntData[jumpIdx] = c.Bytecode.Len()
 				case "or":
 					// Bytecode:
 					// | 0        First expr
@@ -124,13 +124,13 @@ func Compile(expr parser.Expr) Compilation {
 					// | 2   |    Second Expr
 					// | 3   ---> ...
 					compileRec(node.Left)
-					c.Bytecode = append(c.Bytecode, Bytecode{
+					c.Bytecode.Push(Bytecode{
 						Inst: OpBrIfOrPop,
 						// patch the val later on
 					})
-					jumpIdx := len(c.Bytecode) - 1
+					jumpIdx := c.Bytecode.Len() - 1
 					compileRec(node.Right)
-					c.Bytecode[jumpIdx].IntVal = len(c.Bytecode)
+					c.Bytecode.IntData[jumpIdx] = c.Bytecode.Len()
 				default:
 					log.Panicf("Not implemented %v", node)
 				}
@@ -138,7 +138,7 @@ func Compile(expr parser.Expr) Compilation {
 		case *parser.EUnOp:
 			if inst, ok := unaryOps[node.Op.Value]; ok {
 				compileRec(node.Val)
-				c.Bytecode = append(c.Bytecode, Bytecode{Inst: inst})
+				c.Bytecode.Push(Bytecode{Inst: inst})
 			} else {
 				log.Panicf("Not implemented %v", node)
 			}
@@ -154,23 +154,23 @@ func Compile(expr parser.Expr) Compilation {
 			// | 4   ---> Then clause
 			// | 5     --> ....
 			// Thus, we put the else clause first, and branch to the then clause if true
-			c.Bytecode = append(c.Bytecode, Bytecode{
+			c.Bytecode.Push(Bytecode{
 				Inst: OpBrIf,
 				// patch the val later on
 			})
-			firstJumpIdx := len(c.Bytecode) - 1
+			firstJumpIdx := c.Bytecode.Len() - 1
 
 			compileRec(node.Second)
-			c.Bytecode = append(c.Bytecode, Bytecode{
+			c.Bytecode.Push(Bytecode{
 				Inst: OpBr,
 			})
-			secondJumpIdx := len(c.Bytecode) - 1
+			secondJumpIdx := c.Bytecode.Len() - 1
 			// Patch the first jump
-			c.Bytecode[firstJumpIdx].IntVal = len(c.Bytecode)
+			c.Bytecode.IntData[firstJumpIdx] = c.Bytecode.Len()
 
 			compileRec(node.First)
 			// Patch the second jump
-			c.Bytecode[secondJumpIdx].IntVal = len(c.Bytecode)
+			c.Bytecode.IntData[secondJumpIdx] = c.Bytecode.Len()
 		case *parser.ECall:
 			// Just a plain old function call
 			// Bytecode:
@@ -186,21 +186,21 @@ func Compile(expr parser.Expr) Compilation {
 			}
 			if node.Base != nil {
 				compileRec(node.Base)
-				c.Bytecode = append(c.Bytecode,
-					Bytecode{
-						Inst: OpConst,
-						Val:  BStr(node.Method.Value),
-					},
-					Bytecode{Inst: OpLoadAttr})
+				c.Bytecode.Push(Bytecode{
+					Inst: OpConst,
+					Val:  BStr(node.Method.Value),
+				})
+				c.Bytecode.Push(Bytecode{
+					Inst: OpLoadAttr,
+				})
 			} else {
-				c.Bytecode = append(c.Bytecode,
-					Bytecode{
-						Inst: OpLoad,
-						Val:  BStr(node.Method.Value),
-					},
+				c.Bytecode.Push(Bytecode{
+					Inst: OpLoad,
+					Val:  BStr(node.Method.Value),
+				},
 				)
 			}
-			c.Bytecode = append(c.Bytecode,
+			c.Bytecode.Push(
 				Bytecode{
 					Inst:   OpCall,
 					IntVal: numParams,
@@ -209,11 +209,13 @@ func Compile(expr parser.Expr) Compilation {
 		case *parser.EFieldAccess:
 			// Load Base, then Field
 			compileRec(node.Base)
-			c.Bytecode = append(c.Bytecode,
+			c.Bytecode.Push(
 				Bytecode{
 					Inst: OpConst,
 					Val:  BStr(node.Field.Value),
 				},
+			)
+			c.Bytecode.Push(
 				Bytecode{Inst: OpLoadAttr},
 			)
 		// ------------------- Arrays ------------------------------
@@ -225,7 +227,7 @@ func Compile(expr parser.Expr) Compilation {
 				expr := (*node)[i]
 				compileRec(expr)
 			}
-			c.Bytecode = append(c.Bytecode,
+			c.Bytecode.Push(
 				Bytecode{
 					Inst:   OpNewArray,
 					IntVal: n,
@@ -234,7 +236,7 @@ func Compile(expr parser.Expr) Compilation {
 		case *parser.EIdxAccess:
 			compileRec(node.Base)
 			compileRec(node.Index)
-			c.Bytecode = append(c.Bytecode, Bytecode{Inst: OpLoadSubscript})
+			c.Bytecode.Push(Bytecode{Inst: OpLoadSubscript})
 		default:
 			log.Panicf("Not implemented %v", node)
 		}
@@ -267,7 +269,7 @@ var unaryOps = map[string]Instruction{
 
 // represents the
 type Compilation struct {
-	Bytecode []Bytecode
+	Bytecode ByteCodes
 	Errors   []CompileError
 }
 

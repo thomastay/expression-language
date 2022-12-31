@@ -7,6 +7,31 @@ import (
 	"strings"
 )
 
+// SOA optimized version of an Array of bytecode.
+// Think of this as an array of:
+//
+//	type Bytecode struct {
+//		Inst   Instruction
+//		IntVal int // Fast path jump indices since it's used much more than actual constants
+//		Val    BVal
+//	}
+type ByteCodes struct {
+	Insts []Instruction
+	// Used for jump indices and things that don't really need a full BVal interface and all that heap nonsense
+	IntData []int
+	ValData []BVal
+}
+
+func (bs *ByteCodes) Push(b Bytecode) {
+	bs.Insts = append(bs.Insts, b.Inst)
+	bs.IntData = append(bs.IntData, b.IntVal)
+	bs.ValData = append(bs.ValData, b.Val)
+}
+
+func (bs *ByteCodes) Len() int {
+	return len(bs.Insts)
+}
+
 type Bytecode struct {
 	Inst   Instruction
 	IntVal int // Fast path jump indices since it's used much more than actual constants

@@ -85,7 +85,7 @@ func runOnString(s string, m vm.VMState, env vm.VMEnv) (bytecode.BVal, error) {
 		return nil, fmt.Errorf("Compile Error")
 	}
 	fmt.Println("Bytecode:")
-	for i, b := range comp.Bytecode {
+	for i, b := range comp.Bytecode.Insts {
 		fmt.Println("  ", i, b.String())
 	}
 	result, err := m.Eval(comp, env)
