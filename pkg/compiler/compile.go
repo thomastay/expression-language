@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/alecthomas/participle/v2/lexer"
+	. "github.com/thomastay/expression_language/pkg/ast"
 	. "github.com/thomastay/expression_language/pkg/bytecode"
 	"github.com/thomastay/expression_language/pkg/parser"
 )
@@ -27,21 +28,21 @@ func CompileString(s string) Compilation {
 // Note that a compilation may have errors. Users are expected to check the Compilation.Errors
 // object to report them. Note that a Compilation may have errors but still be ok to interpret
 // because this package will attempt a best effort compile
-func Compile(expr parser.Expr) Compilation {
+func Compile(expr Expr) Compilation {
 	c := Compilation{}
 	seen := newSeenConstants()
 	// ?: why doesn't this defer work?
 	// defer func() { c.Constants = seen.constants }()
 
-	var compileRec func(parser.Expr)
-	compileRec = func(expr parser.Expr) {
+	var compileRec func(Expr)
+	compileRec = func(expr Expr) {
 		if expr == nil {
 			panic("No nil expressions!")
 			// log.Println("Expressions shouldn't be nil.")
 			// return
 		}
 		switch node := expr.(type) {
-		case *parser.EValue:
+		case *EValue:
 			switch node.Val.Type {
 			case parser.TokInt, parser.TokHexInt, parser.TokOctInt, parser.TokBinInt:
 				tok := node.Val
@@ -104,7 +105,7 @@ func Compile(expr parser.Expr) Compilation {
 			default:
 				log.Panicf("Not implemented %v", node)
 			}
-		case *parser.EBinOp:
+		case *EBinOp:
 			if inst, ok := simpleBinaryOps[node.Op.Value]; ok {
 				compileRec(node.Left)
 				compileRec(node.Right)
@@ -143,14 +144,14 @@ func Compile(expr parser.Expr) Compilation {
 					log.Panicf("Not implemented %v", node)
 				}
 			}
-		case *parser.EUnOp:
+		case *EUnOp:
 			if inst, ok := unaryOps[node.Op.Value]; ok {
 				compileRec(node.Val)
 				c.Bytecode.Push(Bytecode{Inst: inst})
 			} else {
 				log.Panicf("Not implemented %v", node)
 			}
-		case *parser.ECond:
+		case *ECond:
 			// This places the condition val onto the stack.
 			compileRec(node.Cond)
 			// Next, we want to add a branch instruction to branch if true
@@ -179,7 +180,7 @@ func Compile(expr parser.Expr) Compilation {
 			compileRec(node.First)
 			// Patch the second jump
 			c.Bytecode.IntData[secondJumpIdx] = c.Bytecode.Len()
-		case *parser.ECall:
+		case *ECall:
 			// Just a plain old function call
 			// Bytecode:
 			// | 0        Load params in reverse order onto stack
@@ -217,7 +218,7 @@ func Compile(expr parser.Expr) Compilation {
 					Val:  numParams,
 				},
 			)
-		case *parser.EFieldAccess:
+		case *EFieldAccess:
 			// Load Base, then Field
 			compileRec(node.Base)
 			val := node.Field.Value
@@ -232,7 +233,7 @@ func Compile(expr parser.Expr) Compilation {
 				Bytecode{Inst: OpLoadAttr},
 			)
 		// ------------------- Arrays ------------------------------
-		case *parser.EArray:
+		case *EArray:
 			// For simplicity, we're just going to dump them all on the stack in reverse order and evaluate them for now
 			// Future optimization may make it such that integers are not dumped on stack
 			n := len(*node)
@@ -246,7 +247,7 @@ func Compile(expr parser.Expr) Compilation {
 					Val:  n,
 				},
 			)
-		case *parser.EIdxAccess:
+		case *EIdxAccess:
 			compileRec(node.Base)
 			compileRec(node.Index)
 			c.Bytecode.Push(Bytecode{Inst: OpLoadSubscript})

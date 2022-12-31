@@ -9,6 +9,7 @@ import (
 
 	"github.com/alecthomas/participle/v2/lexer"
 	"github.com/pkg/errors"
+	. "github.com/thomastay/expression_language/pkg/ast"
 )
 
 type stackTracer interface {

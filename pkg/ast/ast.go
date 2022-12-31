@@ -1,4 +1,4 @@
-package parser
+package ast
 
 import (
 	"fmt"
@@ -38,7 +38,7 @@ type Expr interface {
 	String() string
 }
 
-var numASTNodeTypes = 8         // TODO change if below changes
+var NumASTNodeTypes = 8         // TODO change if below changes
 func (x *EValue) isExpr()       {}
 func (x *EBinOp) isExpr()       {}
 func (x *EUnOp) isExpr()        {}

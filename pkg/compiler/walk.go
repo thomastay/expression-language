@@ -1,16 +1,18 @@
 package compiler
 
-import "github.com/thomastay/expression_language/pkg/parser"
+import (
+	. "github.com/thomastay/expression_language/pkg/ast"
+)
 
 // Walks the tree
-func Walk(expr parser.Expr, visit Visitor) error {
+func Walk(expr Expr, visit Visitor) error {
 	switch node := expr.(type) {
-	case *parser.EValue, *parser.EUnOp:
+	case *EValue, *EUnOp:
 		err := Walk(node, visit)
 		if err != nil {
 			return err
 		}
-	case *parser.EBinOp:
+	case *EBinOp:
 		err := Walk(node.Left, visit)
 		if err != nil {
 			return err
@@ -19,12 +21,12 @@ func Walk(expr parser.Expr, visit Visitor) error {
 		if err != nil {
 			return err
 		}
-	case *parser.EFieldAccess:
+	case *EFieldAccess:
 		err := Walk(node.Base, visit)
 		if err != nil {
 			return err
 		}
-	case *parser.EIdxAccess:
+	case *EIdxAccess:
 		err := Walk(node.Base, visit)
 		if err != nil {
 			return err
@@ -33,7 +35,7 @@ func Walk(expr parser.Expr, visit Visitor) error {
 		if err != nil {
 			return err
 		}
-	case *parser.ECond:
+	case *ECond:
 		err := Walk(node.Cond, visit)
 		if err != nil {
 			return err
@@ -46,7 +48,7 @@ func Walk(expr parser.Expr, visit Visitor) error {
 		if err != nil {
 			return err
 		}
-	case *parser.ECall:
+	case *ECall:
 		err := Walk(node.Base, visit)
 		if err != nil {
 			return err
@@ -57,12 +59,12 @@ func Walk(expr parser.Expr, visit Visitor) error {
 				return err
 			}
 		}
-	case *parser.EArray:
+	case *EArray:
 		var err error
 		if err != nil {
 			return err
 		}
-		for _, expr := range []parser.Expr(*node) {
+		for _, expr := range []Expr(*node) {
 			err = Walk(expr, visit)
 			if err != nil {
 				return err
@@ -72,4 +74,4 @@ func Walk(expr parser.Expr, visit Visitor) error {
 	return visit(expr)
 }
 
-type Visitor func(expr parser.Expr) error
+type Visitor func(expr Expr) error

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/alecthomas/participle/v2/lexer"
+	. "github.com/thomastay/expression_language/pkg/ast"
 )
 
 type Rand struct {
@@ -29,7 +30,7 @@ func GenRandomAST(seed uint32, maxDepth uint) Expr {
 
 func genRandomASTRec(rand *Rand, depthLeft uint) Expr {
 	seed := rand.randU32()
-	nAstNodesGenTypes := uint32(numASTNodeTypes)
+	nAstNodesGenTypes := uint32(NumASTNodeTypes)
 	if depthLeft == 0 {
 		// reset to EValue
 		seed = seed / nAstNodesGenTypes * nAstNodesGenTypes
