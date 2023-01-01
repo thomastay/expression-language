@@ -46,6 +46,14 @@ func Compile(expr Expr, params Params) Compilation {
 	if params.Debug {
 		fmt.Println("Expression after const fold:", expr.String())
 	}
+	errs = walk(&expr, ConstPushDown)
+	c.Errors = append(c.Errors, []CompileError(errs)...)
+	if len(c.Errors) > 0 {
+		return c
+	}
+	if params.Debug {
+		fmt.Println("Expression after const Pushdown:", expr.String())
+	}
 
 	c.compileToBytecode(expr)
 	return c

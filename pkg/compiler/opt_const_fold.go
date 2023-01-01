@@ -258,7 +258,7 @@ func bValToNode(val BVal) Expr {
 
 var commutativeOps = map[string]struct{}{
 	// TODO - and /
-	"+":  struct{}{},
-	"*":  struct{}{},
-	"==": struct{}{},
+	"+":  {},
+	"*":  {},
+	"==": {},
 }
