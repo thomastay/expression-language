@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/johncgriffin/overflow"
@@ -207,5 +208,17 @@ func OrdToBool(op string, ord int) bool {
 		panic("No other cmp")
 	}
 	return result
+}
 
+func Negate(val BVal) (BVal, error) {
+	switch a := val.(type) {
+	case BInt:
+		return BInt(-int64(a)), nil
+	case BFloat:
+		return BInt(-int64(a)), nil
+	case BBool:
+		return BInt(-BoolToInt(a)), nil
+	default:
+		return nil, fmt.Errorf("TypeError: bad operand type for unary -: %s", a.Typename())
+	}
 }

@@ -289,16 +289,12 @@ InstLoop:
 				return Result{}, fmt.Errorf("TypeError: bad operand type for unary +: %s", a.Typename())
 			}
 		case OpUnaryMinus:
-			switch a := stack.pop().(type) {
-			case BInt:
-				stack.push(BInt(-int64(a)))
-			case BFloat:
-				stack.push(BInt(-int64(a)))
-			case BBool:
-				stack.push(BInt(-runtime.BoolToInt(a)))
-			default:
-				return Result{}, fmt.Errorf("TypeError: bad operand type for unary -: %s", a.Typename())
+			a := stack.pop()
+			result, err := runtime.Negate(a)
+			if err != nil {
+				return Result{}, err
 			}
+			stack.push(result)
 		case OpUnaryNot:
 			a := stack.pop()
 			neg := !a.IsTruthy()

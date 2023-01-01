@@ -55,26 +55,19 @@ func ConstFold(ptrToExpr *Expr) walkError {
 				// do nothing, fallthrough
 			}
 		case "-":
-			switch inner := node.Val.(type) {
-			case *EInt:
-				val := -*inner
-				*ptrToExpr = (*EInt)(&val)
-			case *EFloat:
-				val := -*inner
-				*ptrToExpr = (*EFloat)(&val)
-			case *EBool:
-				// create an int node
-				innerIntValNegated := int64(0)
-				if *inner {
-					innerIntValNegated = -1
+			switch node.Val.(type) {
+			case *EInt, *EFloat, *EBool, *EStr:
+				bVal := toBVal(node.Val)
+				result, err := runtime.Negate(bVal)
+				if err != nil {
+					errs = append(errs, CompileError{
+						Err:   err,
+						Start: node.Op,
+						End:   node.Op,
+					})
+				} else {
+					*ptrToExpr = bValToNode(result)
 				}
-				*ptrToExpr = (*EInt)(&innerIntValNegated)
-			case *EStr:
-				errs = append(errs, CompileError{
-					Err:   errUnaryType("-", "string"),
-					Start: node.Op,
-					End:   node.Op,
-				})
 			case *EArray:
 				errs = append(errs, CompileError{
 					Err:   errUnaryType("-", "array"),
@@ -86,20 +79,12 @@ func ConstFold(ptrToExpr *Expr) walkError {
 			}
 		case "not":
 			switch inner := node.Val.(type) {
-			case *EInt:
-				flip := *inner == 0
-				*ptrToExpr = (*EBool)(&flip)
-			case *EFloat:
-				flip := *inner == 0
-				*ptrToExpr = (*EBool)(&flip)
-			case *EBool:
-				// create an int node
-				flip := *inner != true
-				*ptrToExpr = (*EBool)(&flip)
-			case *EStr:
-				flip := len(*inner) == 0
+			case *EInt, *EFloat, *EBool, *EStr:
+				bVal := toBVal(node.Val)
+				flip := !bVal.IsTruthy()
 				*ptrToExpr = (*EBool)(&flip)
 			case *EArray:
+				// special case this for now until const arrays
 				flip := len(*inner) == 0
 				*ptrToExpr = (*EBool)(&flip)
 			default:
