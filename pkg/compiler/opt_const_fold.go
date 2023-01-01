@@ -90,11 +90,10 @@ func ConstFold(ptrToExpr *Expr) walkError {
 			default:
 				// do nothing, fallthrough
 			}
-
 		}
 	case *EBinOp:
 		if isConst(node.Left) && isConst(node.Right) {
-			newExpr, err := foldBinaryOp(node)
+			newExpr, err := foldBinaryOpBothConst(node)
 			if err != nil {
 				errs = append(errs, CompileError{
 					Err:   err,
@@ -104,7 +103,32 @@ func ConstFold(ptrToExpr *Expr) walkError {
 			} else {
 				*ptrToExpr = newExpr
 			}
-
+		}
+		// Some other optimizations
+		// 1. If LHS is const and the op is OR, then we can immediately fold
+		//    e.g.  10 or x and y becomes just 10
+		if isConst(node.Left) && node.Op.Value == "or" {
+			left := toBVal(node.Left)
+			if left.IsTruthy() {
+				*ptrToExpr = node.Left
+			} else {
+				*ptrToExpr = node.Right
+			}
+		}
+		// 2. If either is const and falsey, and the op is AND, then we can immediately fold
+		if node.Op.Value == "and" {
+			if isConst(node.Right) {
+				right := toBVal(node.Right)
+				if !right.IsTruthy() {
+					*ptrToExpr = node.Left
+				}
+			}
+			if isConst(node.Left) {
+				left := toBVal(node.Left)
+				if !left.IsTruthy() {
+					*ptrToExpr = node.Right
+				}
+			}
 		}
 		// else, swap
 
@@ -124,7 +148,7 @@ func ConstFold(ptrToExpr *Expr) walkError {
 var compilerMemoryLimit = 100000
 
 // Helper function to fold a Binary operation with both children constant
-func foldBinaryOp(node *EBinOp) (Expr, error) {
+func foldBinaryOpBothConst(node *EBinOp) (Expr, error) {
 	left := toBVal(node.Left)
 	right := toBVal(node.Right)
 	var result BVal

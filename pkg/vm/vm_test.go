@@ -119,6 +119,7 @@ var validStrings = []string{
 	"-false",
 	"not true",
 	"not false",
+	"10 or unknown1 and unknown2", // folding should work!
 	// Fizzbuzz!
 	"a % 3 ? a % 5 ? a : 'buzz' : a % 5 ? fizz : fizzbuzz",
 	// Collatz
@@ -263,6 +264,7 @@ var validStringsInOut = []InputOutput{
 	// { "[1, 2, 3] * 3", bytecode.BArray([1, 2, 3, 1, 2, 3, 1, 2, 3]) },
 	{"[1, 2, 3][0]", bytecode.BInt(1)},
 	{"fooObj != 1", bytecode.BBool(true)},
+	{"10 or unknown1 and unknown2", bytecode.BInt(10)},
 }
 
 func TestValidStrings(t *testing.T) {
