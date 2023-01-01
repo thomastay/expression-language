@@ -135,6 +135,7 @@ func ConstFold(ptrToExpr *Expr) walkError {
 	return errs
 }
 
+// TODO
 var compilerMemoryLimit = 100000
 
 // Helper function to fold a Binary operation with both children constant
@@ -156,6 +157,9 @@ func foldBinaryOp(node *EBinOp) (Expr, error) {
 		result, err = runtime.Div(left, right)
 	case "//":
 		result, err = runtime.FloorDiv(left, right)
+	case "**":
+		result, err = runtime.Pow(left, right)
+	// Less simple ops
 	case "<", ">", "<=", ">=":
 		ord, err := runtime.Cmp(left, right, node.Op.Value)
 		if err != nil {
@@ -168,6 +172,21 @@ func foldBinaryOp(node *EBinOp) (Expr, error) {
 		return (*EBool)(&result), nil
 	case "!=":
 		result := !runtime.Eq(left, right)
+		return (*EBool)(&result), nil
+	// Conditionals
+	case "and":
+		result := true
+		if left.IsTruthy() && right.IsTruthy() {
+			return (*EBool)(&result), nil
+		}
+		result = false
+		return (*EBool)(&result), nil
+	case "or":
+		result := true
+		if left.IsTruthy() || right.IsTruthy() {
+			return (*EBool)(&result), nil
+		}
+		result = false
 		return (*EBool)(&result), nil
 	default:
 		panic("not impl")
