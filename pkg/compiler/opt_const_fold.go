@@ -3,6 +3,7 @@ package compiler
 import (
 	. "github.com/thomastay/expression_language/pkg/ast"
 	. "github.com/thomastay/expression_language/pkg/bytecode"
+	"github.com/thomastay/expression_language/pkg/runtime"
 )
 
 // Constant folding pass does two things:
@@ -24,9 +25,6 @@ func ConstFold(ptrToExpr *Expr) walkError {
 	case *EBool:
 		// do nothing
 	case *EUnOp:
-		if !isPossiblyConst(node.Val) {
-			break
-		}
 		switch node.Op.Value {
 		case "+":
 			switch inner := node.Val.(type) {
@@ -109,9 +107,23 @@ func ConstFold(ptrToExpr *Expr) walkError {
 			}
 
 		}
+	case *EBinOp:
+		if isConst(node.Left) && isConst(node.Right) {
+			newExpr, err := foldBinaryOp(node)
+			if err != nil {
+				errs = append(errs, CompileError{
+					Err:   err,
+					Start: node.Op,
+					End:   node.Op,
+				})
+			} else {
+				*ptrToExpr = newExpr
+			}
+
+		}
+		// else, swap
 
 	// Do nothing for now (not impl)
-	case *EBinOp:
 	case *EFieldAccess:
 	case *EIdxAccess:
 	case *ECond:
@@ -123,11 +135,54 @@ func ConstFold(ptrToExpr *Expr) walkError {
 	return errs
 }
 
-func isPossiblyConst(expr Expr) bool {
+var compilerMemoryLimit = 100000
+
+// Helper function to fold a Binary operation with both children constant
+func foldBinaryOp(node *EBinOp) (Expr, error) {
+	left := toBVal(node.Left)
+	right := toBVal(node.Right)
+	var result BVal
+	var err error
+	// We just use the runtime module to do this
+	switch node.Op.Value {
+	// simple ops
+	case "+":
+		result, err = runtime.Add(left, right)
+	case "-":
+		result, err = runtime.Sub(left, right)
+	case "*":
+		result, err = runtime.Mul(left, right, compilerMemoryLimit)
+	case "/":
+		result, err = runtime.Div(left, right)
+	case "//":
+		result, err = runtime.FloorDiv(left, right)
+	case "<", ">", "<=", ">=":
+		ord, err := runtime.Cmp(left, right, node.Op.Value)
+		if err != nil {
+			return nil, err
+		}
+		b := runtime.OrdToBool(node.Op.Value, ord)
+		return (*EBool)(&b), nil
+	case "==":
+		result := runtime.Eq(left, right)
+		return (*EBool)(&result), nil
+	case "!=":
+		result := !runtime.Eq(left, right)
+		return (*EBool)(&result), nil
+	default:
+		panic("not impl")
+	}
+	if err != nil {
+		return nil, err
+	}
+	return bValToNode(result), nil
+}
+
+func isConst(expr Expr) bool {
 	// TODO this function needs rework once we implement const array parsing
 	switch expr.(type) {
-	// arrays not here but MAY NOT BE CONST for now until we implement constant array parsing
-	case *EInt, *EFloat, *EStr, *EBool, *EArray:
+	// arrays MAY NOT BE CONST for now until we implement constant array parsing
+	case *EInt, *EFloat, *EStr, *EBool: // , *EArray:
 		return true
 	}
 	return false
@@ -147,5 +202,20 @@ func toBVal(expr Expr) BVal {
 	// 	return BArray(*inner)
 	default:
 		panic("Only call toBVal on const")
+	}
+}
+
+func bValToNode(val BVal) Expr {
+	switch x := val.(type) {
+	case BBool:
+		return (*EBool)(&x)
+	case BInt:
+		return (*EInt)(&x)
+	case BFloat:
+		return (*EFloat)(&x)
+	case BStr:
+		return (*EStr)(&x)
+	default:
+		panic("no other bvals can be nodes (for now)")
 	}
 }

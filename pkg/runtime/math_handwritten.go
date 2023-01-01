@@ -183,3 +183,29 @@ func CastBoolToInt(val BVal) BVal {
 	}
 	return BInt(0)
 }
+
+func OrdToBool(op string, ord int) bool {
+	var result bool
+	switch op {
+	case "<":
+		if ord == -1 {
+			result = true
+		}
+	case ">":
+		if ord == 1 {
+			result = true
+		}
+	case "<=":
+		if ord != 1 {
+			result = true
+		}
+	case ">=":
+		if ord != -1 {
+			result = true
+		}
+	default:
+		panic("No other cmp")
+	}
+	return result
+
+}
