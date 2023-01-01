@@ -128,6 +128,10 @@ func ConstFold(ptrToExpr *Expr) walkError {
 			}
 		}
 		// else, swap
+		if _, ok := commutativeOps[node.Op.Value]; ok && isConst(node.Left) {
+			node.Left, node.Right = node.Right, node.Left
+		}
+
 	case *ECond:
 		if isConst(node.Cond) {
 			val := toBVal(node.Cond)
@@ -250,4 +254,11 @@ func bValToNode(val BVal) Expr {
 	default:
 		panic("no other bvals can be nodes (for now)")
 	}
+}
+
+var commutativeOps = map[string]struct{}{
+	// TODO - and /
+	"+":  struct{}{},
+	"*":  struct{}{},
+	"==": struct{}{},
 }
