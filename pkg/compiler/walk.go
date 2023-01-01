@@ -4,11 +4,15 @@ import (
 	. "github.com/thomastay/expression_language/pkg/ast"
 )
 
-// Walks the tree in a post order traversal
-func walk(ptrToExpr *Expr, visit visitor) walkError {
+// Helper function, don't call this.
+func walkInner(ptrToExpr *Expr, visit visitor, preorder bool) walkError {
 	var compileErrors []CompileError
 	walkAndAdd := func(p *Expr) {
 		errs := walk(p, visit)
+		compileErrors = append(compileErrors, errs...)
+	}
+	if preorder {
+		errs := visit(ptrToExpr)
 		compileErrors = append(compileErrors, errs...)
 	}
 	switch node := (*ptrToExpr).(type) {
@@ -39,9 +43,21 @@ func walk(ptrToExpr *Expr, visit visitor) walkError {
 			walkAndAdd(&(*node)[i])
 		}
 	}
-	errs := visit(ptrToExpr)
-	compileErrors = append(compileErrors, errs...)
+	if !preorder {
+		errs := visit(ptrToExpr)
+		compileErrors = append(compileErrors, errs...)
+	}
 	return compileErrors
+}
+
+// Walks the tree in a post order traversal
+func walk(ptrToExpr *Expr, visit visitor) walkError {
+	return walkInner(ptrToExpr, visit, false)
+}
+
+// Walks the tree in a pre order traversal
+func walkTopDown(ptrToExpr *Expr, visit visitor) walkError {
+	return walkInner(ptrToExpr, visit, true)
 }
 
 type visitor func(ptrToExpr *Expr) walkError
