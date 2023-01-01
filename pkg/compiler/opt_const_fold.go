@@ -157,6 +157,8 @@ func foldBinaryOp(node *EBinOp) (Expr, error) {
 		result, err = runtime.Div(left, right)
 	case "//":
 		result, err = runtime.FloorDiv(left, right)
+	case "%":
+		result, err = runtime.Modulo(left, right)
 	case "**":
 		result, err = runtime.Pow(left, right)
 	// Less simple ops
@@ -175,19 +177,15 @@ func foldBinaryOp(node *EBinOp) (Expr, error) {
 		return (*EBool)(&result), nil
 	// Conditionals
 	case "and":
-		result := true
-		if left.IsTruthy() && right.IsTruthy() {
-			return (*EBool)(&result), nil
+		if right.IsTruthy() {
+			return bValToNode(right), nil
 		}
-		result = false
-		return (*EBool)(&result), nil
+		return bValToNode(left), nil
 	case "or":
-		result := true
-		if left.IsTruthy() || right.IsTruthy() {
-			return (*EBool)(&result), nil
+		if left.IsTruthy() {
+			return bValToNode(left), nil
 		}
-		result = false
-		return (*EBool)(&result), nil
+		return bValToNode(right), nil
 	default:
 		panic("not impl")
 	}
