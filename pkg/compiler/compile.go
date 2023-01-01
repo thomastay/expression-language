@@ -306,14 +306,15 @@ func newSeenConstants() seenConstants {
 	seen.seenStrings = make(map[string]int)
 
 	// We initialize common constants here. true and false are always 1 and 0 respectively
-	// Also initialize 1, 2, 3
+	// Also initialize 0, 1, 2, 3
 	seen.constants = append(seen.constants,
 		BBool(false), BBool(true),
-		BInt(1), BInt(2), BInt(3),
+		BInt(0), BInt(1), BInt(2), BInt(3),
 	)
-	seen.seenInts[1] = 2 // position 2 cos 0 and 1 are bools
-	seen.seenInts[2] = 3
-	seen.seenInts[3] = 4
+	seen.seenInts[0] = 2 // position 2 cos 0 and 1 are bools
+	seen.seenInts[1] = 3
+	seen.seenInts[2] = 4
+	seen.seenInts[3] = 5
 
 	return seen
 }
