@@ -131,11 +131,20 @@ func ConstFold(ptrToExpr *Expr) walkError {
 			}
 		}
 		// else, swap
+	case *ECond:
+		if isConst(node.Cond) {
+			val := toBVal(node.Cond)
+			if val.IsTruthy() {
+				*ptrToExpr = node.First
+			} else {
+				*ptrToExpr = node.Second
+			}
+		}
+		// else, don't optimize cond
 
 	// Do nothing for now (not impl)
 	case *EFieldAccess:
 	case *EIdxAccess:
-	case *ECond:
 	case *ECall:
 	case *EArray:
 	default:

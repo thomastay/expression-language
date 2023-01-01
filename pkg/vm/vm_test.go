@@ -265,6 +265,8 @@ var validStringsInOut = []InputOutput{
 	{"[1, 2, 3][0]", bytecode.BInt(1)},
 	{"fooObj != 1", bytecode.BBool(true)},
 	{"10 or unknown1 and unknown2", bytecode.BInt(10)},
+	{"10 ? b : unknownvariable", bytecode.BInt(2)},
+	{"0 ? unknownvar : b", bytecode.BInt(2)},
 }
 
 func TestValidStrings(t *testing.T) {
