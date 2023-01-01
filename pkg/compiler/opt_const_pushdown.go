@@ -54,8 +54,13 @@ func ConstPushDown(ptrToExpr *Expr) walkError {
 				// Rotate right
 				lNode.Right = newExpr
 				*ptrToExpr = lNode
+				// Call again, in case we can push down again
+				cErrs := ConstPushDown(ptrToExpr)
+				errs = append(errs, cErrs...)
+			} else {
+				// Else, we PUSH the constant down (hence the name)
+				lNode.Right, node.Right = node.Right, lNode.Right
 			}
-
 		}
 	}
 	return errs
