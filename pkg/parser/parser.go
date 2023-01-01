@@ -7,14 +7,11 @@ import (
 	"fmt"
 	"strings"
 
+	"errors"
+
 	"github.com/alecthomas/participle/v2/lexer"
-	"github.com/pkg/errors"
 	. "github.com/thomastay/expression_language/pkg/ast"
 )
-
-type stackTracer interface {
-	StackTrace() errors.StackTrace
-}
 
 func ParseString(s string) (Expr, error) {
 	genLexer, err := Lexer.Lex("memory", strings.NewReader(s))
@@ -27,16 +24,10 @@ func ParseString(s string) (Expr, error) {
 	}
 	sexpr, err := parseExpr(peekLexer, 0)
 	if err != nil {
-		errWithTrace, ok := errors.Cause(err).(stackTracer)
-		if !ok {
-			return sexpr, err
-		}
 		return sexpr, fmt.Errorf(`%w
  | %s
  | %s^--- Parser stopped here
-
-%+v
-`, err, s, strings.Repeat(" ", peekLexer.Peek().Pos.Column-1), errWithTrace.StackTrace())
+`, err, s, strings.Repeat(" ", peekLexer.Peek().Pos.Column-1))
 	}
 
 	// Possible that exprBP doesn't parse all the string, so check that we've fully consumed everything
@@ -83,7 +74,7 @@ func parseExpr(lex *lexer.PeekingLexer, minBP int) (Expr, error) {
 		lex.Next()
 		lhs = &EValue{Val: firstVal}
 	default:
-		return nil, errors.Errorf("Unrecognized token %s", firstVal)
+		return nil, fmt.Errorf("Unrecognized token %s", firstVal)
 	}
 
 Loop:
@@ -97,7 +88,7 @@ Loop:
 		case TokEndExpr, TokSquareClose:
 			break Loop
 		default:
-			return nil, errors.Errorf("Unrecognized token %s", op)
+			return nil, fmt.Errorf("Unrecognized token %s", op)
 		}
 		// optional postfix op
 		if lp, ok := postFixBP[op.Value]; ok {
@@ -170,7 +161,7 @@ func parsePrefix(lex *lexer.PeekingLexer, op *lexer.Token) (Expr, error) {
 				Val: rhs,
 			}
 		} else {
-			return lhs, errors.Errorf("Unrecognized prefix operator %s", op.Value)
+			return lhs, fmt.Errorf("Unrecognized prefix operator %s", op.Value)
 		}
 	}
 	return lhs, err
@@ -198,10 +189,10 @@ func parseArray(lex *lexer.PeekingLexer, op *lexer.Token) (*EArray, error) {
 				lex.Next()
 				continue
 			default:
-				return nil, errors.Errorf("Unrecognized end of expression in Array: %s", op)
+				return nil, fmt.Errorf("Unrecognized end of expression in Array: %s", op)
 			}
 		default:
-			return nil, errors.Errorf("Unrecognized token in parsing param list: %s", op)
+			return nil, fmt.Errorf("Unrecognized token in parsing param list: %s", op)
 		}
 	}
 }
@@ -248,7 +239,7 @@ func parsePostfix(lhs Expr, lex *lexer.PeekingLexer, op *lexer.Token, lhsIdent *
 			Exprs:  exprList,
 		}
 	default:
-		return nil, errors.Errorf("No other postfix operators %s", op)
+		return nil, fmt.Errorf("No other postfix operators %s", op)
 	}
 	return lhs, nil
 }
@@ -337,7 +328,7 @@ func parseCallWithBaseOrFieldAccess(base Expr, lex *lexer.PeekingLexer) (Expr, e
 			// fallthrough, do nothing here.
 		}
 	default:
-		return nil, errors.Errorf("Only identifiers can be used for a method call, found %s", ident)
+		return nil, fmt.Errorf("Only identifiers can be used for a method call, found %s", ident)
 	}
 }
 
@@ -362,10 +353,10 @@ func parseExprList(lex *lexer.PeekingLexer) (ExprList, error) {
 				lex.Next()
 				return exprList, nil
 			default:
-				return nil, errors.Errorf("Unrecognized end of expression in param list: %s", op)
+				return nil, fmt.Errorf("Unrecognized end of expression in param list: %s", op)
 			}
 		default:
-			return nil, errors.Errorf("Unrecognized token in parsing param list: %s", op)
+			return nil, fmt.Errorf("Unrecognized token in parsing param list: %s", op)
 		}
 	}
 }
