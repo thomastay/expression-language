@@ -73,23 +73,8 @@ func (c *Compilation) compileToBytecode(expr Expr) {
 		switch node := expr.(type) {
 		case *EValue:
 			panic("No more EValues at this point")
-		case *EInt:
-			val := int64(*node)
-			pos := seen.AddInt(val)
-			c.Bytecode.Push(Bytecode{
-				Inst: OpConst,
-				Val:  pos,
-			})
-		case *EFloat:
-			val := float64(*node)
-			pos := seen.AddFloat(val)
-			c.Bytecode.Push(Bytecode{
-				Inst: OpConst,
-				Val:  pos,
-			})
-		case *EStr:
-			val := string(*node)
-			pos := seen.AddStr(val)
+		case *EInt, *EFloat, *EStr, *EBool:
+			pos := getPosOfConstExpr(node, &seen)
 			c.Bytecode.Push(Bytecode{
 				Inst: OpConst,
 				Val:  pos,
@@ -101,19 +86,21 @@ func (c *Compilation) compileToBytecode(expr Expr) {
 				Inst: OpLoad,
 				Val:  pos,
 			})
-		case *EBool:
-			val := bool(*node)
-			pos := falseConstPos
-			if val {
-				pos = trueConstPos
-			}
-			c.Bytecode.Push(Bytecode{
-				Inst: OpConst,
-				Val:  pos,
-			})
 		case *EBinOp:
-			if inst, ok := simpleBinaryOps[node.Op.Value]; ok {
+			op := node.Op.Value
+			if inst, ok := simpleBinaryOps[op]; ok {
 				compileRec(node.Left)
+				if isConst(node.Right) {
+					// IMM not defined for all binary ops for now
+					if instImm, ok := simpleBinaryOpsImm[op]; ok {
+						pos := getPosOfConstExpr(node.Right, &seen)
+						c.Bytecode.Push(Bytecode{
+							Inst: instImm,
+							Val:  pos,
+						})
+						break
+					} // else fallthrough
+				}
 				compileRec(node.Right)
 				c.Bytecode.Push(Bytecode{Inst: inst})
 			} else {
@@ -281,10 +268,56 @@ var simpleBinaryOps = map[string]Instruction{
 	"!=": OpNe,
 }
 
+var simpleBinaryOpsImm = map[string]Instruction{
+	"+":  OpAddImm,
+	"-":  OpMinusImm,
+	"*":  OpMulImm,
+	"/":  OpDivImm,
+	"//": OpFloorDivImm,
+	"%":  OpModImm,
+	// "**": OpPow,
+	// "<":  OpLt,
+	// ">":  OpGt,
+	// ">=": OpGe,
+	// "<=": OpLe,
+	// "==": OpEq,
+	// "!=": OpNe,
+}
+
 var unaryOps = map[string]Instruction{
 	"+":   OpUnaryPlus,
 	"-":   OpUnaryMinus,
 	"not": OpUnaryNot,
+}
+
+// Helper to get the position of a const in the constant table, or add it.
+func getPosOfConstExpr(expr Expr, seen *seenConstants) int {
+	var pos int
+	switch node := expr.(type) {
+	case *EValue:
+		panic("No more EValues at this point")
+	case *EInt:
+		val := int64(*node)
+		pos = seen.AddInt(val)
+	case *EFloat:
+		val := float64(*node)
+		pos = seen.AddFloat(val)
+	case *EStr:
+		val := string(*node)
+		pos = seen.AddStr(val)
+	case *EIdent:
+		val := string(*node)
+		pos = seen.AddStr(val)
+	case *EBool:
+		val := bool(*node)
+		pos = falseConstPos
+		if val {
+			pos = trueConstPos
+		}
+	default:
+		panic("Expr is not const but asked to get pos of const. Check isConst() first.")
+	}
+	return pos
 }
 
 // represents the result of compiling an AST

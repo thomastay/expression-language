@@ -186,6 +186,16 @@ InstLoop:
 				return Result{}, err
 			}
 			stack.push(result)
+		case OpModImm:
+			a := stack.pop()
+			pos := codes.IntData[pc]
+			// lookup from constant table
+			b := compilation.Constants[pos]
+			result, err := runtime.Modulo(a, b)
+			if err != nil {
+				return Result{}, err
+			}
+			stack.push(result)
 		case OpPow:
 			b := stack.pop()
 			a := stack.pop()
