@@ -60,7 +60,7 @@ func (vm *VMState) Eval(compilation compiler.Compilation, env VMEnv) (Result, er
 	if variables == nil {
 		variables = make(VMEnv)
 	}
-	stack := make(Stack, 0, 64) // preallocate some space for items
+	stack := make(Stack, 0, 4) // preallocate some space for items
 	codes := compilation.Bytecode
 	if vm.params.Debug {
 		fmt.Println("Constant table:")
