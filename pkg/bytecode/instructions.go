@@ -36,6 +36,7 @@ const (
 	OpMulImm
 	OpDivImm
 	OpFloorDivImm
+	OpModImm
 	// A binary operator, loads base.field
 	OpLoadAttr
 	// Return from a stack frame. Currently there arent any, so this just halts the VM

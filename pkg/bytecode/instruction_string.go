@@ -32,20 +32,21 @@ func _() {
 	_ = x[OpMulImm-21]
 	_ = x[OpDivImm-22]
 	_ = x[OpFloorDivImm-23]
-	_ = x[OpLoadAttr-24]
-	_ = x[OpReturn-25]
-	_ = x[OpCall-26]
-	_ = x[OpBr-27]
-	_ = x[OpBrIf-28]
-	_ = x[OpBrIfOrPop-29]
-	_ = x[OpBrIfFalseOrPop-30]
-	_ = x[OpNewArray-31]
-	_ = x[OpLoadSubscript-32]
+	_ = x[OpModImm-24]
+	_ = x[OpLoadAttr-25]
+	_ = x[OpReturn-26]
+	_ = x[OpCall-27]
+	_ = x[OpBr-28]
+	_ = x[OpBrIf-29]
+	_ = x[OpBrIfOrPop-30]
+	_ = x[OpBrIfFalseOrPop-31]
+	_ = x[OpNewArray-32]
+	_ = x[OpLoadSubscript-33]
 }
 
-const _Instruction_name = "OpConstOpLoadOpAddOpMinusOpMulOpDivOpFloorDivOpAndOpModOpPowOpLtOpGtOpGeOpLeOpEqOpNeOpUnaryNotOpUnaryPlusOpUnaryMinusOpAddImmOpMinusImmOpMulImmOpDivImmOpFloorDivImmOpLoadAttrOpReturnOpCallOpBrOpBrIfOpBrIfOrPopOpBrIfFalseOrPopOpNewArrayOpLoadSubscript"
+const _Instruction_name = "OpConstOpLoadOpAddOpMinusOpMulOpDivOpFloorDivOpAndOpModOpPowOpLtOpGtOpGeOpLeOpEqOpNeOpUnaryNotOpUnaryPlusOpUnaryMinusOpAddImmOpMinusImmOpMulImmOpDivImmOpFloorDivImmOpModImmOpLoadAttrOpReturnOpCallOpBrOpBrIfOpBrIfOrPopOpBrIfFalseOrPopOpNewArrayOpLoadSubscript"
 
-var _Instruction_index = [...]uint8{0, 7, 13, 18, 25, 30, 35, 45, 50, 55, 60, 64, 68, 72, 76, 80, 84, 94, 105, 117, 125, 135, 143, 151, 164, 174, 182, 188, 192, 198, 209, 225, 235, 250}
+var _Instruction_index = [...]uint16{0, 7, 13, 18, 25, 30, 35, 45, 50, 55, 60, 64, 68, 72, 76, 80, 84, 94, 105, 117, 125, 135, 143, 151, 164, 172, 182, 190, 196, 200, 206, 217, 233, 243, 258}
 
 func (i Instruction) String() string {
 	if i >= Instruction(len(_Instruction_index)-1) {
