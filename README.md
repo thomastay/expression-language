@@ -113,3 +113,10 @@ After shrinking stack to 4 elements
 BenchmarkCollatz-4                 25077             42454 ns/op            9736 B/op        321 allocs/op
 BenchmarkCollatzRegular-4        3324724               326.2 ns/op             0 B/op          0 allocs/op
 ```
+
+After reusing stack
+
+```
+BenchmarkCollatz-4                 47052             30075 ns/op            1544 B/op        193 allocs/op
+BenchmarkCollatzRegular-4        3568460               288.6 ns/op             0 B/op          0 allocs/op
+```

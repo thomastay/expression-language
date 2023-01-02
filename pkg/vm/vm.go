@@ -26,13 +26,17 @@ func New(params Params) VMState {
 	if params.MaxMemory == 0 {
 		params.MaxMemory = defaultMaxMemory
 	}
-	return VMState{params: params}
+	return VMState{
+		params: params,
+		stack:  make(Stack, 0, 4), // preallocate some space for items
+	}
 }
 
 type VMEnv map[string]BVal
 
 type VMState struct {
 	params Params
+	stack  Stack
 }
 
 // Convenience method if you just want to evaluate a string. Concatenates all compile errors into one
@@ -60,7 +64,7 @@ func (vm *VMState) Eval(compilation compiler.Compilation, env VMEnv) (Result, er
 	if variables == nil {
 		variables = make(VMEnv)
 	}
-	stack := make(Stack, 0, 4) // preallocate some space for items
+	stack := vm.stack
 	codes := compilation.Bytecode
 	if vm.params.Debug {
 		fmt.Println("Constant table:")
@@ -394,7 +398,8 @@ InstLoop:
 		pc++
 	}
 	val := stack.pop()
-	// vm.stack = stack
+	stack.clear()
+	vm.stack = stack
 	return Result{Val: val}, nil
 }
 
@@ -418,6 +423,12 @@ func (stack *Stack) peek() (result BVal) {
 // Make sure inlined
 func (stack *Stack) push(x BVal) {
 	*stack = append(*stack, x)
+}
+
+// Make sure inlined
+func (stack *Stack) clear() {
+	// Make sure this doesn't set to nil. We want to set the length to 0 but keep the slice capacity so we can reuse it.
+	*stack = (*stack)[:0]
 }
 
 type Result struct {
