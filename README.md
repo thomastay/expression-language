@@ -66,7 +66,7 @@ See `vm_test.go`
 
 # Speed
 
-Roughly ~300-500x slower than native compiled code
+Roughly ~100x slower than native compiled code
 
 Before:
 
@@ -103,8 +103,13 @@ BenchmarkCollatzRegular-4        3923805               321.6 ns/op             0
 After immediate expressions
 
 ```
-pkg: github.com/thomastay/expression_language/pkg/vm
-cpu: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
 BenchmarkCollatz-4                 10000            117549 ns/op          132617 B/op        321 allocs/op
 BenchmarkCollatzRegular-4        3730506               315.6 ns/op             0 B/op          0 allocs/op
+```
+
+After shrinking stack to 4 elements
+
+```
+BenchmarkCollatz-4                 25077             42454 ns/op            9736 B/op        321 allocs/op
+BenchmarkCollatzRegular-4        3324724               326.2 ns/op             0 B/op          0 allocs/op
 ```
