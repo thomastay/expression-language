@@ -65,6 +65,11 @@ func (vm *VMState) Eval(compilation compiler.Compilation, env VMEnv) (Result, er
 		variables = make(VMEnv)
 	}
 	stack := vm.stack
+	defer func(stack Stack) {
+		stack.clear()
+		vm.stack = stack
+	}(stack)
+
 	codes := compilation.Bytecode
 	if vm.params.Debug {
 		fmt.Println("Constant table:")
@@ -398,8 +403,6 @@ InstLoop:
 		pc++
 	}
 	val := stack.pop()
-	stack.clear()
-	vm.stack = stack
 	return Result{Val: val}, nil
 }
 
